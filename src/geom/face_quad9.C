@@ -383,6 +383,10 @@ unsigned int Quad9::n_second_order_adjacent_vertices (const unsigned int n) cons
 {
   switch (n)
     {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
     case 4:
     case 5:
     case 6:
@@ -390,7 +394,7 @@ unsigned int Quad9::n_second_order_adjacent_vertices (const unsigned int n) cons
       return 2;
 
     case 8:
-      return 4;
+      return 0;
 
     default:
       libmesh_error_msg("Invalid n = " << n);
@@ -405,7 +409,6 @@ unsigned int Quad9::n_second_order_adjacent_vertices (const unsigned int n) cons
 unsigned short int Quad9::second_order_adjacent_vertex (const unsigned int n,
                                                         const unsigned int v) const
 {
-  libmesh_assert_greater_equal (n, this->n_vertices());
   libmesh_assert_less (n, this->n_nodes());
 
   switch (n)
@@ -419,8 +422,8 @@ unsigned short int Quad9::second_order_adjacent_vertex (const unsigned int n,
     default:
       {
         libmesh_assert_less (v, 2);
-        // use the matrix that we inherited from \p Quad
-        return _second_order_adjacent_vertices[n-this->n_vertices()][v];
+        // use the table defined in \p Quad
+        return _second_order_adjacent_vertices[n][v];
       }
     }
 }

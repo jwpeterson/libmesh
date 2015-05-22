@@ -399,11 +399,10 @@ void Quad8::connectivity(const unsigned int sf,
 unsigned short int Quad8::second_order_adjacent_vertex (const unsigned int n,
                                                         const unsigned int v) const
 {
-  libmesh_assert_greater_equal (n, this->n_vertices());
   libmesh_assert_less (n, this->n_nodes());
   libmesh_assert_less (v, 2);
-  // use the matrix from \p face_quad.C
-  return _second_order_adjacent_vertices[n-this->n_vertices()][v];
+  // uses the table in face_quad.C
+  return _second_order_adjacent_vertices[n][v];
 }
 
 

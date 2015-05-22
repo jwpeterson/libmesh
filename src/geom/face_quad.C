@@ -301,8 +301,12 @@ std::pair<Real, Real> Quad::qual_bounds (const ElemQuality q) const
 
 
 
-const unsigned short int Quad::_second_order_adjacent_vertices[4][2] =
+const unsigned short int Quad::_second_order_adjacent_vertices[8][2] =
   {
+    {4, 7}, // vertices adjacent to node 0
+    {4, 5}, // vertices adjacent to node 1
+    {5, 6}, // vertices adjacent to node 2
+    {6, 7}, // vertices adjacent to node 3
     {0, 1}, // vertices adjacent to node 4
     {1, 2}, // vertices adjacent to node 5
     {2, 3}, // vertices adjacent to node 6

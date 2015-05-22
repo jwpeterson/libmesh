@@ -156,12 +156,12 @@ protected:
   Elem* _elemlinks_data[5+(LIBMESH_DIM>2)];
 
   /**
-   * Matrix that tells which vertices define the location
-   * of mid-side (or second-order) nodes.  Since most
-   * second-order nodes are identical for \p Quad8 and \p Quad9,
-   * we keep this matrix here in \p Quad
+   * Table that tells, for each local node id, which other local nodes
+   * are connected to it by an edge.  Since both Quad8 and Quad9 are
+   * identical we keep this table here in \p Quad.  There are no
+   * entries for the mid-face node of the Quad9.
    */
-  static const unsigned short int _second_order_adjacent_vertices[4][2];
+  static const unsigned short int _second_order_adjacent_vertices[8][2];
 
   /**
    * Vector that names a child sharing each second order node.
