@@ -52,6 +52,7 @@
 #include "libmesh/utility.h"
 #include "libmesh/dirichlet_boundaries.h"
 #include "libmesh/zero_function.h"
+#include "libmesh/const_function.h"
 
 // For systems of equations the DenseSubMatrix
 // and DenseSubVector provide convenient ways for
@@ -146,8 +147,9 @@ int main (int argc, char ** argv)
     system.get_dof_map().add_dirichlet_boundary(dirichlet_bc);
   }
   {
-    // u=0 on left
+    // u=0 on left and top
     std::set<boundary_id_type> boundary_ids;
+    boundary_ids.insert(2);
     boundary_ids.insert(3);
     std::vector<unsigned int> variables;
     variables.push_back(u_var);
@@ -155,7 +157,16 @@ int main (int argc, char ** argv)
     DirichletBoundary dirichlet_bc(boundary_ids, variables, &zf);
     system.get_dof_map().add_dirichlet_boundary(dirichlet_bc);
   }
-
+  {
+    // v=-1 on top
+    std::set<boundary_id_type> boundary_ids;
+    boundary_ids.insert(2);
+    std::vector<unsigned int> variables;
+    variables.push_back(v_var);
+    ConstFunction<Number> minus_one(-1);
+    DirichletBoundary dirichlet_bc(boundary_ids, variables, &minus_one);
+    system.get_dof_map().add_dirichlet_boundary(dirichlet_bc);
+  }
 
   // Initialize the data structures for the equation system.
   equation_systems.init ();
@@ -665,10 +676,10 @@ void assemble_stokes (EquationSystems & es,
 //                      no_slip = true;
 //                      break;
 //                      // top
-                    case 2:
-                      v_value = -1;
-                      no_slip = true;
-                      break;
+//                    case 2:
+//                      v_value = -1;
+//                      no_slip = true;
+//                      break;
                       // left
 //                    case 3:
 //                      no_slip = true;
