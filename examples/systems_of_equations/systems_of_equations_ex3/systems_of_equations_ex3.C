@@ -595,6 +595,9 @@ void assemble_stokes (EquationSystems & es,
       // the matrix resulting from the L2 projection penalty
       // approach introduced in example 3.
       {
+        // Catch the boundary ids for sides handed back by the BoundaryInfo object
+        std::vector<boundary_id_type> ids;
+
         // The penalty value.  \f$ \frac{1}{\epsilon} \f$
         const Real penalty = 1.e10;
 
@@ -616,28 +619,50 @@ void assemble_stokes (EquationSystems & es,
                   // 2=top
                   // 3=left
 
-                  // Set u = 1 on the top boundary, 0 everywhere else
-                  const Real u_value =
-                    (mesh.get_boundary_info().has_boundary_id(elem, s, 2))
-                    ? 1. : 0.;
+                  bool no_slip = false;
+                  Real u_value = 0., v_value = 0.;
 
-                  // Set v = 0 everywhere
-                  const Real v_value = 0.;
+                  // Get all the boundary ids for this side
+                  mesh.get_boundary_info().boundary_ids(elem, s, ids);
 
-                  // Find the node on the element matching this node on
-                  // the side.  That defined where in the element matrix
-                  // the boundary condition will be applied.
-                  for (unsigned int n=0; n<elem->n_nodes(); n++)
-                    if (elem->node_id(n) == side->node_id(ns))
-                      {
-                        // Matrix contribution.
-                        Kuu(n,n) += penalty;
-                        Kvv(n,n) += penalty;
+                  // In this problem, there must only be exactly one ID for each side.
+                  if (ids.size() != 1)
+                    libmesh_error_msg("Not sure how to handle zero or multiple ids per side!");
 
-                        // Right-hand-side contribution.
-                        Fu(n) += penalty*u_value;
-                        Fv(n) += penalty*v_value;
-                      }
+                  switch (ids[0])
+                    {
+                      // bottom
+                    case 0:
+                      no_slip = true;
+                      break;
+                      // top
+                    case 2:
+                      v_value = -1;
+                      no_slip = true;
+                      break;
+                      // left
+                    case 3:
+                      no_slip = true;
+                      break;
+                    }
+
+                  if (no_slip)
+                    {
+                      // Find the node on the element matching this node on
+                      // the side.  That defined where in the element matrix
+                      // the boundary condition will be applied.
+                      for (unsigned int n=0; n<elem->n_nodes(); n++)
+                        if (elem->node_id(n) == side->node_id(ns))
+                          {
+                            // Matrix contribution.
+                            Kuu(n,n) += penalty;
+                            Kvv(n,n) += penalty;
+
+                            // Right-hand-side contribution.
+                            Fu(n) += penalty*u_value;
+                            Fv(n) += penalty*v_value;
+                          }
+                    } // if (no_slip)
                 } // end face node loop
             } // end if (elem->neighbor(side) == libmesh_nullptr)
       } // end boundary condition section
