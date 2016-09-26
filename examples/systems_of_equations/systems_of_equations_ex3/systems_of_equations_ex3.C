@@ -113,10 +113,10 @@ int main (int argc, char ** argv)
   TransientLinearImplicitSystem & system =
     equation_systems.add_system<TransientLinearImplicitSystem> ("Navier-Stokes");
 
-  // Add the variables "u" & "v" to "Navier-Stokes".  They
+  // Add the variables "vel_x" & "vel_y" to "Navier-Stokes".  They
   // will be approximated using second-order approximation.
-  unsigned int u_var = system.add_variable ("u", SECOND);
-  unsigned int v_var = system.add_variable ("v", SECOND);
+  unsigned int u_var = system.add_variable ("vel_x", SECOND);
+  unsigned int v_var = system.add_variable ("vel_y", SECOND);
 
   // Add the variable "p" to "Navier-Stokes". This will
   // be approximated with a first-order basis,
@@ -342,13 +342,13 @@ void assemble_stokes (EquationSystems & es,
     es.get_system<TransientLinearImplicitSystem> ("Navier-Stokes");
 
   // Numeric ids corresponding to each variable in the system
-  const unsigned int u_var = navier_stokes_system.variable_number ("u");
-  const unsigned int v_var = navier_stokes_system.variable_number ("v");
+  const unsigned int u_var = navier_stokes_system.variable_number ("vel_x");
+  const unsigned int v_var = navier_stokes_system.variable_number ("vel_y");
   const unsigned int p_var = navier_stokes_system.variable_number ("p");
   const unsigned int alpha_var = navier_stokes_system.variable_number ("alpha");
 
-  // Get the Finite Element type for "u".  Note this will be
-  // the same as the type for "v".
+  // Get the Finite Element type for "vel_x".  Note this will be
+  // the same as the type for "vel_y".
   FEType fe_vel_type = navier_stokes_system.variable_type(u_var);
 
   // Get the Finite Element type for "p".
