@@ -132,15 +132,30 @@ int main (int argc, char ** argv)
 
   // Set u=v=0 on the bottom.  This replaces the use of "penalty" type
   // boundary conditions.  This has to be done before
-  // EquationSystems::init().
-  std::set<boundary_id_type> boundary_ids;
-  boundary_ids.insert(0); // bottom
-  std::vector<unsigned int> variables;
-  variables.push_back(u_var);
-  variables.push_back(v_var);
-  ZeroFunction<Number> zf;
-  DirichletBoundary dirichlet_bc(boundary_ids, variables, &zf);
-  system.get_dof_map().add_dirichlet_boundary(dirichlet_bc);
+  // EquationSystems::init(). The DofMap makes a copy of these, so we
+  // can let them go out of scope after adding them to the System.
+  {
+    // u=v=0 on bottom
+    std::set<boundary_id_type> boundary_ids;
+    boundary_ids.insert(0);
+    std::vector<unsigned int> variables;
+    variables.push_back(u_var);
+    variables.push_back(v_var);
+    ZeroFunction<Number> zf;
+    DirichletBoundary dirichlet_bc(boundary_ids, variables, &zf);
+    system.get_dof_map().add_dirichlet_boundary(dirichlet_bc);
+  }
+  {
+    // u=0 on left
+    std::set<boundary_id_type> boundary_ids;
+    boundary_ids.insert(3);
+    std::vector<unsigned int> variables;
+    variables.push_back(u_var);
+    ZeroFunction<Number> zf;
+    DirichletBoundary dirichlet_bc(boundary_ids, variables, &zf);
+    system.get_dof_map().add_dirichlet_boundary(dirichlet_bc);
+  }
+
 
   // Initialize the data structures for the equation system.
   equation_systems.init ();
@@ -655,9 +670,9 @@ void assemble_stokes (EquationSystems & es,
                       no_slip = true;
                       break;
                       // left
-                    case 3:
-                      no_slip = true;
-                      break;
+//                    case 3:
+//                      no_slip = true;
+//                      break;
                     }
 
                   if (no_slip)
