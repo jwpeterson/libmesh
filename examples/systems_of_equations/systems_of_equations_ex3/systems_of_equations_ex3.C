@@ -50,6 +50,8 @@
 #include "libmesh/perf_log.h"
 #include "libmesh/boundary_info.h"
 #include "libmesh/utility.h"
+#include "libmesh/dirichlet_boundaries.h"
+#include "libmesh/zero_function.h"
 
 // For systems of equations the DenseSubMatrix
 // and DenseSubVector provide convenient ways for
@@ -112,8 +114,8 @@ int main (int argc, char ** argv)
 
   // Add the variables "u" & "v" to "Navier-Stokes".  They
   // will be approximated using second-order approximation.
-  system.add_variable ("u", SECOND);
-  system.add_variable ("v", SECOND);
+  unsigned int u_var = system.add_variable ("u", SECOND);
+  unsigned int v_var = system.add_variable ("v", SECOND);
 
   // Add the variable "p" to "Navier-Stokes". This will
   // be approximated with a first-order basis,
@@ -127,6 +129,18 @@ int main (int argc, char ** argv)
   // Give the system a pointer to the matrix assembly
   // function.
   system.attach_assemble_function (assemble_stokes);
+
+  // Set u=v=0 on the bottom.  This replaces the use of "penalty" type
+  // boundary conditions.  This has to be done before
+  // EquationSystems::init().
+  std::set<boundary_id_type> boundary_ids;
+  boundary_ids.insert(0); // bottom
+  std::vector<unsigned int> variables;
+  variables.push_back(u_var);
+  variables.push_back(v_var);
+  ZeroFunction<Number> zf;
+  DirichletBoundary dirichlet_bc(boundary_ids, variables, &zf);
+  system.get_dof_map().add_dirichlet_boundary(dirichlet_bc);
 
   // Initialize the data structures for the equation system.
   equation_systems.init ();
@@ -632,10 +646,10 @@ void assemble_stokes (EquationSystems & es,
                   switch (ids[0])
                     {
                       // bottom
-                    case 0:
-                      no_slip = true;
-                      break;
-                      // top
+//                    case 0:
+//                      no_slip = true;
+//                      break;
+//                      // top
                     case 2:
                       v_value = -1;
                       no_slip = true;
