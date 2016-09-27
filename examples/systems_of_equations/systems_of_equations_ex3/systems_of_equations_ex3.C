@@ -207,6 +207,9 @@ int main (int argc, char ** argv)
   UniquePtr<NumericVector<Number> >
     last_nonlinear_soln (navier_stokes_system.solution->clone());
 
+  // Debugging: print what constraints are active.
+  // system.get_dof_map().print_dof_constraints();
+
   for (unsigned int t_step=0; t_step<n_timesteps; ++t_step)
     {
       // Debugging: does calling reinit_constraints properly set
