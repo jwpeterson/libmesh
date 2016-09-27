@@ -30,6 +30,7 @@
 #include <iostream>
 #include <algorithm>
 #include <sstream>
+#include <fstream>
 #include <math.h>
 
 // Basic include file needed for the mesh functionality.
@@ -74,7 +75,8 @@ void assemble_stokes (EquationSystems & es,
 
 // Obtain postprocessed information, e.g. wall pressure etc. from the solution.
 void postprocess(EquationSystems & es,
-                 const std::string & system_name);
+                 const std::string & system_name,
+                 unsigned int t_step);
 
 // The main program.
 int main (int argc, char ** argv)
@@ -315,8 +317,6 @@ int main (int argc, char ** argv)
 
       if ((t_step+1)%write_interval == 0)
         {
-          std::ostringstream file_name;
-
           exo_io.write_timestep("out.e",
                                 equation_systems,
                                 t_step+1, // we're off by one since we wrote the IC and the Exodus numbering is 1-based.
@@ -325,7 +325,7 @@ int main (int argc, char ** argv)
 #endif // #ifdef LIBMESH_HAVE_EXODUS_API
 
       // Postprocess the solution to compute desired pressure, velocity, etc. values
-      postprocess(equation_systems, "Navier-Stokes");
+      postprocess(equation_systems, "Navier-Stokes", t_step);
     } // end timestep loop.
 
   // All done.
@@ -660,7 +660,8 @@ void assemble_stokes (EquationSystems & es,
 
 
 void postprocess(EquationSystems & es,
-                 const std::string & libmesh_dbg_var(system_name))
+                 const std::string & libmesh_dbg_var(system_name),
+                 unsigned int t_step)
 {
   // It is a good idea to make sure we are assembling
   // the proper system.
@@ -803,7 +804,7 @@ void postprocess(EquationSystems & es,
             // If this is the wall, (boundary id=0) do some extra postprocessing.
             if (ids[0] == 0)
               {
-                libMesh::out << "Element " << elem->id() << " is on the wall." << std::endl;
+                // libMesh::out << "Element " << elem->id() << " is on the wall." << std::endl;
 
                 UniquePtr<const Elem> side (elem->build_side_ptr(s));
 
@@ -813,7 +814,7 @@ void postprocess(EquationSystems & es,
                 // Print (p, x) values.  The assumption here is that
                 // the dofs are in the same order as the local node,
                 // i.e. basis function, ordering of the element.
-                libMesh::out << "Wall pressure dofs are:" << std::endl;
+                // libMesh::out << "Wall pressure dofs are:" << std::endl;
                 for (unsigned pdof=0; pdof<dof_indices_p.size(); ++pdof)
                   {
                     // Try to insert this dof.  If it gets inserted, we don't have it yet.
@@ -878,10 +879,21 @@ void postprocess(EquationSystems & es,
 //        } // end of the quadrature point qp-loop
     } // end of element loop
 
+  // Write data to a CSV file.
+  std::ostringstream file_name;
+  file_name << "out_"
+            << std::setw(3)
+            << std::setfill('0')
+            << std::right
+            << t_step
+            << ".csv";
+
+  std::ofstream csv_file(file_name.str().c_str());
+
   // Print (x,p) results.  Because of the way GeneratedMesh is
   // numbered, it turns out these are already in order, otherwise we
   // would have to indirect sort them before writing them to file.
   for (unsigned int i=0; i<x.size(); ++i)
-    libMesh::out << x[i] << "," << p[i] << std::endl;
+    csv_file << std::setprecision(16) << std::scientific << x[i] << "," << p[i] << std::endl;
 
 }
