@@ -696,10 +696,15 @@ void postprocess(EquationSystems & es,
   // Build a Finite Element object of the specified type for
   // the pressure variables.
   UniquePtr<FEBase> fe_pres (FEBase::build(dim, fe_pres_type));
+  // UniquePtr<FEBase> fe_pres_face (FEBase::build(dim, fe_pres_type));
 
   // A Gauss quadrature rule for numerical integration.
   // Let the FEType object decide what order rule is appropriate.
   QGauss qrule (dim, fe_vel_type.default_quadrature_order());
+
+  // This quadrature rule *could* be used to integrate (or even get
+  // nodal values of) the pressure on the boundary.
+  // QTrap qface (dim-1, fe_pres_type.default_quadrature_order());
 
   // Tell the finite element objects to use our quadrature rule.
   fe_vel->attach_quadrature_rule (&qrule);
@@ -791,8 +796,19 @@ void postprocess(EquationSystems & es,
             // If this is the wall, (boundary id=0) do some extra postprocessing.
             if (ids[0] == 0)
               {
-                // UniquePtr<const Elem> side (elem->build_side_ptr(s));
                 libMesh::out << "Element " << elem->id() << " is on the wall." << std::endl;
+
+                UniquePtr<const Elem> side (elem->build_side_ptr(s));
+
+                // Get the pressure DOF indices for the side
+                dof_map.dof_indices(side.get(), dof_indices_p, p_var);
+
+                libMesh::out << "Wall pressure dofs are:" << std::endl;
+                for (unsigned pdof=0; pdof<dof_indices_p.size(); ++pdof)
+                  {
+                    libMesh::out << "dof = " << dof_indices_p[pdof]
+                                 << ", value = " << navier_stokes_system.current_solution(dof_indices_p[pdof]) << std::endl;
+                  }
               }
           } // end if (elem->neighbor(side) == libmesh_nullptr)
 
