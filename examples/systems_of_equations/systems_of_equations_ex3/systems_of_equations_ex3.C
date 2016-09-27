@@ -712,15 +712,15 @@ void postprocess(EquationSystems & es,
   // const std::vector<Real> & JxW = fe_vel->get_JxW();
 
   // The element shape functions evaluated at the quadrature points.
-  const std::vector<std::vector<Real> > & phi = fe_vel->get_phi();
+  // const std::vector<std::vector<Real> > & phi = fe_vel->get_phi();
 
   // The element shape function gradients for the velocity
   // variables evaluated at the quadrature points.
-  const std::vector<std::vector<RealGradient> > & dphi = fe_vel->get_dphi();
+  // const std::vector<std::vector<RealGradient> > & dphi = fe_vel->get_dphi();
 
   // The element shape functions for the pressure variable
   // evaluated at the quadrature points.
-  const std::vector<std::vector<Real> > & psi = fe_pres->get_phi();
+  // const std::vector<std::vector<Real> > & psi = fe_pres->get_phi();
 
   // The value of the linear shape function gradients at the quadrature points
   // const std::vector<std::vector<RealGradient> > & dpsi = fe_pres->get_dphi();
@@ -748,6 +748,9 @@ void postprocess(EquationSystems & es,
   MeshBase::const_element_iterator       el     = mesh.active_local_elements_begin();
   const MeshBase::const_element_iterator end_el = mesh.active_local_elements_end();
 
+  // Vector to catch ids handed back by the BoundaryInfo object.
+  std::vector<boundary_id_type> ids;
+
   for ( ; el != end_el; ++el)
     {
       // Store a pointer to the element we are currently
@@ -765,9 +768,9 @@ void postprocess(EquationSystems & es,
       dof_map.dof_indices (elem, dof_indices_alpha, alpha_var);
 
       // const unsigned int n_dofs   = dof_indices.size();
-      const unsigned int n_u_dofs = dof_indices_u.size();
+      // const unsigned int n_u_dofs = dof_indices_u.size();
       // const unsigned int n_v_dofs = dof_indices_v.size();
-      const unsigned int n_p_dofs = dof_indices_p.size();
+      // const unsigned int n_p_dofs = dof_indices_p.size();
 
       // Compute the element-specific data for the current
       // element.  This involves computing the location of the
@@ -776,42 +779,59 @@ void postprocess(EquationSystems & es,
       fe_vel->reinit  (elem);
       fe_pres->reinit (elem);
 
+      for (unsigned int s=0; s<elem->n_sides(); s++)
+        if (elem->neighbor_ptr(s) == libmesh_nullptr)
+          {
+            // Get all the boundary ids for this side
+            mesh.get_boundary_info().boundary_ids(elem, s, ids);
+
+            if (ids.size() != 1)
+              libmesh_error_msg("Not sure how to handle zero or multiple ids per side!");
+
+            // If this is the wall, (boundary id=0) do some extra postprocessing.
+            if (ids[0] == 0)
+              {
+                // UniquePtr<const Elem> side (elem->build_side_ptr(s));
+                libMesh::out << "Element " << elem->id() << " is on the wall." << std::endl;
+              }
+          } // end if (elem->neighbor(side) == libmesh_nullptr)
+
       // Loop over quadrature points, compute integrated quantities
-      for (unsigned int qp=0; qp<qrule.n_points(); qp++)
-        {
-          // Values to hold the solution & its gradient at the previous timestep.
-          Number u = 0., u_old = 0.;
-          Number v = 0., v_old = 0.;
-          Number p = 0., p_old = 0.;
-          Gradient grad_u, grad_u_old;
-          Gradient grad_v, grad_v_old;
-
-          // Compute the velocity & its gradient from the previous timestep
-          // and the old Newton iterate.
-          for (unsigned int l=0; l<n_u_dofs; l++)
-            {
-              // From the old timestep:
-              u_old += phi[l][qp]*navier_stokes_system.old_solution (dof_indices_u[l]);
-              v_old += phi[l][qp]*navier_stokes_system.old_solution (dof_indices_v[l]);
-              grad_u_old.add_scaled (dphi[l][qp], navier_stokes_system.old_solution (dof_indices_u[l]));
-              grad_v_old.add_scaled (dphi[l][qp], navier_stokes_system.old_solution (dof_indices_v[l]));
-
-              // From the previous Newton iterate:
-              u += phi[l][qp]*navier_stokes_system.current_solution (dof_indices_u[l]);
-              v += phi[l][qp]*navier_stokes_system.current_solution (dof_indices_v[l]);
-              grad_u.add_scaled (dphi[l][qp], navier_stokes_system.current_solution (dof_indices_u[l]));
-              grad_v.add_scaled (dphi[l][qp], navier_stokes_system.current_solution (dof_indices_v[l]));
-            }
-
-          // Compute the old pressure value at this quadrature point.
-          for (unsigned int l=0; l<n_p_dofs; l++)
-            {
-              p += psi[l][qp]*navier_stokes_system.current_solution (dof_indices_p[l]);
-              p_old += psi[l][qp]*navier_stokes_system.old_solution (dof_indices_p[l]);
-            }
-
-          // Print the pressure at this quadrature point.
-          // libMesh::out << "p[" << qp << "]=" << p << std::endl;
-        } // end of the quadrature point qp-loop
+//      for (unsigned int qp=0; qp<qrule.n_points(); qp++)
+//        {
+//          // Values to hold the solution & its gradient at the previous timestep.
+//          Number u = 0., u_old = 0.;
+//          Number v = 0., v_old = 0.;
+//          Number p = 0., p_old = 0.;
+//          Gradient grad_u, grad_u_old;
+//          Gradient grad_v, grad_v_old;
+//
+//          // Compute the velocity & its gradient from the previous timestep
+//          // and the old Newton iterate.
+//          for (unsigned int l=0; l<n_u_dofs; l++)
+//            {
+//              // From the old timestep:
+//              u_old += phi[l][qp]*navier_stokes_system.old_solution (dof_indices_u[l]);
+//              v_old += phi[l][qp]*navier_stokes_system.old_solution (dof_indices_v[l]);
+//              grad_u_old.add_scaled (dphi[l][qp], navier_stokes_system.old_solution (dof_indices_u[l]));
+//              grad_v_old.add_scaled (dphi[l][qp], navier_stokes_system.old_solution (dof_indices_v[l]));
+//
+//              // From the previous Newton iterate:
+//              u += phi[l][qp]*navier_stokes_system.current_solution (dof_indices_u[l]);
+//              v += phi[l][qp]*navier_stokes_system.current_solution (dof_indices_v[l]);
+//              grad_u.add_scaled (dphi[l][qp], navier_stokes_system.current_solution (dof_indices_u[l]));
+//              grad_v.add_scaled (dphi[l][qp], navier_stokes_system.current_solution (dof_indices_v[l]));
+//            }
+//
+//          // Compute the old pressure value at this quadrature point.
+//          for (unsigned int l=0; l<n_p_dofs; l++)
+//            {
+//              p += psi[l][qp]*navier_stokes_system.current_solution (dof_indices_p[l]);
+//              p_old += psi[l][qp]*navier_stokes_system.old_solution (dof_indices_p[l]);
+//            }
+//
+//          // Print the pressure at this quadrature point.
+//          // libMesh::out << "p[" << qp << "]=" << p << std::endl;
+//        } // end of the quadrature point qp-loop
     } // end of element loop
 }
