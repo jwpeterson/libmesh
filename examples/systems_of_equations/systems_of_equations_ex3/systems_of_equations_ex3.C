@@ -756,6 +756,13 @@ void postprocess(EquationSystems & es,
   // Vector to catch ids handed back by the BoundaryInfo object.
   std::vector<boundary_id_type> ids;
 
+  // A vector of x-values and pressure values to report.  We want this
+  // to be sorted with duplicates removed, so we also keep track of
+  // the dofs and don't repeat values.  This does not yet work in
+  // parallel...
+  std::set<dof_id_type> wall_dofs;
+  std::vector<Real> x, p;
+
   for ( ; el != end_el; ++el)
     {
       // Store a pointer to the element we are currently
@@ -809,9 +816,25 @@ void postprocess(EquationSystems & es,
                 libMesh::out << "Wall pressure dofs are:" << std::endl;
                 for (unsigned pdof=0; pdof<dof_indices_p.size(); ++pdof)
                   {
-                    libMesh::out << "dof = " << dof_indices_p[pdof]
-                                 << ", x = " << side->point(pdof)(0)
-                                 << ", value = " << navier_stokes_system.current_solution(dof_indices_p[pdof]) << std::endl;
+                    // Try to insert this dof.  If it gets inserted, we don't have it yet.
+                    std::pair<std::set<dof_id_type>::iterator, bool> insert_result =
+                      wall_dofs.insert(dof_indices_p[pdof]);
+
+                    // Only print if we don't have this dof yet.
+                    if (insert_result.second)
+                      {
+                        Real
+                          current_x = side->point(pdof)(0),
+                          current_p = navier_stokes_system.current_solution(dof_indices_p[pdof]);
+
+                        x.push_back(current_x);
+                        p.push_back(current_p);
+
+                        // libMesh::out << "dof = " << dof_indices_p[pdof]
+                        //              << ", x = " << current_x
+                        //              << ", value = " << current_p
+                        //              << std::endl;
+                      }
                   }
               }
           } // end if (elem->neighbor(side) == libmesh_nullptr)
@@ -854,4 +877,11 @@ void postprocess(EquationSystems & es,
 //          // libMesh::out << "p[" << qp << "]=" << p << std::endl;
 //        } // end of the quadrature point qp-loop
     } // end of element loop
+
+  // Print (x,p) results.  Because of the way GeneratedMesh is
+  // numbered, it turns out these are already in order, otherwise we
+  // would have to indirect sort them before writing them to file.
+  for (unsigned int i=0; i<x.size(); ++i)
+    libMesh::out << x[i] << "," << p[i] << std::endl;
+
 }
