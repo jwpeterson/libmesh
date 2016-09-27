@@ -879,6 +879,35 @@ void postprocess(EquationSystems & es,
 //        } // end of the quadrature point qp-loop
     } // end of element loop
 
+  // Compute the "reduced" pressure, p-p[0]. Because of the way
+  // GeneratedMesh is numbered, it turns out the pressure values are
+  // already in order of increasing x, otherwise we would have to
+  // indirect sort them before writing them to file.
+  std::vector<Real> reduced_pressure(p.size());
+  for (unsigned int i=0; i<reduced_pressure.size(); ++i)
+    reduced_pressure[i] = p[i] - p[0];
+
+  // Compute the exact solution value of the reduced pressure,
+  // -0.5 * rho * K**2 * x**2,
+  // at each node.
+  //
+  // In this case, rho=1 and K is determined via the boundary
+  // conditions according to V = -2*K*y, so K=0.5 if the inlet
+  // velocity is -1 on the top of the unit square.  Note: this exact
+  // solution is only valid at steady state, so don't try to compare
+  // it with evolving transient solutions!
+  const Real K = 0.5;
+  const Real rho = 1.;
+  std::vector<Real> exact_reduced_pressure(p.size());
+  for (unsigned int i=0; i<exact_reduced_pressure.size(); ++i)
+    exact_reduced_pressure[i] = -0.5 * rho * (K * K) * (x[i] * x[i]);
+
+  // Compute the absolute value of the difference between the reduced
+  // pressure and the exact solution value at each node.
+  std::vector<Real> diff_reduced_pressure(p.size());
+  for (unsigned int i=0; i<diff_reduced_pressure.size(); ++i)
+    diff_reduced_pressure[i] = std::abs(reduced_pressure[i] - exact_reduced_pressure[i]);
+
   // Write data to a CSV file.
   std::ostringstream file_name;
   file_name << "out_"
@@ -890,10 +919,22 @@ void postprocess(EquationSystems & es,
 
   std::ofstream csv_file(file_name.str().c_str());
 
-  // Print (x,p) results.  Because of the way GeneratedMesh is
-  // numbered, it turns out these are already in order, otherwise we
-  // would have to indirect sort them before writing them to file.
+  // Write a comment line with the column names
+  csv_file << "#"
+           << std::setw(21) << "x"
+           << std::setw(23) << "p"
+           << std::setw(23) << "reduced_p"
+           << std::setw(23) << "exact_reduced_p"
+           << std::setw(23) << "diff_reduced_p"
+           << std::endl;
+
   for (unsigned int i=0; i<x.size(); ++i)
-    csv_file << std::setprecision(16) << std::scientific << x[i] << "," << p[i] << std::endl;
+    csv_file << std::setprecision(16) << std::scientific
+             << x[i] << ","
+             << p[i] << ","
+             << reduced_pressure[i] << ","
+             << exact_reduced_pressure[i] << ","
+             << diff_reduced_pressure[i]
+             << std::endl;
 
 }
