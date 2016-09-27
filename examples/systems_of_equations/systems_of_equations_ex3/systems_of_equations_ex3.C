@@ -210,7 +210,13 @@ int main (int argc, char ** argv)
   // Debugging: print what constraints are active.
   // system.get_dof_map().print_dof_constraints();
 
-  for (unsigned int t_step=0; t_step<n_timesteps; ++t_step)
+  // Since we are not doing adaptivity, write all solutions to a single Exodus file.
+  ExodusII_IO exo_io(mesh);
+
+  // Write out the initial condition
+  exo_io.write_equation_systems ("out.e", equation_systems);
+
+  for (unsigned int t_step=1; t_step<=n_timesteps; ++t_step)
     {
       // Debugging: does calling reinit_constraints properly set
       // inhomogenous BCs?  Tried this but did not seem to make any
@@ -307,16 +313,10 @@ int main (int argc, char ** argv)
         {
           std::ostringstream file_name;
 
-          // We write the file in the ExodusII format.
-          file_name << "out_"
-                    << std::setw(3)
-                    << std::setfill('0')
-                    << std::right
-                    << t_step + 1
-                    << ".e";
-
-          ExodusII_IO(mesh).write_equation_systems (file_name.str(),
-                                                    equation_systems);
+          exo_io.write_timestep("out.e",
+                                equation_systems,
+                                t_step+1, // we're off by one since we wrote the IC and the Exodus numbering is 1-based.
+                                navier_stokes_system.time);
         }
 #endif // #ifdef LIBMESH_HAVE_EXODUS_API
     } // end timestep loop.
