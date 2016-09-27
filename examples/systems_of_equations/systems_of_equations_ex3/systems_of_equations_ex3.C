@@ -163,7 +163,7 @@ int main (int argc, char ** argv)
     boundary_ids.insert(2);
     std::vector<unsigned int> variables;
     variables.push_back(v_var);
-    ConstFunction<Number> minus_one(-1);
+    ConstFunction<Number> minus_one(-1.);
     DirichletBoundary dirichlet_bc(boundary_ids, variables, &minus_one);
     system.get_dof_map().add_dirichlet_boundary(dirichlet_bc);
   }
