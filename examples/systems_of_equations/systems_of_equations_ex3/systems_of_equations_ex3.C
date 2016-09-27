@@ -803,10 +803,14 @@ void postprocess(EquationSystems & es,
                 // Get the pressure DOF indices for the side
                 dof_map.dof_indices(side.get(), dof_indices_p, p_var);
 
+                // Print (p, x) values.  The assumption here is that
+                // the dofs are in the same order as the local node,
+                // i.e. basis function, ordering of the element.
                 libMesh::out << "Wall pressure dofs are:" << std::endl;
                 for (unsigned pdof=0; pdof<dof_indices_p.size(); ++pdof)
                   {
                     libMesh::out << "dof = " << dof_indices_p[pdof]
+                                 << ", x = " << side->point(pdof)(0)
                                  << ", value = " << navier_stokes_system.current_solution(dof_indices_p[pdof]) << std::endl;
                   }
               }
