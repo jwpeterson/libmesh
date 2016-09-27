@@ -72,6 +72,10 @@ using namespace libMesh;
 void assemble_stokes (EquationSystems & es,
                       const std::string & system_name);
 
+// Obtain postprocessed information, e.g. wall pressure etc. from the solution.
+void postprocess(EquationSystems & es,
+                 const std::string & system_name);
+
 // The main program.
 int main (int argc, char ** argv)
 {
@@ -319,6 +323,9 @@ int main (int argc, char ** argv)
                                 navier_stokes_system.time);
         }
 #endif // #ifdef LIBMESH_HAVE_EXODUS_API
+
+      // Postprocess the solution to compute desired pressure, velocity, etc. values
+      postprocess(equation_systems, "Navier-Stokes");
     } // end timestep loop.
 
   // All done.
@@ -648,4 +655,163 @@ void assemble_stokes (EquationSystems & es,
 
   // We can set the mean of the pressure by setting Falpha
   navier_stokes_system.rhs->add(navier_stokes_system.rhs->size()-1, 10.);
+}
+
+
+
+void postprocess(EquationSystems & es,
+                 const std::string & libmesh_dbg_var(system_name))
+{
+  // It is a good idea to make sure we are assembling
+  // the proper system.
+  libmesh_assert_equal_to (system_name, "Navier-Stokes");
+
+  // Get a constant reference to the mesh object.
+  const MeshBase & mesh = es.get_mesh();
+
+  // The dimension that we are running
+  const unsigned int dim = mesh.mesh_dimension();
+
+  // Get a reference to the Stokes system object.
+  TransientLinearImplicitSystem & navier_stokes_system =
+    es.get_system<TransientLinearImplicitSystem> ("Navier-Stokes");
+
+  // Numeric ids corresponding to each variable in the system
+  const unsigned int u_var = navier_stokes_system.variable_number ("vel_x");
+  const unsigned int v_var = navier_stokes_system.variable_number ("vel_y");
+  const unsigned int p_var = navier_stokes_system.variable_number ("p");
+  const unsigned int alpha_var = navier_stokes_system.variable_number ("alpha");
+
+  // Get the Finite Element type for "vel_x".  Note this will be
+  // the same as the type for "vel_y".
+  FEType fe_vel_type = navier_stokes_system.variable_type(u_var);
+
+  // Get the Finite Element type for "p".
+  FEType fe_pres_type = navier_stokes_system.variable_type(p_var);
+
+  // Build a Finite Element object of the specified type for
+  // the velocity variables.
+  UniquePtr<FEBase> fe_vel  (FEBase::build(dim, fe_vel_type));
+
+  // Build a Finite Element object of the specified type for
+  // the pressure variables.
+  UniquePtr<FEBase> fe_pres (FEBase::build(dim, fe_pres_type));
+
+  // A Gauss quadrature rule for numerical integration.
+  // Let the FEType object decide what order rule is appropriate.
+  QGauss qrule (dim, fe_vel_type.default_quadrature_order());
+
+  // Tell the finite element objects to use our quadrature rule.
+  fe_vel->attach_quadrature_rule (&qrule);
+  fe_pres->attach_quadrature_rule (&qrule);
+
+  // Here we define some references to cell-specific data that
+  // will be used to assemble the linear system.
+  //
+  // The element Jacobian * quadrature weight at each integration point.
+  // const std::vector<Real> & JxW = fe_vel->get_JxW();
+
+  // The element shape functions evaluated at the quadrature points.
+  const std::vector<std::vector<Real> > & phi = fe_vel->get_phi();
+
+  // The element shape function gradients for the velocity
+  // variables evaluated at the quadrature points.
+  const std::vector<std::vector<RealGradient> > & dphi = fe_vel->get_dphi();
+
+  // The element shape functions for the pressure variable
+  // evaluated at the quadrature points.
+  const std::vector<std::vector<Real> > & psi = fe_pres->get_phi();
+
+  // The value of the linear shape function gradients at the quadrature points
+  // const std::vector<std::vector<RealGradient> > & dpsi = fe_pres->get_dphi();
+
+  // A reference to the DofMap object for this system.  The DofMap
+  // object handles the index translation from node and element numbers
+  // to degree of freedom numbers.  We will talk more about the DofMap
+  // in future examples.
+  const DofMap & dof_map = navier_stokes_system.get_dof_map();
+
+  // This vector will hold the degree of freedom indices for
+  // the element.  These define where in the global system
+  // the element degrees of freedom get mapped.
+  std::vector<dof_id_type> dof_indices;
+  std::vector<dof_id_type> dof_indices_u;
+  std::vector<dof_id_type> dof_indices_v;
+  std::vector<dof_id_type> dof_indices_p;
+  std::vector<dof_id_type> dof_indices_alpha;
+
+  // Now we will loop over all the elements in the mesh that
+  // live on the local processor. We will compute the element
+  // matrix and right-hand-side contribution.  Since the mesh
+  // will be refined we want to only consider the ACTIVE elements,
+  // hence we use a variant of the active_elem_iterator.
+  MeshBase::const_element_iterator       el     = mesh.active_local_elements_begin();
+  const MeshBase::const_element_iterator end_el = mesh.active_local_elements_end();
+
+  for ( ; el != end_el; ++el)
+    {
+      // Store a pointer to the element we are currently
+      // working on.  This allows for nicer syntax later.
+      const Elem * elem = *el;
+
+      // Get the degree of freedom indices for the
+      // current element.  These define where in the global
+      // matrix and right-hand-side this element will
+      // contribute to.
+      dof_map.dof_indices (elem, dof_indices);
+      dof_map.dof_indices (elem, dof_indices_u, u_var);
+      dof_map.dof_indices (elem, dof_indices_v, v_var);
+      dof_map.dof_indices (elem, dof_indices_p, p_var);
+      dof_map.dof_indices (elem, dof_indices_alpha, alpha_var);
+
+      // const unsigned int n_dofs   = dof_indices.size();
+      const unsigned int n_u_dofs = dof_indices_u.size();
+      // const unsigned int n_v_dofs = dof_indices_v.size();
+      const unsigned int n_p_dofs = dof_indices_p.size();
+
+      // Compute the element-specific data for the current
+      // element.  This involves computing the location of the
+      // quadrature points (q_point) and the shape functions
+      // (phi, dphi) for the current element.
+      fe_vel->reinit  (elem);
+      fe_pres->reinit (elem);
+
+      // Loop over quadrature points, compute integrated quantities
+      for (unsigned int qp=0; qp<qrule.n_points(); qp++)
+        {
+          // Values to hold the solution & its gradient at the previous timestep.
+          Number u = 0., u_old = 0.;
+          Number v = 0., v_old = 0.;
+          Number p = 0., p_old = 0.;
+          Gradient grad_u, grad_u_old;
+          Gradient grad_v, grad_v_old;
+
+          // Compute the velocity & its gradient from the previous timestep
+          // and the old Newton iterate.
+          for (unsigned int l=0; l<n_u_dofs; l++)
+            {
+              // From the old timestep:
+              u_old += phi[l][qp]*navier_stokes_system.old_solution (dof_indices_u[l]);
+              v_old += phi[l][qp]*navier_stokes_system.old_solution (dof_indices_v[l]);
+              grad_u_old.add_scaled (dphi[l][qp], navier_stokes_system.old_solution (dof_indices_u[l]));
+              grad_v_old.add_scaled (dphi[l][qp], navier_stokes_system.old_solution (dof_indices_v[l]));
+
+              // From the previous Newton iterate:
+              u += phi[l][qp]*navier_stokes_system.current_solution (dof_indices_u[l]);
+              v += phi[l][qp]*navier_stokes_system.current_solution (dof_indices_v[l]);
+              grad_u.add_scaled (dphi[l][qp], navier_stokes_system.current_solution (dof_indices_u[l]));
+              grad_v.add_scaled (dphi[l][qp], navier_stokes_system.current_solution (dof_indices_v[l]));
+            }
+
+          // Compute the old pressure value at this quadrature point.
+          for (unsigned int l=0; l<n_p_dofs; l++)
+            {
+              p += psi[l][qp]*navier_stokes_system.current_solution (dof_indices_p[l]);
+              p_old += psi[l][qp]*navier_stokes_system.old_solution (dof_indices_p[l]);
+            }
+
+          // Print the pressure at this quadrature point.
+          // libMesh::out << "p[" << qp << "]=" << p << std::endl;
+        } // end of the quadrature point qp-loop
+    } // end of element loop
 }
