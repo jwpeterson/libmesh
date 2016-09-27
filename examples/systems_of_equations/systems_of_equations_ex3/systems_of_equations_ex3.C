@@ -209,6 +209,11 @@ int main (int argc, char ** argv)
 
   for (unsigned int t_step=0; t_step<n_timesteps; ++t_step)
     {
+      // Debugging: does calling reinit_constraints properly set
+      // inhomogenous BCs?  Tried this but did not seem to make any
+      // difference.
+      // navier_stokes_system.reinit_constraints();
+
       // Incremenet the time counter, set the time and the
       // time step size as parameters in the EquationSystem.
       navier_stokes_system.time += dt;
