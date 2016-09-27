@@ -185,7 +185,7 @@ int main (int argc, char ** argv)
   // solution of the equations.
   const Real dt = 0.01;
   navier_stokes_system.time = 0.0;
-  const unsigned int n_timesteps = 15;
+  const unsigned int n_timesteps = 50;
 
   // The number of steps and the stopping criterion are also required
   // for the nonlinear iterations.
