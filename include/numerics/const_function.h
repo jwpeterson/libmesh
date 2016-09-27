@@ -42,16 +42,12 @@ public:
 
   virtual Output operator() (const Point &,
                              const Real = 0) libmesh_override
-  {
-    libMesh::out << "Called ConstFunction::operator(Point,Real)" << std::endl;
-    return _c;
-  }
+  { return _c; }
 
   virtual void operator() (const Point &,
                            const Real,
                            DenseVector<Output> & output) libmesh_override
   {
-    libMesh::out << "Called ConstFunction::operator(Point,Real,DenseVector)" << std::endl;
     unsigned int size = output.size();
     for (unsigned int i=0; i != size; ++i)
       output(i) = _c;
