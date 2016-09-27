@@ -633,9 +633,10 @@ void assemble_stokes (EquationSystems & es,
             }
         } // end of the quadrature point qp-loop
 
-      // If this assembly program were to be used on an adaptive mesh,
-      // we would have to apply any hanging node constraint equations
-      dof_map.constrain_element_matrix_and_vector (Ke, Fe, dof_indices);
+      // Since we're using heterogeneous DirichletBoundary objects for
+      // the boundary conditions, we need to call a specific function
+      // to constrain the element stiffness matrix.
+      dof_map.heterogenously_constrain_element_matrix_and_vector (Ke, Fe, dof_indices);
 
       // The element matrix and right-hand-side are now built
       // for this element.  Add them to the global matrix and
