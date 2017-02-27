@@ -971,7 +971,7 @@ void FEMap::compute_single_point_map(const unsigned int dim,
 
                       // Debugging:
                       libMesh::out << "d^2 (xi)  / d (xyz)^2[p=" << p << "][ctr=" << ctr << "]" << d2xidxyz2_map[p][ctr] << std::endl;
-                      libMesh::out << "d^2 (eta) / d (xyz)^2[p=" << p << "][ctr=" << ctr << "]" << d2xidxyz2_map[p][ctr] << std::endl;
+                      libMesh::out << "d^2 (eta) / d (xyz)^2[p=" << p << "][ctr=" << ctr << "]" << d2etadxyz2_map[p][ctr] << std::endl;
 
                       // The rhs is:
                       // [ x_{,xi xi} x_{,eta eta} ]   [ xi_{,s}  * xi_{,t}  ]   [ x_{,xi eta} ] ((xi_{,s} * eta_{,t}) + (eta_{,s} * xi_{,t}))
