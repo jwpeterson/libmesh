@@ -995,6 +995,10 @@ void FEMap::compute_single_point_map(const unsigned int dim,
                       libMesh::out << "SVD: d^2 (xi)  / d (xyz)^2[p=" << p << "][ctr=" << ctr << "] = " << -x(0) << std::endl;
                       libMesh::out << "SVD: d^2 (eta) / d (xyz)^2[p=" << p << "][ctr=" << ctr << "] = " << -x(1) << std::endl;
 
+                      // Verification: make sure that the SVD solution matches the "normal equations inverse" solve.
+                      Real err[2] = {std::abs(tmp1(0)-x(0)), std::abs(tmp1(1)-x(1))};
+                      libMesh::out << "Absolute error in each componet, ctr=" << ctr << ", " << err[0] << ", " << err[1] << std::endl;
+
                       // Increment the counter
                       ctr++;
                     }
