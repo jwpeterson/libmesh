@@ -970,8 +970,8 @@ void FEMap::compute_single_point_map(const unsigned int dim,
                       J(2,0) = dz_dxi; J(2,1) = dz_deta;
 
                       // Debugging:
-                      libMesh::out << "d^2 (xi)  / d (xyz)^2[p=" << p << "][ctr=" << ctr << "]" << d2xidxyz2_map[p][ctr] << std::endl;
-                      libMesh::out << "d^2 (eta) / d (xyz)^2[p=" << p << "][ctr=" << ctr << "]" << d2etadxyz2_map[p][ctr] << std::endl;
+                      libMesh::out << "d^2 (xi)  / d (xyz)^2[p=" << p << "][ctr=" << ctr << "] = " << d2xidxyz2_map[p][ctr] << std::endl;
+                      libMesh::out << "d^2 (eta) / d (xyz)^2[p=" << p << "][ctr=" << ctr << "] = " << d2etadxyz2_map[p][ctr] << std::endl;
 
                       // The rhs is:
                       // [ x_{,xi xi} x_{,eta eta} ]   [ xi_{,s}  * xi_{,t}  ]   [ x_{,xi eta} ] ((xi_{,s} * eta_{,t}) + (eta_{,s} * xi_{,t}))
@@ -992,8 +992,8 @@ void FEMap::compute_single_point_map(const unsigned int dim,
                       J.svd_solve(b, x);
 
                       // Debugging (I multiply by -1 when printing):
-                      libMesh::out << "SVD: d^2 (xi)  / d (xyz)^2[p=" << p << "][ctr=" << ctr << "]" << -x(0) << std::endl;
-                      libMesh::out << "SVD: d^2 (eta) / d (xyz)^2[p=" << p << "][ctr=" << ctr << "]" << -x(1) << std::endl;
+                      libMesh::out << "SVD: d^2 (xi)  / d (xyz)^2[p=" << p << "][ctr=" << ctr << "] = " << -x(0) << std::endl;
+                      libMesh::out << "SVD: d^2 (eta) / d (xyz)^2[p=" << p << "][ctr=" << ctr << "] = " << -x(1) << std::endl;
 
                       // Increment the counter
                       ctr++;
