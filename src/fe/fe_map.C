@@ -957,6 +957,44 @@ void FEMap::compute_single_point_map(const unsigned int dim,
                       d2xidxyz2_map[p][ctr]  = -tmp1(0);
                       d2etadxyz2_map[p][ctr] = -tmp1(1);
 
+                      // Method 2: Compute just the rhs for the
+                      // current (s,t), then call
+                      // DenseMatrix::svd_solve() to compute the
+                      // least-squares solution, rather than using
+                      // "JTJinv".
+
+                      // TODO: Don't form this matrix every time.
+                      DenseMatrix<Real> J(3,2);
+                      J(0,0) = dx_dxi; J(0,1) = dx_deta;
+                      J(1,0) = dy_dxi; J(1,1) = dy_deta;
+                      J(2,0) = dz_dxi; J(2,1) = dz_deta;
+
+                      // Debugging:
+                      libMesh::out << "d^2 (xi)  / d (xyz)^2[p=" << p << "][ctr=" << ctr << "]" << d2xidxyz2_map[p][ctr] << std::endl;
+                      libMesh::out << "d^2 (eta) / d (xyz)^2[p=" << p << "][ctr=" << ctr << "]" << d2xidxyz2_map[p][ctr] << std::endl;
+
+                      // The rhs is:
+                      // [ x_{,xi xi} x_{,eta eta} ]   [ xi_{,s}  * xi_{,t}  ]   [ x_{,xi eta} ] ((xi_{,s} * eta_{,t}) + (eta_{,s} * xi_{,t}))
+                      // [ y_{,xi xi} y_{,eta eta} ] * [ eta_{,s} * eta_{,t} ] + [ y_{,xi eta} ]
+                      // [ z_{,xi xi} z_{,eta eta} ]                             [ z_{,xi eta} ]
+                      // TODO: Don't recreate the right-hand side every time.
+                      // TODO: Use matrix operations to compute this.
+                      DenseVector<Real> b(3);
+                      for (unsigned int i=0; i<b.size(); ++i)
+                        b(i) =
+                          d2xyzdxi2_map[p](i)  * dxi(s)  * dxi(t)  +
+                          d2xyzdeta2_map[p](i) * deta(s) * deta(t) +
+                          d2xyzdxideta_map[p](i) * ((dxi(s) * deta(t)) + (deta(s) * dxi(t)));
+
+                      // Call svd_solve().
+                      // TODO: Don't recreate x every time.
+                      DenseVector<Real> x(2);
+                      J.svd_solve(b, x);
+
+                      // Debugging (I multiply by -1 when printing):
+                      libMesh::out << "SVD: d^2 (xi)  / d (xyz)^2[p=" << p << "][ctr=" << ctr << "]" << -x(0) << std::endl;
+                      libMesh::out << "SVD: d^2 (eta) / d (xyz)^2[p=" << p << "][ctr=" << ctr << "]" << -x(1) << std::endl;
+
                       // Increment the counter
                       ctr++;
                     }
