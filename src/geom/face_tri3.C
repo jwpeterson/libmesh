@@ -16,6 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 // C++ includes
+#include <iomanip>
 
 // Local includes
 #include "libmesh/side.h"
@@ -256,7 +257,7 @@ bool Tri3::contains_point (const Point & p, Real tol) const
     d[3] = {p(0),        p(1),        p(2)};
 
   Real vol = orient3d(a, b, c, d);
-  libMesh::err << "orient3d returned: " << vol << std::endl;
+  libMesh::err << "orient3d returned: " << std::setprecision(16) << std::scientific << vol << std::endl;
 
   Real normalized_out_of_plane_check =
     std::abs(triple_product(v2, v0, v1)) / std::max(dot00, dot11);
