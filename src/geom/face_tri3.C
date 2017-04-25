@@ -254,15 +254,12 @@ bool Tri3::contains_point (const Point & p, Real tol) const
   // "(const double *)_nodes[0]" does *compile*, but I did not test
   // whether it actually works...
   Real
-    a[3] = {point(0)(0), point(0)(1), point(0)(2)},
-    b[3] = {point(1)(0), point(1)(1), point(1)(2)},
-    c[3] = {point(2)(0), point(2)(1), point(2)(2)},
+    a[3] = {(*_nodes[0])(0), (*_nodes[0])(1), (*_nodes[0])(2)},
+    b[3] = {(*_nodes[1])(0), (*_nodes[1])(1), (*_nodes[1])(2)},
+    c[3] = {(*_nodes[2])(0), (*_nodes[2])(1), (*_nodes[2])(2)},
     d[3] = {p(0),        p(1),        p(2)};
 
-  Real vol = orient3d((const double *)_nodes[0],
-                      (const double *)_nodes[1],
-                      (const double *)_nodes[2],
-                      (const double *)&p);
+  Real vol = orient3d(a, b, c, d);
   libMesh::err << "orient3d returned: " << vol << std::endl;
 
   // Compute barycentric coordinates
