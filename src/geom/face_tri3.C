@@ -248,6 +248,23 @@ bool Tri3::contains_point (const Point & p, Real tol) const
   if (std::abs(triple_product(v2, v0, v1)) / std::max(dot00, dot11) > tol)
     return false;
 
+  // Call the robust geometric predicate to determine if the point is
+  // actually above, below, or on the plane. TODO: Make Point easily
+  // convertible to const double *? Note that a C-style cast like
+  // "(const double *)_nodes[0]" does *compile*, but I did not test
+  // whether it actually works...
+  Real
+    a[3] = {point(0)(0), point(0)(1), point(0)(2)},
+    b[3] = {point(1)(0), point(1)(1), point(1)(2)},
+    c[3] = {point(2)(0), point(2)(1), point(2)(2)},
+    d[3] = {p(0),        p(1),        p(2)};
+
+  Real vol = orient3d((const double *)_nodes[0],
+                      (const double *)_nodes[1],
+                      (const double *)_nodes[2],
+                      (const double *)&p);
+  libMesh::err << "orient3d returned: " << vol << std::endl;
+
   // Compute barycentric coordinates
   Real invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
   Real u = (dot11 * dot02 - dot01 * dot12) * invDenom;
