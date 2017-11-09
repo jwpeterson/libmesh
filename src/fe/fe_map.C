@@ -894,12 +894,12 @@ void FEMap::compute_single_point_map(const unsigned int dim,
               }
 
             const Real inv_det = 1./det;
-            jac[p] = std::sqrt(det);
-            JxW[p] = jac[p]*qw[p];
 
             // Inverse Jacobian entries
             if (is_xy_planar)
               {
+                jac[p] = det;
+
                 // The entries of the inverse 2x2 Jacobian are:
                 //              |  dy/deta  -dx/deta |
                 // jac^(-1) =   | -dy/dxi    dx/dxi  |
@@ -911,6 +911,8 @@ void FEMap::compute_single_point_map(const unsigned int dim,
               }
             else
               {
+                jac[p] = std::sqrt(det);
+
                 g11inv =  g22*inv_det;
                 g12inv = -g12*inv_det;
                 g21inv = -g21*inv_det;
@@ -924,6 +926,10 @@ void FEMap::compute_single_point_map(const unsigned int dim,
                 detady_map[p] = g21inv*dy_dxi + g22inv*dy_deta;
                 detadz_map[p] = g21inv*dz_dxi + g22inv*dz_deta;
               }
+
+            // Finally, compute the JxW product.
+            JxW[p] = jac[p]*qw[p];
+
 
 #ifdef LIBMESH_ENABLE_SECOND_DERIVATIVES
 
