@@ -791,46 +791,67 @@ void FEMap::compute_single_point_map(const unsigned int dim,
 
 #else // LIBMESH_DIM == 3
 
-            const Real dz_dxi = dzdxi_map(p),
+            const Real
+              dz_dxi = dzdxi_map(p),
               dz_deta = dzdeta_map(p);
 
-            // Compute the Jacobian.  This assumes a 2D face in
-            // 3D space.
-            //
-            // The transformation matrix T from local to global
-            // coordinates is
-            //
-            //         | dx/dxi  dx/deta |
-            //     T = | dy/dxi  dy/deta |
-            //         | dz/dxi  dz/deta |
-            // note det(T' T) = det(T')det(T) = det(T)det(T)
-            // so det(T) = std::sqrt(det(T' T))
-            //
-            //----------------------------------------------
-            // Notes:
-            //
-            //       dX = R dXi -> R'dX = R'R dXi
-            // (R^-1)dX =   dXi    [(R'R)^-1 R']dX = dXi
-            //
-            // so R^-1 = (R'R)^-1 R'
-            //
-            // and R^-1 R = (R'R)^-1 R'R = I.
-            //
-            const Real g11 = (dx_dxi*dx_dxi +
-                              dy_dxi*dy_dxi +
-                              dz_dxi*dz_dxi);
+            Real det = 0.,
+              g11 = 0., g12 = 0.,
+              g21 = 0., g22 = 0.,
+              g11inv = 0., g12inv = 0.,
+              g21inv = 0., g22inv = 0.;
 
-            const Real g12 = (dx_dxi*dx_deta +
-                              dy_dxi*dy_deta +
-                              dz_dxi*dz_deta);
+            const bool is_xy_planar = std::abs(dz_dxi) + std::abs(dz_deta) < TOLERANCE;
 
-            const Real g21 = g12;
+            if (is_xy_planar)
+              {
+                // This is a 2D element living in 3D but it lies in
+                // the xy plane. Therefore, we fall back on the 2D
+                // formula.
+                det = dx_dxi*dy_deta - dx_deta*dy_dxi;
+              }
+            else
+              {
+                // This algorithm allows for an arbitrary 2D face in
+                // 3D space, but it cannot detect negative Jacobian
+                // determinants because the result is guaranteed to be
+                // >= 0.
+                //
+                // The transformation matrix T from local to global
+                // coordinates is
+                //
+                //         | dx/dxi  dx/deta |
+                //     T = | dy/dxi  dy/deta |
+                //         | dz/dxi  dz/deta |
+                // note det(T' T) = det(T')det(T) = det(T)det(T)
+                // so det(T) = std::sqrt(det(T' T))
+                //
+                //----------------------------------------------
+                // Notes:
+                //
+                //       dX = R dXi -> R'dX = R'R dXi
+                // (R^-1)dX =   dXi    [(R'R)^-1 R']dX = dXi
+                //
+                // so R^-1 = (R'R)^-1 R'
+                //
+                // and R^-1 R = (R'R)^-1 R'R = I.
+                //
+                g11 = (dx_dxi*dx_dxi +
+                       dy_dxi*dy_dxi +
+                       dz_dxi*dz_dxi);
 
-            const Real g22 = (dx_deta*dx_deta +
-                              dy_deta*dy_deta +
-                              dz_deta*dz_deta);
+                g12 = (dx_dxi*dx_deta +
+                       dy_dxi*dy_deta +
+                       dz_dxi*dz_deta);
 
-            const Real det = (g11*g22 - g12*g21);
+                g21 = g12;
+
+                g22 = (dx_deta*dx_deta +
+                       dy_deta*dy_deta +
+                       dz_deta*dz_deta);
+
+                det = (g11*g22 - g12*g21);
+              }
 
             if (det <= 0.)
               {
@@ -874,21 +895,35 @@ void FEMap::compute_single_point_map(const unsigned int dim,
 
             const Real inv_det = 1./det;
             jac[p] = std::sqrt(det);
-
             JxW[p] = jac[p]*qw[p];
 
-            const Real g11inv =  g22*inv_det;
-            const Real g12inv = -g12*inv_det;
-            const Real g21inv = -g21*inv_det;
-            const Real g22inv =  g11*inv_det;
+            // Inverse Jacobian entries
+            if (is_xy_planar)
+              {
+                // The entries of the inverse 2x2 Jacobian are:
+                //              |  dy/deta  -dx/deta |
+                // jac^(-1) =   | -dy/dxi    dx/dxi  |
+                g11inv = dxidx_map[p]  =  dy_deta * inv_det;
+                g12inv = dxidy_map[p]  = -dx_deta * inv_det;
+                g21inv = detadx_map[p] = -dy_dxi * inv_det;
+                g22inv = detady_map[p] =  dx_dxi * inv_det;
+                dxidz_map[p] = detadz_map[p] = 0.;
+              }
+            else
+              {
+                g11inv =  g22*inv_det;
+                g12inv = -g12*inv_det;
+                g21inv = -g21*inv_det;
+                g22inv =  g11*inv_det;
 
-            dxidx_map[p]  = g11inv*dx_dxi + g12inv*dx_deta;
-            dxidy_map[p]  = g11inv*dy_dxi + g12inv*dy_deta;
-            dxidz_map[p]  = g11inv*dz_dxi + g12inv*dz_deta;
+                dxidx_map[p]  = g11inv*dx_dxi + g12inv*dx_deta;
+                dxidy_map[p]  = g11inv*dy_dxi + g12inv*dy_deta;
+                dxidz_map[p]  = g11inv*dz_dxi + g12inv*dz_deta;
 
-            detadx_map[p] = g21inv*dx_dxi + g22inv*dx_deta;
-            detady_map[p] = g21inv*dy_dxi + g22inv*dy_deta;
-            detadz_map[p] = g21inv*dz_dxi + g22inv*dz_deta;
+                detadx_map[p] = g21inv*dx_dxi + g22inv*dx_deta;
+                detady_map[p] = g21inv*dy_dxi + g22inv*dy_deta;
+                detadz_map[p] = g21inv*dz_dxi + g22inv*dz_deta;
+              }
 
 #ifdef LIBMESH_ENABLE_SECOND_DERIVATIVES
 
