@@ -34951,13 +34951,15 @@ fi
 
 
 
-       if test "$enableml" != no ; then
+       if test "x$enableml" != "xno"; then :
+
 
 $as_echo "#define TRILINOS_HAVE_ML 1" >>confdefs.h
 
-          { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with ML support >>>" >&5
+               { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with ML support >>>" >&5
 $as_echo "<<< Configuring library with ML support >>>" >&6; }
-       fi
+
+fi
 
                             as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/Tpetra_config.h" | $as_tr_sh`
 ac_fn_cxx_check_header_mongrel "$LINENO" "$withtrilinosdir/include/Tpetra_config.h" "$as_ac_Header" "$ac_includes_default"
@@ -35001,13 +35003,15 @@ fi
 
 
 
-       if test "$enabletpetra" != no ; then
+       if test "x$enabletpetra" != "xno"; then :
+
 
 $as_echo "#define TRILINOS_HAVE_TPETRA 1" >>confdefs.h
 
-          { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with TPetra support >>>" >&5
+               { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with TPetra support >>>" >&5
 $as_echo "<<< Configuring library with TPetra support >>>" >&6; }
-       fi
+
+fi
 
                             as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/DataTransferKit_config.hpp" | $as_tr_sh`
 ac_fn_cxx_check_header_mongrel "$LINENO" "$withtrilinosdir/include/DataTransferKit_config.hpp" "$as_ac_Header" "$ac_includes_default"
