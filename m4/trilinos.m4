@@ -59,11 +59,11 @@ AC_DEFUN([CONFIGURE_TRILINOS_10],
                                                          [enableaztecoo=no])
                                                          ])])
 
-       if test "$enableaztecoo" != no ; then
-          AC_DEFINE(TRILINOS_HAVE_AZTECOO, 1,
-                    [Flag indicating whether the library shall be compiled to use the Trilinos AztecOO linear solver])
-          AC_MSG_RESULT(<<< Configuring library with AztecOO support >>>)
-       fi
+       AS_IF([test "x$enableaztecoo" != "xno"],
+             [
+               AC_DEFINE(TRILINOS_HAVE_AZTECOO, 1, [Flag indicating whether the library shall be compiled to use the Trilinos AztecOO linear solver])
+               AC_MSG_RESULT(<<< Configuring library with AztecOO support >>>)
+             ])
 
        dnl ------------------------------------------------------
        dnl NOX
@@ -76,11 +76,11 @@ AC_DEFUN([CONFIGURE_TRILINOS_10],
                                                          [enablenox=yes],
                                                          [enablenox=no])])])
 
-       if test "$enablenox" != no ; then
-          AC_DEFINE(TRILINOS_HAVE_NOX, 1,
-                    [Flag indicating whether the library shall be compiled to use the Trilinos NOX nonlinear solver])
-          AC_MSG_RESULT(<<< Configuring library with NOX support >>>)
-       fi
+       AS_IF([test "x$enablenox" != "xno"],
+             [
+               AC_DEFINE(TRILINOS_HAVE_NOX, 1, [Flag indicating whether the library shall be compiled to use the Trilinos NOX nonlinear solver])
+               AC_MSG_RESULT(<<< Configuring library with NOX support >>>)
+             ])
 
        dnl ------------------------------------------------------
        dnl ML - prevent ML from keying on our 'HAVE_PETSC' by
@@ -549,7 +549,7 @@ AC_DEFUN([CONFIGURE_TRILINOS],
     AC_MSG_CHECKING([Whether Real precision is compatible with Trilinos])
     # Trump --enable-trilinos with --enable anything except double
     # precision - the modules we use are hardcoded to double
- 
+
     if (test "x$enablesingleprecision" != xno -o \
              "x$enabletripleprecision" != xno -o \
              "x$enablequadrupleprecision" != xno); then
