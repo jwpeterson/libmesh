@@ -35181,9 +35181,9 @@ fi
       # -- then Trilinos 9
       if test "$enabletrilinos10" = no ; then
 
-  if test "x$TRILINOS_DIR" = "x"; then
-    TRILINOS_DIR=no
-  fi
+  if test "x$TRILINOS_DIR" = "x"; then :
+  TRILINOS_DIR=no
+fi
 
 
 # Check whether --with-trilinos was given.
@@ -35195,13 +35195,13 @@ fi
 
 
     if test "$withtrilinosdir" != no ; then
-    if (test -r $withtrilinosdir/include/Makefile.export.aztecoo) ; then
-      AZTECOO_MAKEFILE_EXPORT=$withtrilinosdir/include/Makefile.export.aztecoo
-    elif (test -r $withtrilinosdir/packages/aztecoo/Makefile.export.aztecoo) ; then
-      AZTECOO_MAKEFILE_EXPORT=$withtrilinosdir/packages/aztecoo/Makefile.export.aztecoo
-    else
-      enableaztecoo=no
-    fi
+    if test -r $withtrilinosdir/include/Makefile.export.aztecoo; then :
+  AZTECOO_MAKEFILE_EXPORT=$withtrilinosdir/include/Makefile.export.aztecoo
+elif test -r $withtrilinosdir/packages/aztecoo/Makefile.export.aztecoo; then :
+  AZTECOO_MAKEFILE_EXPORT=$withtrilinosdir/packages/aztecoo/Makefile.export.aztecoo
+else
+  enableaztecoo=no
+fi
 
     if test "$enableaztecoo" != no ; then
        enableaztecoo=yes
