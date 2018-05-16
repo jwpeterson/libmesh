@@ -397,37 +397,28 @@ AC_DEFUN([CONFIGURE_TRILINOS_9],
 
   AC_SUBST(DTK_MAKEFILE_EXPORT)
 
-  if test "x$enableml" = xyes -o "x$enableaztecoo" = xyes -o "x$enablenox" = xyes; then
-    enabletrilinos9=yes
-  else
-    enabletrilinos9=no
-  fi
+  AS_IF([test "x$enableml" = xyes || test "x$enableaztecoo" = xyes || test "x$enablenox" = xyes],
+        [enabletrilinos9=yes],
+        [enabletrilinos9=no])
 
-  #########################################################
-  # get requisite include and library variables by snarfing
-  # them from the exported makefiles
-  #
-  # AztecOO
-  if (test $enableaztecoo != no); then
-    printf '%s\n' "include $AZTECOO_MAKEFILE_EXPORT" > Makefile_config_trilinos
-    printf '%s\n' "echo_libs:" >> Makefile_config_trilinos
-    printf '\t%s\n' "@echo \$(AZTECOO_LIBS)" >> Makefile_config_trilinos
-    printf '%s\n' "echo_include:" >> Makefile_config_trilinos
-    printf '\t%s\n' "@echo \$(AZTECOO_INCLUDES)" >> Makefile_config_trilinos
+  dnl get requisite include and library variables by snarfing
+  dnl them from the exported makefiles
+  dnl
+  dnl AztecOO
+  AS_IF([test "x$enableaztecoo" != "xno"],
+        [
+          printf '%s\n' "include $AZTECOO_MAKEFILE_EXPORT" > Makefile_config_trilinos
+          printf '%s\n' "echo_libs:" >> Makefile_config_trilinos
+          printf '\t%s\n' "@echo \$(AZTECOO_LIBS)" >> Makefile_config_trilinos
+          printf '%s\n' "echo_include:" >> Makefile_config_trilinos
+          printf '\t%s\n' "@echo \$(AZTECOO_INCLUDES)" >> Makefile_config_trilinos
 
-    #echo "Makefile_config_trilinos="
-    #cat Makefile_config_trilinos
-    AZTECOO_INCLUDES=`make -sf Makefile_config_trilinos echo_include`
-    AZTECOO_LIBS=`make -sf Makefile_config_trilinos echo_libs`
+          AZTECOO_INCLUDES=`make -sf Makefile_config_trilinos echo_include`
+          AZTECOO_LIBS=`make -sf Makefile_config_trilinos echo_libs`
+          rm -f Makefile_config_trilinos
+        ])
 
-    #echo AZTECOO_LIBS=$AZTECOO_LIBS
-    #echo AZTECOO_INCLUDES=$AZTECOO_INCLUDES
-
-    rm -f Makefile_config_trilinos
-  fi
-
-  #
-  # Nox
+  dnl Nox
   if (test $enablenox != no); then
     printf '%s\n' "include $NOX_MAKEFILE_EXPORT" > Makefile_config_trilinos
     printf '%s\n' "echo_libs:" >> Makefile_config_trilinos
