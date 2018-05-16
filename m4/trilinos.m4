@@ -3,14 +3,13 @@ dnl Trilinos 10
 dnl -------------------------------------------------------------
 AC_DEFUN([CONFIGURE_TRILINOS_10],
 [
-  if (test "x$TRILINOS_DIR" = "x"); then
-    # Ubuntu trilinos package?
-    if (test -d /usr/include/trilinos); then
-      TRILINOS_DIR=/usr/include/trilinos
-    else
-      TRILINOS_DIR=no
-    fi
-  fi
+  AS_IF([test "x$TRILINOS_DIR" = "x"],
+        [
+          dnl Ubuntu trilinos package?
+          AS_IF([test -d /usr/include/trilinos],
+                [TRILINOS_DIR=/usr/include/trilinos],
+                [TRILINOS_DIR=no])
+        ])
 
   AC_ARG_WITH(trilinos,
               AS_HELP_STRING([--with-trilinos=PATH],[Specify the path to Trilinos installation]),
