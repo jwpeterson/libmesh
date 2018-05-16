@@ -35376,38 +35376,27 @@ fi
 
 
 
-  if test "x$enableml" = xyes -o "x$enableaztecoo" = xyes -o "x$enablenox" = xyes; then
-    enabletrilinos9=yes
-  else
-    enabletrilinos9=no
-  fi
+  if test "x$enableml" = xyes || test "x$enableaztecoo" = xyes || test "x$enablenox" = xyes; then :
+  enabletrilinos9=yes
+else
+  enabletrilinos9=no
+fi
 
-  #########################################################
-  # get requisite include and library variables by snarfing
-  # them from the exported makefiles
-  #
-  # AztecOO
-  if (test $enableaztecoo != no); then
-    printf '%s\n' "include $AZTECOO_MAKEFILE_EXPORT" > Makefile_config_trilinos
-    printf '%s\n' "echo_libs:" >> Makefile_config_trilinos
-    printf '\t%s\n' "@echo \$(AZTECOO_LIBS)" >> Makefile_config_trilinos
-    printf '%s\n' "echo_include:" >> Makefile_config_trilinos
-    printf '\t%s\n' "@echo \$(AZTECOO_INCLUDES)" >> Makefile_config_trilinos
+          if test "x$enableaztecoo" != "xno"; then :
 
-    #echo "Makefile_config_trilinos="
-    #cat Makefile_config_trilinos
-    AZTECOO_INCLUDES=`make -sf Makefile_config_trilinos echo_include`
-    AZTECOO_LIBS=`make -sf Makefile_config_trilinos echo_libs`
+          printf '%s\n' "include $AZTECOO_MAKEFILE_EXPORT" > Makefile_config_trilinos
+          printf '%s\n' "echo_libs:" >> Makefile_config_trilinos
+          printf '\t%s\n' "@echo \$(AZTECOO_LIBS)" >> Makefile_config_trilinos
+          printf '%s\n' "echo_include:" >> Makefile_config_trilinos
+          printf '\t%s\n' "@echo \$(AZTECOO_INCLUDES)" >> Makefile_config_trilinos
 
-    #echo AZTECOO_LIBS=$AZTECOO_LIBS
-    #echo AZTECOO_INCLUDES=$AZTECOO_INCLUDES
+          AZTECOO_INCLUDES=`make -sf Makefile_config_trilinos echo_include`
+          AZTECOO_LIBS=`make -sf Makefile_config_trilinos echo_libs`
+          rm -f Makefile_config_trilinos
 
-    rm -f Makefile_config_trilinos
-  fi
+fi
 
-  #
-  # Nox
-  if (test $enablenox != no); then
+    if (test $enablenox != no); then
     printf '%s\n' "include $NOX_MAKEFILE_EXPORT" > Makefile_config_trilinos
     printf '%s\n' "echo_libs:" >> Makefile_config_trilinos
     printf '\t%s\n' "@echo \$(NOX_LIBS)" >> Makefile_config_trilinos
