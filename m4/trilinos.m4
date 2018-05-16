@@ -532,11 +532,10 @@ AC_DEFUN([CONFIGURE_TRILINOS],
   AC_ARG_ENABLE(trilinos,
                 AS_HELP_STRING([--disable-trilinos],
                                [build without Trilinos support]),
-                               [case "${enableval}" in
-                                 yes)  enabletrilinos=yes ;;
-                                 no)  enabletrilinos=no ;;
-                                 *)  AC_MSG_ERROR(bad value ${enableval} for --enable-trilinos) ;;
-                               esac],
+                               [AS_CASE("${enableval}",
+                                 [yes], [enabletrilinos=yes],
+                                 [no],  [enabletrilinos=no],
+                                 [AC_MSG_ERROR(bad value ${enableval} for --enable-trilinos)])],
                                [enabletrilinos=$enableoptional])
 
   if (test "x$enabletrilinos" = xyes); then
