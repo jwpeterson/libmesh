@@ -355,24 +355,22 @@ AC_DEFUN([CONFIGURE_TRILINOS_9],
               withdtkdir=$withval,
               withdtkdir=$TRILINOS_DIR)
 
-  if test "$withdtkdir" != no ; then
-    if (test -r $withdtkdir/include/Makefile.export.DataTransferKit) ; then
-      DTK_MAKEFILE_EXPORT=$withdtkdir/include/Makefile.export.Makefile.export.DataTransferKit
-    elif (test -r $withdtkdir/DataTransferKit/Makefile.export.Makefile.export.DataTransferKit) ; then
-      DTK_MAKEFILE_EXPORT=$withdtkdir/packages/dtk/Makefile.export.Makefile.export.DataTransferKit
-    else
-      enabledtk=no
-    fi
+  AS_IF([test "x$withdtkdir" != "xno"],
+        [
+          AS_IF([test -r $withdtkdir/include/Makefile.export.DataTransferKit],
+                [DTK_MAKEFILE_EXPORT=$withdtkdir/include/Makefile.export.Makefile.export.DataTransferKit],
+                [test -r $withdtkdir/DataTransferKit/Makefile.export.Makefile.export.DataTransferKit],
+                [DTK_MAKEFILE_EXPORT=$withdtkdir/packages/dtk/Makefile.export.Makefile.export.DataTransferKit],
+                [enabledtk=no])
 
-    if test "$enabledtk" != no ; then
-       enabledtk=yes
-       AC_DEFINE(TRILINOS_HAVE_DTK, 1,
-                 [Flag indicating whether the library shall be compiled to use the DataTransferKit])
-       AC_MSG_RESULT(<<< Configuring library with DTK support >>>)
-    fi
-  else
-    enabledtk=no
-  fi
+          AS_IF([test "$enabledtk" != "xno"],
+                [
+                  enabledtk=yes
+                  AC_DEFINE(TRILINOS_HAVE_DTK, 1, [Flag indicating whether the library shall be compiled to use the DataTransferKit])
+                  AC_MSG_RESULT(<<< Configuring library with DTK support >>>)
+                ])
+        ],
+        [enabledtk=no])
 
 
 
