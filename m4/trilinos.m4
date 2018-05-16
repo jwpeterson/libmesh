@@ -330,24 +330,22 @@ AC_DEFUN([CONFIGURE_TRILINOS_9],
               withtpetradir=$withval,
               withtpetradir=$TRILINOS_DIR)
 
-  if test "$withtpetradir" != no ; then
-    if (test -r $withtpetradir/include/Makefile.export.Tpetra) ; then
-      TPETRA_MAKEFILE_EXPORT=$withtpetradir/include/Makefile.export.Tpetra
-    elif (test -r $withtpetradir/packages/tpetra/Makefile.export.Tpetra) ; then
-      TPETRA_MAKEFILE_EXPORT=$withtpetradir/packages/tpetra/Makefile.export.Tpetra
-    else
-      enabletpetra=no
-    fi
+  AS_IF([test "x$withtpetradir" != "xno"],
+        [
+          AS_IF([test -r $withtpetradir/include/Makefile.export.Tpetra],
+                [TPETRA_MAKEFILE_EXPORT=$withtpetradir/include/Makefile.export.Tpetra],
+                [test -r $withtpetradir/packages/tpetra/Makefile.export.Tpetra],
+                [TPETRA_MAKEFILE_EXPORT=$withtpetradir/packages/tpetra/Makefile.export.Tpetra],
+                [enabletpetra=no])
 
-    if test "$enabletpetra" != no ; then
-       enabletpetra=yes
-       AC_DEFINE(TRILINOS_HAVE_TPETRA, 1,
-                 [Flag indicating whether the library shall be compiled to use the Tpetra solver collection])
-       AC_MSG_RESULT(<<< Configuring library with Tpetra support >>>)
-    fi
-  else
-    enabletpetra=no
-  fi
+          AS_IF([test "x$enabletpetra" != "xno"],
+                [
+                  enabletpetra=yes
+                  AC_DEFINE(TRILINOS_HAVE_TPETRA, 1, [Flag indicating whether the library shall be compiled to use the Tpetra solver collection])
+                  AC_MSG_RESULT(<<< Configuring library with Tpetra support >>>)
+                ])
+       ],
+       [enabletpetra=no])
 
 
 
