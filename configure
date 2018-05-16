@@ -35334,26 +35334,30 @@ else
 fi
 
 
-  if test "$withdtkdir" != no ; then
-    if (test -r $withdtkdir/include/Makefile.export.DataTransferKit) ; then
-      DTK_MAKEFILE_EXPORT=$withdtkdir/include/Makefile.export.Makefile.export.DataTransferKit
-    elif (test -r $withdtkdir/DataTransferKit/Makefile.export.Makefile.export.DataTransferKit) ; then
-      DTK_MAKEFILE_EXPORT=$withdtkdir/packages/dtk/Makefile.export.Makefile.export.DataTransferKit
-    else
-      enabledtk=no
-    fi
+  if test "x$withdtkdir" != "xno"; then :
 
-    if test "$enabledtk" != no ; then
-       enabledtk=yes
+          if test -r $withdtkdir/include/Makefile.export.DataTransferKit; then :
+  DTK_MAKEFILE_EXPORT=$withdtkdir/include/Makefile.export.Makefile.export.DataTransferKit
+elif test -r $withdtkdir/DataTransferKit/Makefile.export.Makefile.export.DataTransferKit; then :
+  DTK_MAKEFILE_EXPORT=$withdtkdir/packages/dtk/Makefile.export.Makefile.export.DataTransferKit
+else
+  enabledtk=no
+fi
+
+          if test "$enabledtk" != "xno"; then :
+
+                  enabledtk=yes
 
 $as_echo "#define TRILINOS_HAVE_DTK 1" >>confdefs.h
 
-       { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with DTK support >>>" >&5
+                  { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with DTK support >>>" >&5
 $as_echo "<<< Configuring library with DTK support >>>" >&6; }
-    fi
-  else
-    enabledtk=no
-  fi
+
+fi
+
+else
+  enabledtk=no
+fi
 
 
 
