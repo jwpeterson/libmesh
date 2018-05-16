@@ -151,11 +151,11 @@ AC_DEFUN([CONFIGURE_TRILINOS_10],
                                                                                            [enabledtk=yes],
                                                                                            [enabledtk=no])])])])])
 
-       if test "$enabledtk" != no ; then
-          AC_DEFINE(TRILINOS_HAVE_DTK, 1,
-                    [Flag indicating whether the library shall be compiled to use the Trilinos DTK interfaces])
-          AC_MSG_RESULT(<<< Configuring library with DTK support >>>)
-       fi
+       AS_IF([test "x$enabledtk" != "xno"],
+             [
+               AC_DEFINE(TRILINOS_HAVE_DTK, 1, [Flag indicating whether the library shall be compiled to use the Trilinos DTK interfaces])
+               AC_MSG_RESULT(<<< Configuring library with DTK support >>>)
+             ])
 
 
        dnl ------------------------------------------------------
@@ -169,11 +169,11 @@ AC_DEFUN([CONFIGURE_TRILINOS_10],
                                         [enableifpack=yes],
                                         [enableifpack=no])])
 
-       if test "$enableifpack" != no ; then
-          AC_DEFINE(TRILINOS_HAVE_IFPACK, 1,
-                    [Flag indicating whether the library shall be compiled to use the Trilinos Ifpack interfaces])
-          AC_MSG_RESULT([<<< Configuring library with Trilinos Ifpack support >>>])
-       fi
+       AS_IF([test "x$enableifpack" != "xno"],
+             [
+               AC_DEFINE(TRILINOS_HAVE_IFPACK, 1, [Flag indicating whether the library shall be compiled to use the Trilinos Ifpack interfaces])
+               AC_MSG_RESULT([<<< Configuring library with Trilinos Ifpack support >>>])
+             ])
 
        dnl ------------------------------------------------------
        dnl EpetraExt - We are only going to look in one place for this,
@@ -186,11 +186,11 @@ AC_DEFUN([CONFIGURE_TRILINOS_10],
                                         [enableepetraext=yes],
                                         [enableepetraext=no])])
 
-       if test "$enableepetraext" != no ; then
-          AC_DEFINE(TRILINOS_HAVE_EPETRAEXT, 1,
-                    [Flag indicating whether the library shall be compiled to use the Trilinos EpetraExt interfaces])
-          AC_MSG_RESULT([<<< Configuring library with Trilinos EpetraExt support >>>])
-       fi
+       AS_IF([test "x$enableepetraext" != "xno"],
+             [
+               AC_DEFINE(TRILINOS_HAVE_EPETRAEXT, 1, [Flag indicating whether the library shall be compiled to use the Trilinos EpetraExt interfaces])
+               AC_MSG_RESULT([<<< Configuring library with Trilinos EpetraExt support >>>])
+             ])
 
        dnl ------------------------------------------------------
        dnl Epetra - Trilinos can be built without Epetra, but
@@ -204,11 +204,11 @@ AC_DEFUN([CONFIGURE_TRILINOS_10],
                                         [enableepetra=yes],
                                         [enableepetra=no])])
 
-       if test "$enableepetra" != no ; then
-          AC_DEFINE(TRILINOS_HAVE_EPETRA, 1,
-                    [Flag indicating whether the library shall be compiled to use Epetra interface in Trilinos])
-          AC_MSG_RESULT([<<< Configuring library with Trilinos Epetra support >>>])
-       fi
+       AS_IF([test "x$enableepetra" != "xno"],
+             [
+               AC_DEFINE(TRILINOS_HAVE_EPETRA, 1, [Flag indicating whether the library shall be compiled to use Epetra interface in Trilinos])
+               AC_MSG_RESULT([<<< Configuring library with Trilinos Epetra support >>>])
+             ])
 
     fi
   else
