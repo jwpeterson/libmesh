@@ -34827,9 +34827,9 @@ fi
 
 fi
 
-              if test "x$trilinosversionstring" = "x" ; then
-         trilinosversionstring=10+
-       fi
+              if test "x$trilinosversionstring" = "x"; then :
+  trilinosversionstring=10+
+fi
 
 
 $as_echo "#define HAVE_TRILINOS 1" >>confdefs.h
@@ -34864,13 +34864,15 @@ fi
 
 
 
-       if test "$enableaztecoo" != no ; then
+       if test "x$enableaztecoo" != "xno"; then :
+
 
 $as_echo "#define TRILINOS_HAVE_AZTECOO 1" >>confdefs.h
 
-          { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with AztecOO support >>>" >&5
+               { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with AztecOO support >>>" >&5
 $as_echo "<<< Configuring library with AztecOO support >>>" >&6; }
-       fi
+
+fi
 
                             as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/NOX_Config.h" | $as_tr_sh`
 ac_fn_cxx_check_header_mongrel "$LINENO" "$withtrilinosdir/include/NOX_Config.h" "$as_ac_Header" "$ac_includes_default"
@@ -34898,13 +34900,15 @@ fi
 
 
 
-       if test "$enablenox" != no ; then
+       if test "x$enablenox" != "xno"; then :
+
 
 $as_echo "#define TRILINOS_HAVE_NOX 1" >>confdefs.h
 
-          { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with NOX support >>>" >&5
+               { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with NOX support >>>" >&5
 $as_echo "<<< Configuring library with NOX support >>>" >&6; }
-       fi
+
+fi
 
                                    as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/ml_include.h" | $as_tr_sh`
 ac_fn_cxx_check_header_compile "$LINENO" "$withtrilinosdir/include/ml_include.h" "$as_ac_Header" "
