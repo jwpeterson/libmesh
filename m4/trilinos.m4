@@ -419,65 +419,46 @@ AC_DEFUN([CONFIGURE_TRILINOS_9],
         ])
 
   dnl Nox
-  if (test $enablenox != no); then
-    printf '%s\n' "include $NOX_MAKEFILE_EXPORT" > Makefile_config_trilinos
-    printf '%s\n' "echo_libs:" >> Makefile_config_trilinos
-    printf '\t%s\n' "@echo \$(NOX_LIBS)" >> Makefile_config_trilinos
-    printf '%s\n' "echo_include:" >> Makefile_config_trilinos
-    printf '\t%s\n' "@echo \$(NOX_INCLUDES)" >> Makefile_config_trilinos
+  AS_IF([test "x$enablenox" != "xno"],
+        [
+          printf '%s\n' "include $NOX_MAKEFILE_EXPORT" > Makefile_config_trilinos
+          printf '%s\n' "echo_libs:" >> Makefile_config_trilinos
+          printf '\t%s\n' "@echo \$(NOX_LIBS)" >> Makefile_config_trilinos
+          printf '%s\n' "echo_include:" >> Makefile_config_trilinos
+          printf '\t%s\n' "@echo \$(NOX_INCLUDES)" >> Makefile_config_trilinos
 
-    #echo "Makefile_config_trilinos="
-    #cat Makefile_config_trilinos
-    NOX_INCLUDES=`make -sf Makefile_config_trilinos echo_include`
-    NOX_LIBS=`make -sf Makefile_config_trilinos echo_libs`
+          NOX_INCLUDES=`make -sf Makefile_config_trilinos echo_include`
+          NOX_LIBS=`make -sf Makefile_config_trilinos echo_libs`
+          rm -f Makefile_config_trilinos
+        ])
 
-    #echo NOX_LIBS=$NOX_LIBS
-    #echo NOX_INCLUDES=$NOX_INCLUDES
+  dnl ML
+  AS_IF([test "x$enableml" != "xno"],
+        [
+          printf '%s\n' "include $ML_MAKEFILE_EXPORT" > Makefile_config_trilinos
+          printf '%s\n' "echo_libs:" >> Makefile_config_trilinos
+          printf '\t%s\n' "@echo \$(ML_LIBS)" >> Makefile_config_trilinos
+          printf '%s\n' "echo_include:" >> Makefile_config_trilinos
+          printf '\t%s\n' "@echo \$(ML_INCLUDES)" >> Makefile_config_trilinos
 
-    rm -f Makefile_config_trilinos
-  fi
+          ML_INCLUDES=`make -sf Makefile_config_trilinos echo_include`
+          ML_LIBS=`make -sf Makefile_config_trilinos echo_libs`
+          rm -f Makefile_config_trilinos
+       ])
 
-  #
-  # ML
-  if (test $enableml != no); then
-    printf '%s\n' "include $ML_MAKEFILE_EXPORT" > Makefile_config_trilinos
-    printf '%s\n' "echo_libs:" >> Makefile_config_trilinos
-    printf '\t%s\n' "@echo \$(ML_LIBS)" >> Makefile_config_trilinos
-    printf '%s\n' "echo_include:" >> Makefile_config_trilinos
-    printf '\t%s\n' "@echo \$(ML_INCLUDES)" >> Makefile_config_trilinos
+  dnl Tpetra
+  AS_IF([test "x$enabletpetra" != "xno"],
+        [
+          printf '%s\n' "include $TPETRA_MAKEFILE_EXPORT" > Makefile_config_trilinos
+          printf '%s\n' "echo_libs:" >> Makefile_config_trilinos
+          printf '\t%s\n' "@echo \$(TPETRA_LIBS)" >> Makefile_config_trilinos
+          printf '%s\n' "echo_include:" >> Makefile_config_trilinos
+          printf '\t%s\n' "@echo \$(TPETRA_INCLUDES)" >> Makefile_config_trilinos
 
-    #echo "Makefile_config_trilinos="
-    #cat Makefile_config_trilinos
-    ML_INCLUDES=`make -sf Makefile_config_trilinos echo_include`
-    ML_LIBS=`make -sf Makefile_config_trilinos echo_libs`
-
-    #echo ML_LIBS=$ML_LIBS
-    #echo ML_INCLUDES=$ML_INCLUDES
-
-    rm -f Makefile_config_trilinos
-  fi
-
-
-
-  #
-  # Tpetra
-  if (test $enabletpetra != no); then
-    printf '%s\n' "include $TPETRA_MAKEFILE_EXPORT" > Makefile_config_trilinos
-    printf '%s\n' "echo_libs:" >> Makefile_config_trilinos
-    printf '\t%s\n' "@echo \$(TPETRA_LIBS)" >> Makefile_config_trilinos
-    printf '%s\n' "echo_include:" >> Makefile_config_trilinos
-    printf '\t%s\n' "@echo \$(TPETRA_INCLUDES)" >> Makefile_config_trilinos
-
-    #echo "Makefile_config_trilinos="
-    #cat Makefile_config_trilinos
-    TPETRA_INCLUDES=`make -sf Makefile_config_trilinos echo_include`
-    TPETRA_LIBS=`make -sf Makefile_config_trilinos echo_libs`
-
-    #echo TPETRA_LIBS=$TPETRA_LIBS
-    #echo TPETRA_INCLUDES=$TPETRA_INCLUDES
-
-    rm -f Makefile_config_trilinos
-  fi
+          TPETRA_INCLUDES=`make -sf Makefile_config_trilinos echo_include`
+          TPETRA_LIBS=`make -sf Makefile_config_trilinos echo_libs`
+          rm -f Makefile_config_trilinos
+       ])
 
   AC_SUBST(AZTECOO_LIBS)
   AC_SUBST(AZTECOO_INCLUDES)
