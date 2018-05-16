@@ -35055,13 +35055,15 @@ fi
 
 
 
-       if test "$enabledtk" != no ; then
+       if test "x$enabledtk" != "xno"; then :
+
 
 $as_echo "#define TRILINOS_HAVE_DTK 1" >>confdefs.h
 
-          { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with DTK support >>>" >&5
+               { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with DTK support >>>" >&5
 $as_echo "<<< Configuring library with DTK support >>>" >&6; }
-       fi
+
+fi
 
 
                                           as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/Ifpack_config.h" | $as_tr_sh`
@@ -35082,13 +35084,15 @@ fi
 
 
 
-       if test "$enableifpack" != no ; then
+       if test "x$enableifpack" != "xno"; then :
+
 
 $as_echo "#define TRILINOS_HAVE_IFPACK 1" >>confdefs.h
 
-          { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with Trilinos Ifpack support >>>" >&5
+               { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with Trilinos Ifpack support >>>" >&5
 $as_echo "<<< Configuring library with Trilinos Ifpack support >>>" >&6; }
-       fi
+
+fi
 
                                           as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/EpetraExt_config.h" | $as_tr_sh`
 ac_fn_cxx_check_header_mongrel "$LINENO" "$withtrilinosdir/include/EpetraExt_config.h" "$as_ac_Header" "$ac_includes_default"
@@ -35108,13 +35112,15 @@ fi
 
 
 
-       if test "$enableepetraext" != no ; then
+       if test "x$enableepetraext" != "xno"; then :
+
 
 $as_echo "#define TRILINOS_HAVE_EPETRAEXT 1" >>confdefs.h
 
-          { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with Trilinos EpetraExt support >>>" >&5
+               { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with Trilinos EpetraExt support >>>" >&5
 $as_echo "<<< Configuring library with Trilinos EpetraExt support >>>" >&6; }
-       fi
+
+fi
 
                                                  as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/Epetra_config.h" | $as_tr_sh`
 ac_fn_cxx_check_header_mongrel "$LINENO" "$withtrilinosdir/include/Epetra_config.h" "$as_ac_Header" "$ac_includes_default"
@@ -35134,13 +35140,15 @@ fi
 
 
 
-       if test "$enableepetra" != no ; then
+       if test "x$enableepetra" != "xno"; then :
+
 
 $as_echo "#define TRILINOS_HAVE_EPETRA 1" >>confdefs.h
 
-          { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with Trilinos Epetra support >>>" >&5
+               { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with Trilinos Epetra support >>>" >&5
 $as_echo "<<< Configuring library with Trilinos Epetra support >>>" >&6; }
-       fi
+
+fi
 
     fi
   else
