@@ -35256,8 +35256,6 @@ else
 fi
 
 
-
-
 # Check whether --with-ml was given.
 if test "${with_ml+set}" = set; then :
   withval=$with_ml; withmldir=$withval
@@ -35266,26 +35264,30 @@ else
 fi
 
 
-  if test "$withmldir" != no ; then
-    if (test -r $withmldir/include/Makefile.export.ml) ; then
-      ML_MAKEFILE_EXPORT=$withmldir/include/Makefile.export.ml
-    elif (test -r $withmldir/packages/nox/Makefile.export.ml) ; then
-      ML_MAKEFILE_EXPORT=$withmldir/packages/nox/Makefile.export.ml
-    else
-      enableml=no
-    fi
+  if test "x$withmldir" != "xno"; then :
 
-    if test "$enableml" != no ; then
-       enableml=yes
+          if test -r $withmldir/include/Makefile.export.ml; then :
+  ML_MAKEFILE_EXPORT=$withmldir/include/Makefile.export.ml
+elif test -r $withmldir/packages/nox/Makefile.export.ml; then :
+  ML_MAKEFILE_EXPORT=$withmldir/packages/nox/Makefile.export.ml
+else
+  enableml=no
+fi
+
+          if test "x$enableml" != "xno"; then :
+
+                  enableml=yes
 
 $as_echo "#define TRILINOS_HAVE_ML 1" >>confdefs.h
 
-       { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with ML support >>>" >&5
+                  { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with ML support >>>" >&5
 $as_echo "<<< Configuring library with ML support >>>" >&6; }
-    fi
-  else
-    enableml=no
-  fi
+
+fi
+
+else
+  enableml=no
+fi
 
 
 # Check whether --with-tpetra was given.
