@@ -35194,8 +35194,9 @@ else
 fi
 
 
-    if test "$withtrilinosdir" != no ; then
-    if test -r $withtrilinosdir/include/Makefile.export.aztecoo; then :
+    if test "x$withtrilinosdir" != "xno"; then :
+
+          if test -r $withtrilinosdir/include/Makefile.export.aztecoo; then :
   AZTECOO_MAKEFILE_EXPORT=$withtrilinosdir/include/Makefile.export.aztecoo
 elif test -r $withtrilinosdir/packages/aztecoo/Makefile.export.aztecoo; then :
   AZTECOO_MAKEFILE_EXPORT=$withtrilinosdir/packages/aztecoo/Makefile.export.aztecoo
@@ -35203,19 +35204,22 @@ else
   enableaztecoo=no
 fi
 
-    if test "$enableaztecoo" != no ; then
-       enableaztecoo=yes
+          if test "x$enableaztecoo" != "xno"; then :
+
+                  enableaztecoo=yes
 
 $as_echo "#define TRILINOS_HAVE_AZTECOO 1" >>confdefs.h
 
-       $as_echo "#define HAVE_TRILINOS 1" >>confdefs.h
+                  $as_echo "#define HAVE_TRILINOS 1" >>confdefs.h
 
-       { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with Trilinos 9 support >>>" >&5
+                  { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with Trilinos 9 support >>>" >&5
 $as_echo "<<< Configuring library with Trilinos 9 support >>>" >&6; }
-    fi
-  else
-    enableaztecoo=no
-  fi
+
+fi
+
+else
+  enableaztecoo=no
+fi
 
 
 # Check whether --with-nox was given.
