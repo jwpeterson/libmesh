@@ -284,24 +284,22 @@ AC_DEFUN([CONFIGURE_TRILINOS_9],
               withnoxdir=$withval,
               withnoxdir=$TRILINOS_DIR)
 
-  if test "$withnoxdir" != no ; then
-    if (test -r $withnoxdir/include/Makefile.export.nox) ; then
-      NOX_MAKEFILE_EXPORT=$withnoxdir/include/Makefile.export.nox
-    elif (test -r $withnoxdir/packages/nox/Makefile.export.nox) ; then
-      NOX_MAKEFILE_EXPORT=$withnoxdir/packages/nox/Makefile.export.nox
-    else
-      enablenox=no
-    fi
+  AS_IF([test "x$withnoxdir" != "xno"],
+        [
+          AS_IF([test -r $withnoxdir/include/Makefile.export.nox],
+                [NOX_MAKEFILE_EXPORT=$withnoxdir/include/Makefile.export.nox],
+                [test -r $withnoxdir/packages/nox/Makefile.export.nox],
+                [NOX_MAKEFILE_EXPORT=$withnoxdir/packages/nox/Makefile.export.nox],
+                [enablenox=no])
 
-    if test "$enablenox" != no ; then
-       enablenox=yes
-       AC_DEFINE(TRILINOS_HAVE_NOX, 1,
-                 [Flag indicating whether the library shall be compiled to use the Nox solver collection])
-       AC_MSG_RESULT(<<< Configuring library with Nox support >>>)
-    fi
-  else
-    enablenox=no
-  fi
+          AS_IF([test "$enablenox" != "xno"],
+                [
+                  enablenox=yes
+                  AC_DEFINE(TRILINOS_HAVE_NOX, 1, [Flag indicating whether the library shall be compiled to use the Nox solver collection])
+                  AC_MSG_RESULT(<<< Configuring library with Nox support >>>)
+                ])
+        ],
+        [enablenox=no])
 
 
 
