@@ -34785,14 +34785,15 @@ $as_echo "yes" >&6; }
     if test "$enabletrilinos" != no ; then
       # -- try Trilinos 10 first
 
-  if (test "x$TRILINOS_DIR" = "x"); then
-    # Ubuntu trilinos package?
-    if (test -d /usr/include/trilinos); then
-      TRILINOS_DIR=/usr/include/trilinos
-    else
-      TRILINOS_DIR=no
-    fi
-  fi
+  if test "x$TRILINOS_DIR" = "x"; then :
+
+                    if test -d /usr/include/trilinos; then :
+  TRILINOS_DIR=/usr/include/trilinos
+else
+  TRILINOS_DIR=no
+fi
+
+fi
 
 
 # Check whether --with-trilinos was given.
