@@ -260,24 +260,23 @@ AC_DEFUN([CONFIGURE_TRILINOS_9],
               withtrilinosdir=$TRILINOS_DIR)
 
   dnl AztecOO
-  if test "$withtrilinosdir" != no ; then
-    AS_IF([test -r $withtrilinosdir/include/Makefile.export.aztecoo],
-          [AZTECOO_MAKEFILE_EXPORT=$withtrilinosdir/include/Makefile.export.aztecoo],
-          [test -r $withtrilinosdir/packages/aztecoo/Makefile.export.aztecoo],
-          [AZTECOO_MAKEFILE_EXPORT=$withtrilinosdir/packages/aztecoo/Makefile.export.aztecoo],
-          [enableaztecoo=no])
+  AS_IF([test "x$withtrilinosdir" != "xno"],
+        [
+          AS_IF([test -r $withtrilinosdir/include/Makefile.export.aztecoo],
+                [AZTECOO_MAKEFILE_EXPORT=$withtrilinosdir/include/Makefile.export.aztecoo],
+                [test -r $withtrilinosdir/packages/aztecoo/Makefile.export.aztecoo],
+                [AZTECOO_MAKEFILE_EXPORT=$withtrilinosdir/packages/aztecoo/Makefile.export.aztecoo],
+                [enableaztecoo=no])
 
-    if test "$enableaztecoo" != no ; then
-       enableaztecoo=yes
-       AC_DEFINE(TRILINOS_HAVE_AZTECOO, 1,
-                 [Flag indicating whether the library shall be compiled to use the Trilinos solver collection])
-       AC_DEFINE(HAVE_TRILINOS, 1,
-                 [])
-       AC_MSG_RESULT(<<< Configuring library with Trilinos 9 support >>>)
-    fi
-  else
-    enableaztecoo=no
-  fi
+          AS_IF([test "x$enableaztecoo" != "xno"],
+                [
+                  enableaztecoo=yes
+                  AC_DEFINE(TRILINOS_HAVE_AZTECOO, 1, [Flag indicating whether the library shall be compiled to use the Trilinos solver collection])
+                  AC_DEFINE(HAVE_TRILINOS, 1, [])
+                  AC_MSG_RESULT(<<< Configuring library with Trilinos 9 support >>>)
+                ])
+        ],
+        [enableaztecoo=no])
 
   dnl Nox
   AC_ARG_WITH(nox,
