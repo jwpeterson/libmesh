@@ -40,9 +40,8 @@ AC_DEFUN([CONFIGURE_TRILINOS_10],
              ])
 
        dnl If we couldn't extract the actual major version number, go with "10+"
-       if test "x$trilinosversionstring" = "x" ; then
-         trilinosversionstring=10+
-       fi
+       AS_IF([test "x$trilinosversionstring" = "x"],
+             [trilinosversionstring=10+])
 
        AC_DEFINE(HAVE_TRILINOS, 1,
                  [Flag indicating whether the library shall be compiled to use the Trilinos solver collection])
