@@ -35171,9 +35171,9 @@ fi
 
 fi
 
-        if (test "x$RPATHFLAG" != "x" -a -d ${withtrilinosdir}/lib); then
-    TRILINOS_LIBS="${RPATHFLAG}${withtrilinosdir}/lib $TRILINOS_LIBS"
-  fi
+        if test "x$RPATHFLAG" != "x" && test -d ${withtrilinosdir}/lib; then :
+  TRILINOS_LIBS="${RPATHFLAG}${withtrilinosdir}/lib $TRILINOS_LIBS"
+fi
 
 
 
