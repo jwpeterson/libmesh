@@ -34739,11 +34739,14 @@ fi
 
   # Check whether --enable-trilinos was given.
 if test "${enable_trilinos+set}" = set; then :
-  enableval=$enable_trilinos; case "${enableval}" in
-                                 yes)  enabletrilinos=yes ;;
-                                 no)  enabletrilinos=no ;;
-                                 *)  as_fn_error $? "bad value ${enableval} for --enable-trilinos" "$LINENO" 5 ;;
-                               esac
+  enableval=$enable_trilinos; case "${enableval}" in #(
+  yes) :
+    enabletrilinos=yes ;; #(
+  no) :
+    enabletrilinos=no ;; #(
+  *) :
+    as_fn_error $? "bad value ${enableval} for --enable-trilinos" "$LINENO" 5 ;;
+esac
 else
   enabletrilinos=$enableoptional
 fi
