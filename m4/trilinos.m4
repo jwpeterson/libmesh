@@ -17,13 +17,11 @@ AC_DEFUN([CONFIGURE_TRILINOS_10],
               withtrilinosdir=$TRILINOS_DIR)
 
   if test "$withtrilinosdir" != no ; then
-    if (test -r $withtrilinosdir/include/Makefile.export.Trilinos) ; then
-      TRILINOS_MAKEFILE_EXPORT=$withtrilinosdir/include/Makefile.export.Trilinos
-    elif (test -r $withtrilinosdir/Makefile.export.Trilinos) ; then
-      TRILINOS_MAKEFILE_EXPORT=$withtrilinosdir/Makefile.export.Trilinos
-    else
-      enabletrilinos10=no
-    fi
+    AS_IF([test -r $withtrilinosdir/include/Makefile.export.Trilinos],
+          [TRILINOS_MAKEFILE_EXPORT=$withtrilinosdir/include/Makefile.export.Trilinos],
+          [test -r $withtrilinosdir/Makefile.export.Trilinos],
+          [TRILINOS_MAKEFILE_EXPORT=$withtrilinosdir/Makefile.export.Trilinos],
+          [enabletrilinos10=no])
 
     if test "$enabletrilinos10" != no ; then
        dnl This actually implies Trilinos 10+, as this configure
@@ -36,9 +34,10 @@ AC_DEFUN([CONFIGURE_TRILINOS_10],
        trilinosversionstring=`grep "define TRILINOS_VERSION_STRING" $withtrilinosdir/include/Trilinos_version.h | sed -e "s/#define TRILINOS_VERSION_STRING[ ]*//g" | tr -d '"'`
 
        dnl If we couldn't extract anything for the full version string, try to just get the major version number.
-       if test "x$trilinosversionstring" = "x" ; then
-         trilinosversionstring=`grep "define TRILINOS_MAJOR_VERSION" $withtrilinosdir/include/Trilinos_version.h | sed -e "s/#define TRILINOS_MAJOR_VERSION[ ]*//g"`
-       fi
+       AS_IF([test "x$trilinosversionstring" = "x"],
+             [
+               trilinosversionstring=`grep "define TRILINOS_MAJOR_VERSION" $withtrilinosdir/include/Trilinos_version.h | sed -e "s/#define TRILINOS_MAJOR_VERSION[ ]*//g"`
+             ])
 
        dnl If we couldn't extract the actual major version number, go with "10+"
        if test "x$trilinosversionstring" = "x" ; then
