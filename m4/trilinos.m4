@@ -301,32 +301,28 @@ AC_DEFUN([CONFIGURE_TRILINOS_9],
         ],
         [enablenox=no])
 
-
-
   dnl ML
   AC_ARG_WITH(ml,
               AS_HELP_STRING([--with-ml=PATH],[Specify the path to ML installation]),
               withmldir=$withval,
               withmldir=$TRILINOS_DIR)
 
-  if test "$withmldir" != no ; then
-    if (test -r $withmldir/include/Makefile.export.ml) ; then
-      ML_MAKEFILE_EXPORT=$withmldir/include/Makefile.export.ml
-    elif (test -r $withmldir/packages/nox/Makefile.export.ml) ; then
-      ML_MAKEFILE_EXPORT=$withmldir/packages/nox/Makefile.export.ml
-    else
-      enableml=no
-    fi
+  AS_IF([test "x$withmldir" != "xno"],
+        [
+          AS_IF([test -r $withmldir/include/Makefile.export.ml],
+                [ML_MAKEFILE_EXPORT=$withmldir/include/Makefile.export.ml],
+                [test -r $withmldir/packages/nox/Makefile.export.ml],
+                [ML_MAKEFILE_EXPORT=$withmldir/packages/nox/Makefile.export.ml],
+                [enableml=no])
 
-    if test "$enableml" != no ; then
-       enableml=yes
-       AC_DEFINE(TRILINOS_HAVE_ML, 1,
-                 [Flag indicating whether the library shall be compiled to use the ML package])
-       AC_MSG_RESULT(<<< Configuring library with ML support >>>)
-    fi
-  else
-    enableml=no
-  fi
+          AS_IF([test "x$enableml" != "xno"],
+                [
+                  enableml=yes
+                  AC_DEFINE(TRILINOS_HAVE_ML, 1, [Flag indicating whether the library shall be compiled to use the ML package])
+                  AC_MSG_RESULT(<<< Configuring library with ML support >>>)
+                ])
+        ],
+        [enableml=no])
 
   dnl Tpetra
   AC_ARG_WITH(tpetra,
