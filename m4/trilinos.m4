@@ -109,11 +109,11 @@ AC_DEFUN([CONFIGURE_TRILINOS_10],
                        @%:@endif
                        ])
 
-       if test "$enableml" != no ; then
-          AC_DEFINE(TRILINOS_HAVE_ML, 1,
-                    [Flag indicating whether the library shall be compiled to use the Trilinos ML package])
-          AC_MSG_RESULT(<<< Configuring library with ML support >>>)
-       fi
+       AS_IF([test "x$enableml" != "xno"],
+             [
+               AC_DEFINE(TRILINOS_HAVE_ML, 1, [Flag indicating whether the library shall be compiled to use the Trilinos ML package])
+               AC_MSG_RESULT(<<< Configuring library with ML support >>>)
+             ])
 
        dnl ------------------------------------------------------
        dnl TPetra
@@ -130,11 +130,11 @@ AC_DEFUN([CONFIGURE_TRILINOS_10],
                                                                                            [enabletpetra=yes],
                                                                                            [enabletpetra=no])])])])])
 
-       if test "$enabletpetra" != no ; then
-          AC_DEFINE(TRILINOS_HAVE_TPETRA, 1,
-                    [Flag indicating whether the library shall be compiled to use the Trilinos TPetra package])
-          AC_MSG_RESULT(<<< Configuring library with TPetra support >>>)
-       fi
+       AS_IF([test "x$enabletpetra" != "xno"],
+             [
+               AC_DEFINE(TRILINOS_HAVE_TPETRA, 1, [Flag indicating whether the library shall be compiled to use the Trilinos TPetra package])
+               AC_MSG_RESULT(<<< Configuring library with TPetra support >>>)
+             ])
 
        dnl ------------------------------------------------------
        dnl DTK
