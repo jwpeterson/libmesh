@@ -35298,26 +35298,30 @@ else
 fi
 
 
-  if test "$withtpetradir" != no ; then
-    if (test -r $withtpetradir/include/Makefile.export.Tpetra) ; then
-      TPETRA_MAKEFILE_EXPORT=$withtpetradir/include/Makefile.export.Tpetra
-    elif (test -r $withtpetradir/packages/tpetra/Makefile.export.Tpetra) ; then
-      TPETRA_MAKEFILE_EXPORT=$withtpetradir/packages/tpetra/Makefile.export.Tpetra
-    else
-      enabletpetra=no
-    fi
+  if test "x$withtpetradir" != "xno"; then :
 
-    if test "$enabletpetra" != no ; then
-       enabletpetra=yes
+          if test -r $withtpetradir/include/Makefile.export.Tpetra; then :
+  TPETRA_MAKEFILE_EXPORT=$withtpetradir/include/Makefile.export.Tpetra
+elif test -r $withtpetradir/packages/tpetra/Makefile.export.Tpetra; then :
+  TPETRA_MAKEFILE_EXPORT=$withtpetradir/packages/tpetra/Makefile.export.Tpetra
+else
+  enabletpetra=no
+fi
+
+          if test "x$enabletpetra" != "xno"; then :
+
+                  enabletpetra=yes
 
 $as_echo "#define TRILINOS_HAVE_TPETRA 1" >>confdefs.h
 
-       { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with Tpetra support >>>" >&5
+                  { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with Tpetra support >>>" >&5
 $as_echo "<<< Configuring library with Tpetra support >>>" >&6; }
-    fi
-  else
-    enabletpetra=no
-  fi
+
+fi
+
+else
+  enabletpetra=no
+fi
 
 
 
