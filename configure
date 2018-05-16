@@ -35230,26 +35230,30 @@ else
 fi
 
 
-  if test "$withnoxdir" != no ; then
-    if (test -r $withnoxdir/include/Makefile.export.nox) ; then
-      NOX_MAKEFILE_EXPORT=$withnoxdir/include/Makefile.export.nox
-    elif (test -r $withnoxdir/packages/nox/Makefile.export.nox) ; then
-      NOX_MAKEFILE_EXPORT=$withnoxdir/packages/nox/Makefile.export.nox
-    else
-      enablenox=no
-    fi
+  if test "x$withnoxdir" != "xno"; then :
 
-    if test "$enablenox" != no ; then
-       enablenox=yes
+          if test -r $withnoxdir/include/Makefile.export.nox; then :
+  NOX_MAKEFILE_EXPORT=$withnoxdir/include/Makefile.export.nox
+elif test -r $withnoxdir/packages/nox/Makefile.export.nox; then :
+  NOX_MAKEFILE_EXPORT=$withnoxdir/packages/nox/Makefile.export.nox
+else
+  enablenox=no
+fi
+
+          if test "$enablenox" != "xno"; then :
+
+                  enablenox=yes
 
 $as_echo "#define TRILINOS_HAVE_NOX 1" >>confdefs.h
 
-       { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with Nox support >>>" >&5
+                  { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with Nox support >>>" >&5
 $as_echo "<<< Configuring library with Nox support >>>" >&6; }
-    fi
-  else
-    enablenox=no
-  fi
+
+fi
+
+else
+  enablenox=no
+fi
 
 
 
