@@ -251,9 +251,8 @@ dnl Trilinos 9
 dnl -------------------------------------------------------------
 AC_DEFUN([CONFIGURE_TRILINOS_9],
 [
-  if test "x$TRILINOS_DIR" = "x"; then
-    TRILINOS_DIR=no
-  fi
+  AS_IF([test "x$TRILINOS_DIR" = "x"],
+        [TRILINOS_DIR=no])
 
   AC_ARG_WITH(trilinos,
               AS_HELP_STRING([--with-trilinos=PATH],[Specify the path to Trilinos installation]),
@@ -262,13 +261,11 @@ AC_DEFUN([CONFIGURE_TRILINOS_9],
 
   dnl AztecOO
   if test "$withtrilinosdir" != no ; then
-    if (test -r $withtrilinosdir/include/Makefile.export.aztecoo) ; then
-      AZTECOO_MAKEFILE_EXPORT=$withtrilinosdir/include/Makefile.export.aztecoo
-    elif (test -r $withtrilinosdir/packages/aztecoo/Makefile.export.aztecoo) ; then
-      AZTECOO_MAKEFILE_EXPORT=$withtrilinosdir/packages/aztecoo/Makefile.export.aztecoo
-    else
-      enableaztecoo=no
-    fi
+    AS_IF([test -r $withtrilinosdir/include/Makefile.export.aztecoo],
+          [AZTECOO_MAKEFILE_EXPORT=$withtrilinosdir/include/Makefile.export.aztecoo],
+          [test -r $withtrilinosdir/packages/aztecoo/Makefile.export.aztecoo],
+          [AZTECOO_MAKEFILE_EXPORT=$withtrilinosdir/packages/aztecoo/Makefile.export.aztecoo],
+          [enableaztecoo=no])
 
     if test "$enableaztecoo" != no ; then
        enableaztecoo=yes
