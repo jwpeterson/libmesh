@@ -217,26 +217,20 @@ AC_DEFUN([CONFIGURE_TRILINOS_10],
 
   AC_SUBST(TRILINOS_MAKEFILE_EXPORT)
 
-  #########################################################
-  # get requisite include and library variables by snarfing
-  # them from the exported makefiles
-  if (test $enabletrilinos10 != no); then
-    printf '%s\n' "include $TRILINOS_MAKEFILE_EXPORT" > Makefile_config_trilinos
-    printf '%s\n' "echo_libs:" >> Makefile_config_trilinos
-    printf '\t%s\n' "@echo \$(Trilinos_LIBRARIES) \$(Trilinos_LIBRARY_DIRS) \$(Trilinos_TPL_LIBRARIES) \$(Trilinos_TPL_LIBRARY_DIRS)" >> Makefile_config_trilinos
-    printf '%s\n' "echo_include:" >> Makefile_config_trilinos
-    printf '\t%s\n' "@echo \$(Trilinos_INCLUDE_DIRS) \$(Trilinos_TPL_INCLUDE_DIRS)" >> Makefile_config_trilinos
+  dnl get requisite include and library variables by snarfing
+  dnl them from the exported makefiles
+  AS_IF([test "x$enabletrilinos10" != "xno"],
+        [
+          printf '%s\n' "include $TRILINOS_MAKEFILE_EXPORT" > Makefile_config_trilinos
+          printf '%s\n' "echo_libs:" >> Makefile_config_trilinos
+          printf '\t%s\n' "@echo \$(Trilinos_LIBRARIES) \$(Trilinos_LIBRARY_DIRS) \$(Trilinos_TPL_LIBRARIES) \$(Trilinos_TPL_LIBRARY_DIRS)" >> Makefile_config_trilinos
+          printf '%s\n' "echo_include:" >> Makefile_config_trilinos
+          printf '\t%s\n' "@echo \$(Trilinos_INCLUDE_DIRS) \$(Trilinos_TPL_INCLUDE_DIRS)" >> Makefile_config_trilinos
 
-    #echo "Makefile_config_trilinos="
-    #cat Makefile_config_trilinos
-    TRILINOS_INCLUDES=`make -sf Makefile_config_trilinos echo_include`
-    TRILINOS_LIBS=`make -sf Makefile_config_trilinos echo_libs`
-
-    #echo TRILINOS_LIBS=$TRILINOS_LIBS
-    #echo TRILINOS_INCLUDES=$TRILINOS_INCLUDES
-
-    rm -f Makefile_config_trilinos
-  fi
+          TRILINOS_INCLUDES=`make -sf Makefile_config_trilinos echo_include`
+          TRILINOS_LIBS=`make -sf Makefile_config_trilinos echo_libs`
+          rm -f Makefile_config_trilinos
+       ])
 
   dnl Add an rpath for $withtrilinosdir/lib to the link line.  You don't
   dnl need this if Trilinos is built with static libs or if you can rely
