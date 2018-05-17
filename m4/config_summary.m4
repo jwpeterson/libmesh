@@ -17,17 +17,17 @@ AC_DEFUN([AX_SUMMARIZE_CONFIG],
 [
 
 ######################################################################################
-echo
+AS_ECHO([])
 echo '----------------------------------- SUMMARY -----------------------------------'
-echo
+AS_ECHO([])
 echo Package version.................... : $PACKAGE-$VERSION
-echo
+AS_ECHO([])
 echo C++ compiler type.................. : $GXX_VERSION
 echo C++ compiler....................... : $CXX
 echo C compiler......................... : $CC
 echo Fortran compiler................... : $FC
 echo Build Methods...................... : $METHODS
-echo " "
+AS_ECHO([])
 for method in ${METHODS}; do
      case "${method}" in
          opt)
@@ -55,7 +55,7 @@ echo CPPFLAGS...\(oprof\)................. : $CPPFLAGS_OPROF $CPFLAGS
 echo CXXFLAGS...\(oprof\)................. : $CXXFLAGS_OPROF $CXXFLAGS
 echo CFLAGS.....\(oprof\)................. : $CFLAGS_OPROF $CFLAGS
      esac
-     echo " "
+     AS_ECHO([])
 done
 echo Install dir........................ : $prefix
 echo Build user......................... : $USER
@@ -64,7 +64,7 @@ echo Build architecture................. : $BUILD_ARCH
 echo Git revision....................... : $BUILD_VERSION
 
 ######################################################################################
-echo
+AS_ECHO([])
 echo Library Features:
 echo '  library warnings................. :' $enablewarnings
 echo '  library deprecated code support.. :' $enabledeprecated
@@ -170,22 +170,21 @@ if (test "x$enableoptional" = "xyes"); then
   AS_ECHO(["  vtk.............................. : $enablevtk"])
   AS_IF([test "x$enablevtk" = "xyes"],
         [echo '     'version....................... : $vtkversion])
-  dnl blank line
-  echo
+  AS_ECHO([])
   AS_IF([test "x$libmesh_optional_INCLUDES" != "x"],
         [
           echo '  'libmesh_optional_INCLUDES........ : $libmesh_optional_INCLUDES
-          echo
+          AS_ECHO([])
         ])
   AS_IF([test "x$libmesh_optional_LIBS" != "x"],
         [
           echo '  'libmesh_optional_LIBS............ : $libmesh_optional_LIBS
-          echo
+          AS_ECHO([])
         ])
 fi
 echo '-------------------------------------------------------------------------------'
 
 echo Configure complete, now type \'make\' and then \'make install\'.
-echo
+AS_ECHO([])
 
 ])
