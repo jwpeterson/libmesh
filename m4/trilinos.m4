@@ -18,204 +18,204 @@ AC_DEFUN([CONFIGURE_TRILINOS_10],
 
   AS_IF([test "x$withtrilinosdir" != "xno"],
         [
-    AS_IF([test -r $withtrilinosdir/include/Makefile.export.Trilinos],
-          [TRILINOS_MAKEFILE_EXPORT=$withtrilinosdir/include/Makefile.export.Trilinos],
-          [test -r $withtrilinosdir/Makefile.export.Trilinos],
-          [TRILINOS_MAKEFILE_EXPORT=$withtrilinosdir/Makefile.export.Trilinos],
-          [enabletrilinos10=no])
+          AS_IF([test -r $withtrilinosdir/include/Makefile.export.Trilinos],
+                [TRILINOS_MAKEFILE_EXPORT=$withtrilinosdir/include/Makefile.export.Trilinos],
+                [test -r $withtrilinosdir/Makefile.export.Trilinos],
+                [TRILINOS_MAKEFILE_EXPORT=$withtrilinosdir/Makefile.export.Trilinos],
+                [enabletrilinos10=no])
 
-    AS_IF([test "x$enabletrilinos10" != "xno"],
-          [
-       dnl This actually implies Trilinos 10+, as this configure
-       dnl function also works with Trilinos 11.
-       enabletrilinos10=yes
+          AS_IF([test "x$enabletrilinos10" != "xno"],
+                [
+             dnl This actually implies Trilinos 10+, as this configure
+             dnl function also works with Trilinos 11.
+             enabletrilinos10=yes
 
-       dnl Try to detect the full Trilinos version string by grepping through Trilinos_version.h.
-       dnl The version string is surrounded by quotes, so we use a slight variation on our usual
-       dnl grep command, and pass the result through 'tr' to remove those.
-       trilinosversionstring=`grep "define TRILINOS_VERSION_STRING" $withtrilinosdir/include/Trilinos_version.h | sed -e "s/#define TRILINOS_VERSION_STRING[ ]*//g" | tr -d '"'`
+             dnl Try to detect the full Trilinos version string by grepping through Trilinos_version.h.
+             dnl The version string is surrounded by quotes, so we use a slight variation on our usual
+             dnl grep command, and pass the result through 'tr' to remove those.
+             trilinosversionstring=`grep "define TRILINOS_VERSION_STRING" $withtrilinosdir/include/Trilinos_version.h | sed -e "s/#define TRILINOS_VERSION_STRING[ ]*//g" | tr -d '"'`
 
-       dnl If we couldn't extract anything for the full version string, try to just get the major version number.
-       AS_IF([test "x$trilinosversionstring" = "x"],
-             [
-               trilinosversionstring=`grep "define TRILINOS_MAJOR_VERSION" $withtrilinosdir/include/Trilinos_version.h | sed -e "s/#define TRILINOS_MAJOR_VERSION[ ]*//g"`
-             ])
+             dnl If we couldn't extract anything for the full version string, try to just get the major version number.
+             AS_IF([test "x$trilinosversionstring" = "x"],
+                   [
+                     trilinosversionstring=`grep "define TRILINOS_MAJOR_VERSION" $withtrilinosdir/include/Trilinos_version.h | sed -e "s/#define TRILINOS_MAJOR_VERSION[ ]*//g"`
+                   ])
 
-       dnl If we couldn't extract the actual major version number, go with "10+"
-       AS_IF([test "x$trilinosversionstring" = "x"],
-             [trilinosversionstring=10+])
+             dnl If we couldn't extract the actual major version number, go with "10+"
+             AS_IF([test "x$trilinosversionstring" = "x"],
+                   [trilinosversionstring=10+])
 
-       AC_DEFINE(HAVE_TRILINOS, 1,
-                 [Flag indicating whether the library shall be compiled to use the Trilinos solver collection])
-       AC_MSG_RESULT([<<< Configuring library with Trilinos $trilinosversionstring support >>>])
+             AC_DEFINE(HAVE_TRILINOS, 1,
+                       [Flag indicating whether the library shall be compiled to use the Trilinos solver collection])
+             AC_MSG_RESULT([<<< Configuring library with Trilinos $trilinosversionstring support >>>])
 
-       dnl ------------------------------------------------------
-       dnl AztecOO
-       dnl ------------------------------------------------------
-       AC_CHECK_HEADER([$withtrilinosdir/include/AztecOO_config.h],
-                       [enableaztecoo=yes],
-                       [AC_CHECK_HEADER([$withtrilinosdir/AztecOO_config.h],
-                                        [enableaztecoo=yes],
-                                        [AC_CHECK_HEADER([$withtrilinosdir/packages/aztecoo/src/AztecOO_config.h],
-                                                         [enableaztecoo=yes],
-                                                         [enableaztecoo=no])
-                                                         ])])
+             dnl ------------------------------------------------------
+             dnl AztecOO
+             dnl ------------------------------------------------------
+             AC_CHECK_HEADER([$withtrilinosdir/include/AztecOO_config.h],
+                             [enableaztecoo=yes],
+                             [AC_CHECK_HEADER([$withtrilinosdir/AztecOO_config.h],
+                                              [enableaztecoo=yes],
+                                              [AC_CHECK_HEADER([$withtrilinosdir/packages/aztecoo/src/AztecOO_config.h],
+                                                               [enableaztecoo=yes],
+                                                               [enableaztecoo=no])
+                                                               ])])
 
-       AS_IF([test "x$enableaztecoo" != "xno"],
-             [
-               AC_DEFINE(TRILINOS_HAVE_AZTECOO, 1, [Flag indicating whether the library shall be compiled to use the Trilinos AztecOO linear solver])
-               AC_MSG_RESULT(<<< Configuring library with AztecOO support >>>)
-             ])
+             AS_IF([test "x$enableaztecoo" != "xno"],
+                   [
+                     AC_DEFINE(TRILINOS_HAVE_AZTECOO, 1, [Flag indicating whether the library shall be compiled to use the Trilinos AztecOO linear solver])
+                     AC_MSG_RESULT(<<< Configuring library with AztecOO support >>>)
+                   ])
 
-       dnl ------------------------------------------------------
-       dnl NOX
-       dnl ------------------------------------------------------
-       AC_CHECK_HEADER([$withtrilinosdir/include/NOX_Config.h],
-                       [enablenox=yes],
-                       [AC_CHECK_HEADER([$withtrilinosdir/NOX_Config.h],
-                                        [enablenox=yes],
-                                        [AC_CHECK_HEADER([$withtrilinosdir/packages/nox/src/NOX_Config.h],
-                                                         [enablenox=yes],
-                                                         [enablenox=no])])])
+             dnl ------------------------------------------------------
+             dnl NOX
+             dnl ------------------------------------------------------
+             AC_CHECK_HEADER([$withtrilinosdir/include/NOX_Config.h],
+                             [enablenox=yes],
+                             [AC_CHECK_HEADER([$withtrilinosdir/NOX_Config.h],
+                                              [enablenox=yes],
+                                              [AC_CHECK_HEADER([$withtrilinosdir/packages/nox/src/NOX_Config.h],
+                                                               [enablenox=yes],
+                                                               [enablenox=no])])])
 
-       AS_IF([test "x$enablenox" != "xno"],
-             [
-               AC_DEFINE(TRILINOS_HAVE_NOX, 1, [Flag indicating whether the library shall be compiled to use the Trilinos NOX nonlinear solver])
-               AC_MSG_RESULT(<<< Configuring library with NOX support >>>)
-             ])
+             AS_IF([test "x$enablenox" != "xno"],
+                   [
+                     AC_DEFINE(TRILINOS_HAVE_NOX, 1, [Flag indicating whether the library shall be compiled to use the Trilinos NOX nonlinear solver])
+                     AC_MSG_RESULT(<<< Configuring library with NOX support >>>)
+                   ])
 
-       dnl ------------------------------------------------------
-       dnl ML - prevent ML from keying on our 'HAVE_PETSC' by
-       dnl undefining it using the fourth argument to AC_CHECK_HEADER.
-       dnl ------------------------------------------------------
-       AC_CHECK_HEADER([$withtrilinosdir/include/ml_include.h],
-                       [enableml=yes],
-                       [AC_CHECK_HEADER([$withtrilinosdir/ml_include.h],
-                                        [enableml=yes],
-                                        [AC_CHECK_HEADER([$withtrilinosdir/packages/ml/src/ml_config.h],
-                                                         [enableml=yes],
-                                                         [enableml=no],
-                                                         [
-                                                         @%:@ifdef HAVE_PETSC
-                                                         @%:@undef HAVE_PETSC
-                                                         @%:@endif
-                                                         ])],
-                                        [
-                                        @%:@ifdef HAVE_PETSC
-                                        @%:@undef HAVE_PETSC
-                                        @%:@endif
-                                        ])],
-                       [
-                       @%:@ifdef HAVE_PETSC
-                       @%:@undef HAVE_PETSC
-                       @%:@endif
-                       ])
+             dnl ------------------------------------------------------
+             dnl ML - prevent ML from keying on our 'HAVE_PETSC' by
+             dnl undefining it using the fourth argument to AC_CHECK_HEADER.
+             dnl ------------------------------------------------------
+             AC_CHECK_HEADER([$withtrilinosdir/include/ml_include.h],
+                             [enableml=yes],
+                             [AC_CHECK_HEADER([$withtrilinosdir/ml_include.h],
+                                              [enableml=yes],
+                                              [AC_CHECK_HEADER([$withtrilinosdir/packages/ml/src/ml_config.h],
+                                                               [enableml=yes],
+                                                               [enableml=no],
+                                                               [
+                                                               @%:@ifdef HAVE_PETSC
+                                                               @%:@undef HAVE_PETSC
+                                                               @%:@endif
+                                                               ])],
+                                              [
+                                              @%:@ifdef HAVE_PETSC
+                                              @%:@undef HAVE_PETSC
+                                              @%:@endif
+                                              ])],
+                             [
+                             @%:@ifdef HAVE_PETSC
+                             @%:@undef HAVE_PETSC
+                             @%:@endif
+                             ])
 
-       AS_IF([test "x$enableml" != "xno"],
-             [
-               AC_DEFINE(TRILINOS_HAVE_ML, 1, [Flag indicating whether the library shall be compiled to use the Trilinos ML package])
-               AC_MSG_RESULT(<<< Configuring library with ML support >>>)
-             ])
+             AS_IF([test "x$enableml" != "xno"],
+                   [
+                     AC_DEFINE(TRILINOS_HAVE_ML, 1, [Flag indicating whether the library shall be compiled to use the Trilinos ML package])
+                     AC_MSG_RESULT(<<< Configuring library with ML support >>>)
+                   ])
 
-       dnl ------------------------------------------------------
-       dnl TPetra
-       dnl ------------------------------------------------------
-       AC_CHECK_HEADER([$withtrilinosdir/include/Tpetra_config.h],
-                       [enabletpetra=yes],
-                       [AC_CHECK_HEADER([$withtrilinosdir/Tpetra_config.h],
-                                        [enabletpetra=yes],
-                                        [AC_CHECK_HEADER([$withtrilinosdir/packages/tpetra/src/Tpetra_config.h],
-                                                         [enabletpetra=yes],
-                                                         [AC_CHECK_HEADER([$withtrilinosdir/packages/tpetra/core/src/TpetraCore_config.h],
-                                                                          [enabletpetra=yes],
-                                                                          [AC_CHECK_HEADER([$withtrilinosdir/include/TpetraCore_config.h],
-                                                                                           [enabletpetra=yes],
-                                                                                           [enabletpetra=no])])])])])
+             dnl ------------------------------------------------------
+             dnl TPetra
+             dnl ------------------------------------------------------
+             AC_CHECK_HEADER([$withtrilinosdir/include/Tpetra_config.h],
+                             [enabletpetra=yes],
+                             [AC_CHECK_HEADER([$withtrilinosdir/Tpetra_config.h],
+                                              [enabletpetra=yes],
+                                              [AC_CHECK_HEADER([$withtrilinosdir/packages/tpetra/src/Tpetra_config.h],
+                                                               [enabletpetra=yes],
+                                                               [AC_CHECK_HEADER([$withtrilinosdir/packages/tpetra/core/src/TpetraCore_config.h],
+                                                                                [enabletpetra=yes],
+                                                                                [AC_CHECK_HEADER([$withtrilinosdir/include/TpetraCore_config.h],
+                                                                                                 [enabletpetra=yes],
+                                                                                                 [enabletpetra=no])])])])])
 
-       AS_IF([test "x$enabletpetra" != "xno"],
-             [
-               AC_DEFINE(TRILINOS_HAVE_TPETRA, 1, [Flag indicating whether the library shall be compiled to use the Trilinos TPetra package])
-               AC_MSG_RESULT(<<< Configuring library with TPetra support >>>)
-             ])
+             AS_IF([test "x$enabletpetra" != "xno"],
+                   [
+                     AC_DEFINE(TRILINOS_HAVE_TPETRA, 1, [Flag indicating whether the library shall be compiled to use the Trilinos TPetra package])
+                     AC_MSG_RESULT(<<< Configuring library with TPetra support >>>)
+                   ])
 
-       dnl ------------------------------------------------------
-       dnl DTK
-       dnl ------------------------------------------------------
-       AC_CHECK_HEADER([$withtrilinosdir/include/DataTransferKit_config.hpp],
-                       [enabledtk=yes],
-                       [AC_CHECK_HEADER([$withtrilinosdir/DataTransferKit_config.hpp],
-                                        [enabledtk=yes],
-                                        [AC_CHECK_HEADER([$withtrilinosdir/DataTransferKit/src/DataTransferKit_config.hpp],
-                                                         [enabledtk=yes],
-                                                         [AC_CHECK_HEADER([$withtrilinosdir/DataTransferKit/packages/Utils/src/DataTransferKitUtils_config.hpp],
-                                                                          [enabledtk=yes],
-                                                                          [AC_CHECK_HEADER([$withtrilinosdir/include/DataTransferKitUtils_config.hpp],
-                                                                                           [enabledtk=yes],
-                                                                                           [enabledtk=no])])])])])
+             dnl ------------------------------------------------------
+             dnl DTK
+             dnl ------------------------------------------------------
+             AC_CHECK_HEADER([$withtrilinosdir/include/DataTransferKit_config.hpp],
+                             [enabledtk=yes],
+                             [AC_CHECK_HEADER([$withtrilinosdir/DataTransferKit_config.hpp],
+                                              [enabledtk=yes],
+                                              [AC_CHECK_HEADER([$withtrilinosdir/DataTransferKit/src/DataTransferKit_config.hpp],
+                                                               [enabledtk=yes],
+                                                               [AC_CHECK_HEADER([$withtrilinosdir/DataTransferKit/packages/Utils/src/DataTransferKitUtils_config.hpp],
+                                                                                [enabledtk=yes],
+                                                                                [AC_CHECK_HEADER([$withtrilinosdir/include/DataTransferKitUtils_config.hpp],
+                                                                                                 [enabledtk=yes],
+                                                                                                 [enabledtk=no])])])])])
 
-       AS_IF([test "x$enabledtk" != "xno"],
-             [
-               AC_DEFINE(TRILINOS_HAVE_DTK, 1, [Flag indicating whether the library shall be compiled to use the Trilinos DTK interfaces])
-               AC_MSG_RESULT(<<< Configuring library with DTK support >>>)
-             ])
+             AS_IF([test "x$enabledtk" != "xno"],
+                   [
+                     AC_DEFINE(TRILINOS_HAVE_DTK, 1, [Flag indicating whether the library shall be compiled to use the Trilinos DTK interfaces])
+                     AC_MSG_RESULT(<<< Configuring library with DTK support >>>)
+                   ])
 
 
-       dnl ------------------------------------------------------
-       dnl Ifpack - We are only going to look in one place for this,
-       dnl as I don't have access to lots of older versions of
-       dnl Trilinos to know where else it might be...
-       dnl ------------------------------------------------------
-       AC_CHECK_HEADER([$withtrilinosdir/include/Ifpack_config.h],
-                       [enableifpack=yes],
-                       [AC_CHECK_HEADER([$withtrilinosdir/packages/ifpack/src/Ifpack_config.h],
-                                        [enableifpack=yes],
-                                        [enableifpack=no])])
+             dnl ------------------------------------------------------
+             dnl Ifpack - We are only going to look in one place for this,
+             dnl as I don't have access to lots of older versions of
+             dnl Trilinos to know where else it might be...
+             dnl ------------------------------------------------------
+             AC_CHECK_HEADER([$withtrilinosdir/include/Ifpack_config.h],
+                             [enableifpack=yes],
+                             [AC_CHECK_HEADER([$withtrilinosdir/packages/ifpack/src/Ifpack_config.h],
+                                              [enableifpack=yes],
+                                              [enableifpack=no])])
 
-       AS_IF([test "x$enableifpack" != "xno"],
-             [
-               AC_DEFINE(TRILINOS_HAVE_IFPACK, 1, [Flag indicating whether the library shall be compiled to use the Trilinos Ifpack interfaces])
-               AC_MSG_RESULT([<<< Configuring library with Trilinos Ifpack support >>>])
-             ])
+             AS_IF([test "x$enableifpack" != "xno"],
+                   [
+                     AC_DEFINE(TRILINOS_HAVE_IFPACK, 1, [Flag indicating whether the library shall be compiled to use the Trilinos Ifpack interfaces])
+                     AC_MSG_RESULT([<<< Configuring library with Trilinos Ifpack support >>>])
+                   ])
 
-       dnl ------------------------------------------------------
-       dnl EpetraExt - We are only going to look in one place for this,
-       dnl as I don't have access to lots of older versions of
-       dnl Trilinos to know where else it might be...
-       dnl ------------------------------------------------------
-       AC_CHECK_HEADER([$withtrilinosdir/include/EpetraExt_config.h],
-                       [enableepetraext=yes],
-                       [AC_CHECK_HEADER([$withtrilinosdir/packages/epetraext/src/EpetraExt_config.h],
-                                        [enableepetraext=yes],
-                                        [enableepetraext=no])])
+             dnl ------------------------------------------------------
+             dnl EpetraExt - We are only going to look in one place for this,
+             dnl as I don't have access to lots of older versions of
+             dnl Trilinos to know where else it might be...
+             dnl ------------------------------------------------------
+             AC_CHECK_HEADER([$withtrilinosdir/include/EpetraExt_config.h],
+                             [enableepetraext=yes],
+                             [AC_CHECK_HEADER([$withtrilinosdir/packages/epetraext/src/EpetraExt_config.h],
+                                              [enableepetraext=yes],
+                                              [enableepetraext=no])])
 
-       AS_IF([test "x$enableepetraext" != "xno"],
-             [
-               AC_DEFINE(TRILINOS_HAVE_EPETRAEXT, 1, [Flag indicating whether the library shall be compiled to use the Trilinos EpetraExt interfaces])
-               AC_MSG_RESULT([<<< Configuring library with Trilinos EpetraExt support >>>])
-             ])
+             AS_IF([test "x$enableepetraext" != "xno"],
+                   [
+                     AC_DEFINE(TRILINOS_HAVE_EPETRAEXT, 1, [Flag indicating whether the library shall be compiled to use the Trilinos EpetraExt interfaces])
+                     AC_MSG_RESULT([<<< Configuring library with Trilinos EpetraExt support >>>])
+                   ])
 
-       dnl ------------------------------------------------------
-       dnl Epetra - Trilinos can be built without Epetra, but
-       dnl libmesh can't do much with such a build.  There are several
-       dnl header files whose absence indicates Epetra is not available,
-       dnl we just choose one here that libmesh actually includes.
-       dnl ------------------------------------------------------
-       AC_CHECK_HEADER([$withtrilinosdir/include/Epetra_config.h],
-                       [enableepetra=yes],
-                       [AC_CHECK_HEADER([$withtrilinosdir/packages/epetra/src/Epetra_config.h],
-                                        [enableepetra=yes],
-                                        [enableepetra=no])])
+             dnl ------------------------------------------------------
+             dnl Epetra - Trilinos can be built without Epetra, but
+             dnl libmesh can't do much with such a build.  There are several
+             dnl header files whose absence indicates Epetra is not available,
+             dnl we just choose one here that libmesh actually includes.
+             dnl ------------------------------------------------------
+             AC_CHECK_HEADER([$withtrilinosdir/include/Epetra_config.h],
+                             [enableepetra=yes],
+                             [AC_CHECK_HEADER([$withtrilinosdir/packages/epetra/src/Epetra_config.h],
+                                              [enableepetra=yes],
+                                              [enableepetra=no])])
 
-       AS_IF([test "x$enableepetra" != "xno"],
-             [
-               AC_DEFINE(TRILINOS_HAVE_EPETRA, 1, [Flag indicating whether the library shall be compiled to use Epetra interface in Trilinos])
-               AC_MSG_RESULT([<<< Configuring library with Trilinos Epetra support >>>])
-             ])
-          ])
-  ],
-  [
-    enabletrilinos10=no
-  ])
+             AS_IF([test "x$enableepetra" != "xno"],
+                   [
+                     AC_DEFINE(TRILINOS_HAVE_EPETRA, 1, [Flag indicating whether the library shall be compiled to use Epetra interface in Trilinos])
+                     AC_MSG_RESULT([<<< Configuring library with Trilinos Epetra support >>>])
+                   ])
+                ])
+        ],
+        [
+          enabletrilinos10=no
+        ])
 
   AC_SUBST(TRILINOS_MAKEFILE_EXPORT)
 
