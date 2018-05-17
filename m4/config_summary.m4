@@ -93,15 +93,12 @@ AS_ECHO(["  stack trace files................ : $enabletracefiles"])
 AS_ECHO(["  track node valence............... : $enablenodevalence"])
 AS_ECHO(["  variational smoother............. : $enablevsmoother"])
 AS_ECHO(["  xdr binary I/O................... : $enablexdr"])
-if (test "x$enablelegacyincludepaths" = "xyes"); then
-echo '  non-prefixed include paths....... :' $enablelegacyincludepaths ***LEGACY FEATURE***
-fi
-if (test "x$enablelegacyusingnamespace" = "xyes"); then
-echo '  adding using namespace libMesh... :' $enablelegacyusingnamespace ***LEGACY FEATURE***
-fi
-if (test "x$enabledefaultcommworld" = "xyes"); then
-echo '  providing libMesh::CommWorld..... :' $enabledefaultcommworld ***LEGACY FEATURE***
-fi
+AS_IF([test "x$enablelegacyincludepaths" = "xyes"],
+      [echo '  non-prefixed include paths....... :' $enablelegacyincludepaths ***LEGACY FEATURE***])
+AS_IF([test "x$enablelegacyusingnamespace" = "xyes"],
+      [echo '  adding using namespace libMesh... :' $enablelegacyusingnamespace ***LEGACY FEATURE***])
+AS_IF([test "x$enabledefaultcommworld" = "xyes"],
+      [echo '  providing libMesh::CommWorld..... :' $enabledefaultcommworld ***LEGACY FEATURE***])
 
 
 dnl Print out which optional libraries have been configured.
