@@ -34752,41 +34752,39 @@ else
 fi
 
 
-  if (test "x$enabletrilinos" = xyes); then
-    # Trump --enable-trilinos with --disable-mpi
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking Whether MPI is available for Trilinos" >&5
+  if test "x$enabletrilinos" = xyes; then :
+
+                    { $as_echo "$as_me:${as_lineno-$LINENO}: checking Whether MPI is available for Trilinos" >&5
 $as_echo_n "checking Whether MPI is available for Trilinos... " >&6; }
-    if (test "x$enablempi" = xno); then
-      enabletrilinos=no
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+          if (test "x$enablempi" = xno); then
+            enabletrilinos=no
+            { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
-    else
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+          else
+            { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
-    fi
+          fi
 
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking Whether Real precision is compatible with Trilinos" >&5
+          { $as_echo "$as_me:${as_lineno-$LINENO}: checking Whether Real precision is compatible with Trilinos" >&5
 $as_echo_n "checking Whether Real precision is compatible with Trilinos... " >&6; }
-    # Trump --enable-trilinos with --enable anything except double
-    # precision - the modules we use are hardcoded to double
 
-    if (test "x$enablesingleprecision" != xno -o \
-             "x$enabletripleprecision" != xno -o \
-             "x$enablequadrupleprecision" != xno); then
-      enabletrilinos=no
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+          if (test "x$enablesingleprecision" != xno -o \
+                   "x$enabletripleprecision" != xno -o \
+                   "x$enablequadrupleprecision" != xno); then
+            enabletrilinos=no
+            { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
-    else
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+          else
+            { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
-    fi
-  fi
+          fi
+
+fi
 
 
 
   if test "$enablecomplex" = no ; then
     if test "$enabletrilinos" != no ; then
-      # -- try Trilinos 10 first
 
   if test "x$TRILINOS_DIR" = "x"; then :
 
@@ -35178,8 +35176,7 @@ fi
 
 
 
-      # -- then Trilinos 9
-      if test "$enabletrilinos10" = no ; then
+            if test "$enabletrilinos10" = no ; then
 
   if test "x$TRILINOS_DIR" = "x"; then :
   TRILINOS_DIR=no
