@@ -141,7 +141,7 @@ AS_IF([test "x$enableoptional" = "xyes"],
         AS_ECHO(["  thread model..................... : $found_thread_model"])
         AS_ECHO(["  c++ rtti ........................ : $ac_cv_cxx_rtti"])
         AS_ECHO(["  tecio............................ : $enabletecio"])
-        AS_ECHO(["  tecplot...\(vendor binaries\)...... : $enabletecplot"])
+        AS_ECHO(["  tecplot...(vendor binaries)...... : $enabletecplot"])
         AS_ECHO(["  tetgen........................... : $enabletetgen"])
         AS_ECHO(["  triangle......................... : $enabletriangle"])
         AS_ECHO(["  trilinos......................... : $enabletrilinos"])
@@ -172,7 +172,7 @@ AS_IF([test "x$enableoptional" = "xyes"],
               ])
       ])
 AS_ECHO(["-------------------------------------------------------------------------------"])
-AS_ECHO(["Configure complete, now type \'make\' and then \'make install\'."])
+AS_ECHO(["Configure complete, now type 'make' and then 'make install'."])
 AS_ECHO([])
 
 ])
