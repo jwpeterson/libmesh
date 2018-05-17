@@ -34814,7 +34814,7 @@ fi
 
   if test "x$withtrilinosdir" != "xno"; then :
 
-    if test -r $withtrilinosdir/include/Makefile.export.Trilinos; then :
+          if test -r $withtrilinosdir/include/Makefile.export.Trilinos; then :
   TRILINOS_MAKEFILE_EXPORT=$withtrilinosdir/include/Makefile.export.Trilinos
 elif test -r $withtrilinosdir/Makefile.export.Trilinos; then :
   TRILINOS_MAKEFILE_EXPORT=$withtrilinosdir/Makefile.export.Trilinos
@@ -34822,29 +34822,29 @@ else
   enabletrilinos10=no
 fi
 
-    if test "x$enabletrilinos10" != "xno"; then :
+          if test "x$enabletrilinos10" != "xno"; then :
 
-                     enabletrilinos10=yes
+                                       enabletrilinos10=yes
 
-                            trilinosversionstring=`grep "define TRILINOS_VERSION_STRING" $withtrilinosdir/include/Trilinos_version.h | sed -e "s/#define TRILINOS_VERSION_STRING[ ]*//g" | tr -d '"'`
+                                                    trilinosversionstring=`grep "define TRILINOS_VERSION_STRING" $withtrilinosdir/include/Trilinos_version.h | sed -e "s/#define TRILINOS_VERSION_STRING[ ]*//g" | tr -d '"'`
 
-              if test "x$trilinosversionstring" = "x"; then :
+                          if test "x$trilinosversionstring" = "x"; then :
 
-               trilinosversionstring=`grep "define TRILINOS_MAJOR_VERSION" $withtrilinosdir/include/Trilinos_version.h | sed -e "s/#define TRILINOS_MAJOR_VERSION[ ]*//g"`
+                     trilinosversionstring=`grep "define TRILINOS_MAJOR_VERSION" $withtrilinosdir/include/Trilinos_version.h | sed -e "s/#define TRILINOS_MAJOR_VERSION[ ]*//g"`
 
 fi
 
-              if test "x$trilinosversionstring" = "x"; then :
+                          if test "x$trilinosversionstring" = "x"; then :
   trilinosversionstring=10+
 fi
 
 
 $as_echo "#define HAVE_TRILINOS 1" >>confdefs.h
 
-       { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with Trilinos $trilinosversionstring support >>>" >&5
+             { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with Trilinos $trilinosversionstring support >>>" >&5
 $as_echo "<<< Configuring library with Trilinos $trilinosversionstring support >>>" >&6; }
 
-                            as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/AztecOO_config.h" | $as_tr_sh`
+                                                    as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/AztecOO_config.h" | $as_tr_sh`
 ac_fn_cxx_check_header_mongrel "$LINENO" "$withtrilinosdir/include/AztecOO_config.h" "$as_ac_Header" "$ac_includes_default"
 if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
   enableaztecoo=yes
@@ -34871,17 +34871,17 @@ fi
 
 
 
-       if test "x$enableaztecoo" != "xno"; then :
+             if test "x$enableaztecoo" != "xno"; then :
 
 
 $as_echo "#define TRILINOS_HAVE_AZTECOO 1" >>confdefs.h
 
-               { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with AztecOO support >>>" >&5
+                     { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with AztecOO support >>>" >&5
 $as_echo "<<< Configuring library with AztecOO support >>>" >&6; }
 
 fi
 
-                            as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/NOX_Config.h" | $as_tr_sh`
+                                                    as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/NOX_Config.h" | $as_tr_sh`
 ac_fn_cxx_check_header_mongrel "$LINENO" "$withtrilinosdir/include/NOX_Config.h" "$as_ac_Header" "$ac_includes_default"
 if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
   enablenox=yes
@@ -34907,21 +34907,21 @@ fi
 
 
 
-       if test "x$enablenox" != "xno"; then :
+             if test "x$enablenox" != "xno"; then :
 
 
 $as_echo "#define TRILINOS_HAVE_NOX 1" >>confdefs.h
 
-               { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with NOX support >>>" >&5
+                     { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with NOX support >>>" >&5
 $as_echo "<<< Configuring library with NOX support >>>" >&6; }
 
 fi
 
-                                   as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/ml_include.h" | $as_tr_sh`
+                                                                 as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/ml_include.h" | $as_tr_sh`
 ac_fn_cxx_check_header_compile "$LINENO" "$withtrilinosdir/include/ml_include.h" "$as_ac_Header" "
-                       #ifdef HAVE_PETSC
-                       #undef HAVE_PETSC
-                       #endif
+                             #ifdef HAVE_PETSC
+                             #undef HAVE_PETSC
+                             #endif
 
 "
 if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
@@ -34929,9 +34929,9 @@ if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
 else
   as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/ml_include.h" | $as_tr_sh`
 ac_fn_cxx_check_header_compile "$LINENO" "$withtrilinosdir/ml_include.h" "$as_ac_Header" "
-                                        #ifdef HAVE_PETSC
-                                        #undef HAVE_PETSC
-                                        #endif
+                                              #ifdef HAVE_PETSC
+                                              #undef HAVE_PETSC
+                                              #endif
 
 "
 if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
@@ -34939,9 +34939,9 @@ if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
 else
   as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/packages/ml/src/ml_config.h" | $as_tr_sh`
 ac_fn_cxx_check_header_compile "$LINENO" "$withtrilinosdir/packages/ml/src/ml_config.h" "$as_ac_Header" "
-                                                         #ifdef HAVE_PETSC
-                                                         #undef HAVE_PETSC
-                                                         #endif
+                                                               #ifdef HAVE_PETSC
+                                                               #undef HAVE_PETSC
+                                                               #endif
 
 "
 if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
@@ -34958,17 +34958,17 @@ fi
 
 
 
-       if test "x$enableml" != "xno"; then :
+             if test "x$enableml" != "xno"; then :
 
 
 $as_echo "#define TRILINOS_HAVE_ML 1" >>confdefs.h
 
-               { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with ML support >>>" >&5
+                     { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with ML support >>>" >&5
 $as_echo "<<< Configuring library with ML support >>>" >&6; }
 
 fi
 
-                            as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/Tpetra_config.h" | $as_tr_sh`
+                                                    as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/Tpetra_config.h" | $as_tr_sh`
 ac_fn_cxx_check_header_mongrel "$LINENO" "$withtrilinosdir/include/Tpetra_config.h" "$as_ac_Header" "$ac_includes_default"
 if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
   enabletpetra=yes
@@ -35010,17 +35010,17 @@ fi
 
 
 
-       if test "x$enabletpetra" != "xno"; then :
+             if test "x$enabletpetra" != "xno"; then :
 
 
 $as_echo "#define TRILINOS_HAVE_TPETRA 1" >>confdefs.h
 
-               { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with TPetra support >>>" >&5
+                     { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with TPetra support >>>" >&5
 $as_echo "<<< Configuring library with TPetra support >>>" >&6; }
 
 fi
 
-                            as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/DataTransferKit_config.hpp" | $as_tr_sh`
+                                                    as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/DataTransferKit_config.hpp" | $as_tr_sh`
 ac_fn_cxx_check_header_mongrel "$LINENO" "$withtrilinosdir/include/DataTransferKit_config.hpp" "$as_ac_Header" "$ac_includes_default"
 if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
   enabledtk=yes
@@ -35062,18 +35062,18 @@ fi
 
 
 
-       if test "x$enabledtk" != "xno"; then :
+             if test "x$enabledtk" != "xno"; then :
 
 
 $as_echo "#define TRILINOS_HAVE_DTK 1" >>confdefs.h
 
-               { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with DTK support >>>" >&5
+                     { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with DTK support >>>" >&5
 $as_echo "<<< Configuring library with DTK support >>>" >&6; }
 
 fi
 
 
-                                          as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/Ifpack_config.h" | $as_tr_sh`
+                                                                              as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/Ifpack_config.h" | $as_tr_sh`
 ac_fn_cxx_check_header_mongrel "$LINENO" "$withtrilinosdir/include/Ifpack_config.h" "$as_ac_Header" "$ac_includes_default"
 if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
   enableifpack=yes
@@ -35091,17 +35091,17 @@ fi
 
 
 
-       if test "x$enableifpack" != "xno"; then :
+             if test "x$enableifpack" != "xno"; then :
 
 
 $as_echo "#define TRILINOS_HAVE_IFPACK 1" >>confdefs.h
 
-               { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with Trilinos Ifpack support >>>" >&5
+                     { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with Trilinos Ifpack support >>>" >&5
 $as_echo "<<< Configuring library with Trilinos Ifpack support >>>" >&6; }
 
 fi
 
-                                          as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/EpetraExt_config.h" | $as_tr_sh`
+                                                                              as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/EpetraExt_config.h" | $as_tr_sh`
 ac_fn_cxx_check_header_mongrel "$LINENO" "$withtrilinosdir/include/EpetraExt_config.h" "$as_ac_Header" "$ac_includes_default"
 if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
   enableepetraext=yes
@@ -35119,17 +35119,17 @@ fi
 
 
 
-       if test "x$enableepetraext" != "xno"; then :
+             if test "x$enableepetraext" != "xno"; then :
 
 
 $as_echo "#define TRILINOS_HAVE_EPETRAEXT 1" >>confdefs.h
 
-               { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with Trilinos EpetraExt support >>>" >&5
+                     { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with Trilinos EpetraExt support >>>" >&5
 $as_echo "<<< Configuring library with Trilinos EpetraExt support >>>" >&6; }
 
 fi
 
-                                                 as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/Epetra_config.h" | $as_tr_sh`
+                                                                                           as_ac_Header=`$as_echo "ac_cv_header_$withtrilinosdir/include/Epetra_config.h" | $as_tr_sh`
 ac_fn_cxx_check_header_mongrel "$LINENO" "$withtrilinosdir/include/Epetra_config.h" "$as_ac_Header" "$ac_includes_default"
 if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
   enableepetra=yes
@@ -35147,12 +35147,12 @@ fi
 
 
 
-       if test "x$enableepetra" != "xno"; then :
+             if test "x$enableepetra" != "xno"; then :
 
 
 $as_echo "#define TRILINOS_HAVE_EPETRA 1" >>confdefs.h
 
-               { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with Trilinos Epetra support >>>" >&5
+                     { $as_echo "$as_me:${as_lineno-$LINENO}: result: <<< Configuring library with Trilinos Epetra support >>>" >&5
 $as_echo "<<< Configuring library with Trilinos Epetra support >>>" >&6; }
 
 fi
@@ -35161,7 +35161,7 @@ fi
 
 else
 
-    enabletrilinos10=no
+          enabletrilinos10=no
 
 fi
 
