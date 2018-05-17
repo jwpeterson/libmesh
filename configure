@@ -44881,7 +44881,7 @@ fi
 ######################################################################################
 if (test "x$enableoptional" = "xyes"); then
   $as_echo
-  echo Optional Packages:
+  $as_echo "Optional Packages:"
   $as_echo "  boost............................ : $enableboost"
   $as_echo "  capnproto........................ : $enablecapnproto"
   $as_echo "  cppunit.......................... : $enablecppunit"
@@ -44889,7 +44889,7 @@ if (test "x$enableoptional" = "xyes"); then
   $as_echo "  eigen............................ : $enableeigen"
   $as_echo "  exodus........................... : $enableexodus"
   if test "x$exodusversion" != "xno"; then :
-  echo '     'version....................... : $exodusversion
+  $as_echo "     version....................... : $exodusversion"
 fi
   $as_echo "  fparser.......................... : $enablefparser"
   if test "x$enablefparser" = "xyes" && test "x$enablefparserdevel" = "xno"; then :
@@ -44912,23 +44912,23 @@ fi
   $as_echo "  nanoflann........................ : $enablenanoflann"
   $as_echo "  nemesis.......................... : $enablenemesis"
   if test "x$nemesisversion" != "xno"; then :
-  echo '     'version....................... : $nemesisversion
+  $as_echo "     version....................... : $nemesisversion"
 fi
   $as_echo "  netcdf........................... : $enablenetcdf"
   if test "x$netcdfversion" != "xno"; then :
-  echo '     'version....................... : $netcdfversion
+  $as_echo "     version....................... : $netcdfversion"
 fi
   $as_echo "  nlopt............................ : $enablenlopt"
   $as_echo "  parmetis......................... : $enableparmetis"
   $as_echo "  petsc............................ : $enablepetsc"
   if test "x$enablepetsc" = "xyes"; then :
-  echo '     'version....................... : $petscversion
+  $as_echo "     version....................... : $petscversion"
 fi
   $as_echo "  qhull............................ : $enableqhull"
   $as_echo "  sfcurves......................... : $enablesfc"
   $as_echo "  slepc............................ : $enableslepc"
   if test "x$enableslepc" = "xyes"; then :
-  echo '     'version....................... : $slepcversion
+  $as_echo "     version....................... : $slepcversion"
 fi
   $as_echo "  thread model..................... : $found_thread_model"
   $as_echo "  c++ rtti ........................ : $ac_cv_cxx_rtti"
@@ -44951,25 +44951,24 @@ fi
 fi
   $as_echo "  vtk.............................. : $enablevtk"
   if test "x$enablevtk" = "xyes"; then :
-  echo '     'version....................... : $vtkversion
+  $as_echo "     version....................... : $vtkversion"
 fi
   $as_echo
   if test "x$libmesh_optional_INCLUDES" != "x"; then :
 
-          echo '  'libmesh_optional_INCLUDES........ : $libmesh_optional_INCLUDES
+          $as_echo "  libmesh_optional_INCLUDES........ : $libmesh_optional_INCLUDES"
           $as_echo
 
 fi
   if test "x$libmesh_optional_LIBS" != "x"; then :
 
-          echo '  'libmesh_optional_LIBS............ : $libmesh_optional_LIBS
+          $as_echo "  libmesh_optional_LIBS............ : $libmesh_optional_LIBS"
           $as_echo
 
 fi
 fi
-echo '-------------------------------------------------------------------------------'
-
-echo Configure complete, now type \'make\' and then \'make install\'.
+$as_echo "-------------------------------------------------------------------------------"
+$as_echo "Configure complete, now type \'make\' and then \'make install\'."
 $as_echo
 
 
