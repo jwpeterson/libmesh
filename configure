@@ -44829,11 +44829,11 @@ echo CFLAGS.....\(oprof\)................. : $CFLAGS_OPROF $CFLAGS
      esac
      $as_echo
 done
-echo Install dir........................ : $prefix
-echo Build user......................... : $USER
-echo Build host......................... : $BUILD_HOST
-echo Build architecture................. : $BUILD_ARCH
-echo Git revision....................... : $BUILD_VERSION
+$as_echo "Install dir........................ : $prefix"
+$as_echo "Build user......................... : $USER"
+$as_echo "Build host......................... : $BUILD_HOST"
+$as_echo "Build architecture................. : $BUILD_ARCH"
+$as_echo "Git revision....................... : $BUILD_VERSION"
 
 $as_echo
 $as_echo "Library Features:"
