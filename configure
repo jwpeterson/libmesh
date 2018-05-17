@@ -34788,8 +34788,10 @@ fi
 
 
 
-  if test "$enablecomplex" = no ; then
-    if test "$enabletrilinos" != no ; then
+  if test "x$enablecomplex" = "xno"; then :
+
+          if test "x$enabletrilinos" != "xno"; then :
+
 
   if test "x$TRILINOS_DIR" = "x"; then :
 
@@ -35181,7 +35183,8 @@ fi
 
 
 
-            if test "$enabletrilinos10" = no ; then
+                                    if test "x$enabletrilinos10" = "xno"; then :
+
 
   if test "x$TRILINOS_DIR" = "x"; then :
   TRILINOS_DIR=no
@@ -35449,12 +35452,15 @@ fi
 
 
 
-        if test "$enabletrilinos9" = no; then
-          enabletrilinos=no
-        fi
-      fi
-    fi
-  fi
+                          if test "x$enabletrilinos9" = "xno"; then :
+  enabletrilinos=no
+fi
+
+fi
+
+fi
+
+fi
 
 if test "$enabletrilinos" = yes; then :
 
