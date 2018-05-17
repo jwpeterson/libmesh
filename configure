@@ -44930,7 +44930,7 @@ fi
         $as_echo "  thread model..................... : $found_thread_model"
         $as_echo "  c++ rtti ........................ : $ac_cv_cxx_rtti"
         $as_echo "  tecio............................ : $enabletecio"
-        $as_echo "  tecplot...\(vendor binaries\)...... : $enabletecplot"
+        $as_echo "  tecplot...(vendor binaries)...... : $enabletecplot"
         $as_echo "  tetgen........................... : $enabletetgen"
         $as_echo "  triangle......................... : $enabletriangle"
         $as_echo "  trilinos......................... : $enabletrilinos"
@@ -44966,7 +44966,7 @@ fi
 
 fi
 $as_echo "-------------------------------------------------------------------------------"
-$as_echo "Configure complete, now type \'make\' and then \'make install\'."
+$as_echo "Configure complete, now type 'make' and then 'make install'."
 $as_echo
 
 
