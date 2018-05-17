@@ -44851,20 +44851,20 @@ $as_echo "  id size (dofs)................... : $dof_bytes bytes"
 if test "x$enableuniqueid" = "xyes"; then :
   echo '  id size (unique)................. :' $unique_bytes bytes
 fi
-echo '  id size (processors)............. :' $processor_bytes bytes
-echo '  id size (subdomains)............. :' $subdomain_bytes bytes
-echo '  infinite elements................ :' $enableifem
-echo '  Dirichlet constraints............ :' $enabledirichlet
-echo '  node constraints................. :' $enablenodeconstraint
-echo '  parallel mesh.................... :' $enableparmesh
-echo '  performance logging.............. :' $enableperflog
-echo '  periodic boundary conditions..... :' $enableperiodic
-echo '  reference counting............... :' $enablerefct
-echo '  shape function 2nd derivatives... :' $enablesecond
-echo '  stack trace files................ :' $enabletracefiles
-echo '  track node valence............... :' $enablenodevalence
-echo '  variational smoother............. :' $enablevsmoother
-echo '  xdr binary I/O................... :' $enablexdr
+$as_echo "  id size (processors)............. : $processor_bytes bytes"
+$as_echo "  id size (subdomains)............. : $subdomain_bytes bytes"
+$as_echo "  infinite elements................ : $enableifem"
+$as_echo "  Dirichlet constraints............ : $enabledirichlet"
+$as_echo "  node constraints................. : $enablenodeconstraint"
+$as_echo "  parallel mesh.................... : $enableparmesh"
+$as_echo "  performance logging.............. : $enableperflog"
+$as_echo "  periodic boundary conditions..... : $enableperiodic"
+$as_echo "  reference counting............... : $enablerefct"
+$as_echo "  shape function 2nd derivatives... : $enablesecond"
+$as_echo "  stack trace files................ : $enabletracefiles"
+$as_echo "  track node valence............... : $enablenodevalence"
+$as_echo "  variational smoother............. : $enablevsmoother"
+$as_echo "  xdr binary I/O................... : $enablexdr"
 if (test "x$enablelegacyincludepaths" = "xyes"); then
 echo '  non-prefixed include paths....... :' $enablelegacyincludepaths ***LEGACY FEATURE***
 fi
