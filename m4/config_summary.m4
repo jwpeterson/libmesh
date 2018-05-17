@@ -78,7 +78,7 @@ AS_ECHO(["  unique-id support................ : $enableuniqueid"])
 AS_ECHO(["  id size (boundaries)............. : $boundary_bytes bytes"])
 AS_ECHO(["  id size (dofs)................... : $dof_bytes bytes"])
 AS_IF([test "x$enableuniqueid" = "xyes"],
-      [echo '  id size (unique)................. :' $unique_bytes bytes])
+      [AS_ECHO(["  id size (unique)................. : $unique_bytes bytes"])])
 AS_ECHO(["  id size (processors)............. : $processor_bytes bytes"])
 AS_ECHO(["  id size (subdomains)............. : $subdomain_bytes bytes"])
 AS_ECHO(["  infinite elements................ : $enableifem"])
@@ -94,11 +94,11 @@ AS_ECHO(["  track node valence............... : $enablenodevalence"])
 AS_ECHO(["  variational smoother............. : $enablevsmoother"])
 AS_ECHO(["  xdr binary I/O................... : $enablexdr"])
 AS_IF([test "x$enablelegacyincludepaths" = "xyes"],
-      [echo '  non-prefixed include paths....... :' $enablelegacyincludepaths ***LEGACY FEATURE***])
+      [AS_ECHO(["  non-prefixed include paths....... : $enablelegacyincludepaths ***LEGACY FEATURE***"])])
 AS_IF([test "x$enablelegacyusingnamespace" = "xyes"],
-      [echo '  adding using namespace libMesh... :' $enablelegacyusingnamespace ***LEGACY FEATURE***])
+      [AS_ECHO(["  adding using namespace libMesh... : $enablelegacyusingnamespace ***LEGACY FEATURE***"])])
 AS_IF([test "x$enabledefaultcommworld" = "xyes"],
-      [echo '  providing libMesh::CommWorld..... :' $enabledefaultcommworld ***LEGACY FEATURE***])
+      [AS_ECHO(["  providing libMesh::CommWorld..... : $enabledefaultcommworld ***LEGACY FEATURE***"])])
 
 
 dnl Print out which optional libraries have been configured.
