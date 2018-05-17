@@ -44865,14 +44865,14 @@ $as_echo "  stack trace files................ : $enabletracefiles"
 $as_echo "  track node valence............... : $enablenodevalence"
 $as_echo "  variational smoother............. : $enablevsmoother"
 $as_echo "  xdr binary I/O................... : $enablexdr"
-if (test "x$enablelegacyincludepaths" = "xyes"); then
-echo '  non-prefixed include paths....... :' $enablelegacyincludepaths ***LEGACY FEATURE***
+if test "x$enablelegacyincludepaths" = "xyes"; then :
+  echo '  non-prefixed include paths....... :' $enablelegacyincludepaths ***LEGACY FEATURE***
 fi
-if (test "x$enablelegacyusingnamespace" = "xyes"); then
-echo '  adding using namespace libMesh... :' $enablelegacyusingnamespace ***LEGACY FEATURE***
+if test "x$enablelegacyusingnamespace" = "xyes"; then :
+  echo '  adding using namespace libMesh... :' $enablelegacyusingnamespace ***LEGACY FEATURE***
 fi
-if (test "x$enabledefaultcommworld" = "xyes"); then
-echo '  providing libMesh::CommWorld..... :' $enabledefaultcommworld ***LEGACY FEATURE***
+if test "x$enabledefaultcommworld" = "xyes"; then :
+  echo '  providing libMesh::CommWorld..... :' $enabledefaultcommworld ***LEGACY FEATURE***
 fi
 
 
