@@ -77,9 +77,8 @@ echo '  high-order shape functions....... :' $enablepfem
 echo '  unique-id support................ :' $enableuniqueid
 echo '  id size (boundaries)............. :' $boundary_bytes bytes
 echo '  id size (dofs)................... :' $dof_bytes bytes
-if (test "x$enableuniqueid" = "xyes"); then
-echo '  id size (unique)................. :' $unique_bytes bytes
-fi
+AS_IF([test "x$enableuniqueid" = "xyes"],
+      [echo '  id size (unique)................. :' $unique_bytes bytes])
 echo '  id size (processors)............. :' $processor_bytes bytes
 echo '  id size (subdomains)............. :' $subdomain_bytes bytes
 echo '  infinite elements................ :' $enableifem
@@ -114,25 +113,17 @@ if (test "x$enableoptional" = "xyes"); then
   echo '  'capnproto........................ : $enablecapnproto
   echo '  'cppunit.......................... : $enablecppunit
   echo '  'curl............................. : $enablecurl
-#  if (test "x$enablecppunit" = "xyes"); then
-#  echo '     'CPPUNIT_CFLAGS................ : $CPPUNIT_CFLAGS
-#  echo '     'CPPUNIT_LIBS.................. : $CPPUNIT_LIBS
-#  fi
   echo '  'eigen............................ : $enableeigen
   echo '  'exodus........................... : $enableexodus
-  if (test "x$exodusversion" != "xno"); then
-  echo '     'version....................... : $exodusversion
-  fi
+  AS_IF([test "x$exodusversion" != "xno"],
+        [echo '     'version....................... : $exodusversion])
   echo '  'fparser.......................... : $enablefparser
-  if (test "x$enablefparser" = "xyes" -a "x$enablefparserdevel" = "xno"); then
-  echo '     'build from version............ : release
-  fi
-  if (test "x$enablefparser" = "xyes" -a "x$enablefparserdevel" = "xyes"); then
-  echo '     'build from version............ : devel
-  fi
-  if (test "x$enablefparser" = "xyes" -a "x$enablefparserdebugging" = "xyes"); then
-  echo '     'fparser debugging............. : enabled
-  fi
+  AS_IF([test "x$enablefparser" = "xyes" && test "x$enablefparserdevel" = "xno"],
+        [echo '     'build from version............ : release])
+  AS_IF([test "x$enablefparser" = "xyes" && test "x$enablefparserdevel" = "xyes"],
+        [echo '     'build from version............ : devel])
+  AS_IF([test "x$enablefparser" = "xyes" && test "x$enablefparserdebugging" = "xyes"],
+        [echo '     'fparser debugging............. : enabled])
   echo '  'glpk............................. : $enableglpk
   echo '  'gmv.............................. : $enablegmv
   echo '  'gzstream......................... : $enablegz
@@ -143,25 +134,21 @@ if (test "x$enableoptional" = "xyes"); then
   echo '  'mpi.............................. : $enablempi
   echo '  'nanoflann........................ : $enablenanoflann
   echo '  'nemesis.......................... : $enablenemesis
-  if (test "x$nemesisversion" != "xno"); then
-  echo '     'version....................... : $nemesisversion
-  fi
+  AS_IF([test "x$nemesisversion" != "xno"],
+        [echo '     'version....................... : $nemesisversion])
   echo '  'netcdf........................... : $enablenetcdf
-  if (test "x$netcdfversion" != "xno"); then
-  echo '     'version....................... : $netcdfversion
-  fi
+  AS_IF([test "x$netcdfversion" != "xno"],
+        [echo '     'version....................... : $netcdfversion])
   echo '  'nlopt............................ : $enablenlopt
   echo '  'parmetis......................... : $enableparmetis
   echo '  'petsc............................ : $enablepetsc
-  if (test "x$enablepetsc" = "xyes"); then
-  echo '     'version....................... : $petscversion
-  fi
+  AS_IF([test "x$enablepetsc" = "xyes"],
+        [echo '     'version....................... : $petscversion])
   echo '  'qhull............................ : $enableqhull
   echo '  'sfcurves......................... : $enablesfc
   echo '  'slepc............................ : $enableslepc
-  if (test "x$enableslepc" = "xyes"); then
-  echo '     'version....................... : $slepcversion
-  fi
+  AS_IF([test "x$enableslepc" = "xyes"],
+        [echo '     'version....................... : $slepcversion])
   echo '  'thread model..................... : $found_thread_model
   echo '  'c++ rtti ........................ : $ac_cv_cxx_rtti
   echo '  'tecio............................ : $enabletecio
@@ -169,29 +156,32 @@ if (test "x$enableoptional" = "xyes"); then
   echo '  'tetgen........................... : $enabletetgen
   echo '  'triangle......................... : $enabletriangle
   echo '  'trilinos......................... : $enabletrilinos
-  if (test "x$enabletrilinos" = "xyes"); then
-  echo '     'AztecOO....................... : $enableaztecoo
-  echo '     'NOX........................... : $enablenox
-  echo '     'ML............................ : $enableml
-  echo '     'Tpetra........................ : $enabletpetra
-  echo '     'DTK........................... : $enabledtk
-  echo '     'Ifpack........................ : $enableifpack
-  echo '     'Epetra........................ : $enableepetra
-  echo '     'EpetraExt..................... : $enableepetraext
-  fi
+  AS_IF([test "x$enabletrilinos" = "xyes"],
+        [
+          echo '     'AztecOO....................... : $enableaztecoo
+          echo '     'NOX........................... : $enablenox
+          echo '     'ML............................ : $enableml
+          echo '     'Tpetra........................ : $enabletpetra
+          echo '     'DTK........................... : $enabledtk
+          echo '     'Ifpack........................ : $enableifpack
+          echo '     'Epetra........................ : $enableepetra
+          echo '     'EpetraExt..................... : $enableepetraext
+        ])
   echo '  'vtk.............................. : $enablevtk
-  if (test "x$enablevtk" = "xyes"); then
-  echo '     'version....................... : $vtkversion
-  fi
+  AS_IF([test "x$enablevtk" = "xyes"],
+        [echo '     'version....................... : $vtkversion])
+  dnl blank line
   echo
-  if (test "x$libmesh_optional_INCLUDES" != "x"); then
-  echo '  'libmesh_optional_INCLUDES........ : $libmesh_optional_INCLUDES
-  echo
-  fi
-  if (test "x$libmesh_optional_LIBS" != "x"); then
-  echo '  'libmesh_optional_LIBS............ : $libmesh_optional_LIBS
-  echo
-  fi
+  AS_IF([test "x$libmesh_optional_INCLUDES" != "x"],
+        [
+          echo '  'libmesh_optional_INCLUDES........ : $libmesh_optional_INCLUDES
+          echo
+        ])
+  AS_IF([test "x$libmesh_optional_LIBS" != "x"],
+        [
+          echo '  'libmesh_optional_LIBS............ : $libmesh_optional_LIBS
+          echo
+        ])
 fi
 echo '-------------------------------------------------------------------------------'
 
