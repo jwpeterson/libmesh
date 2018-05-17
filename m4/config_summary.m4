@@ -124,16 +124,16 @@ if (test "x$enableoptional" = "xyes"); then
         [AS_ECHO(["     build from version............ : devel"])])
   AS_IF([test "x$enablefparser" = "xyes" && test "x$enablefparserdebugging" = "xyes"],
         [AS_ECHO(["     fparser debugging............. : enabled"])])
-  echo '  'glpk............................. : $enableglpk
-  echo '  'gmv.............................. : $enablegmv
-  echo '  'gzstream......................... : $enablegz
-  echo '  'hdf5............................. : $enablehdf5
-  echo '  'laspack.......................... : $enablelaspack
-  echo '  'libhilbert....................... : $enablelibhilbert
-  echo '  'metis............................ : $enablemetis
-  echo '  'mpi.............................. : $enablempi
-  echo '  'nanoflann........................ : $enablenanoflann
-  echo '  'nemesis.......................... : $enablenemesis
+  AS_ECHO(["  glpk............................. : $enableglpk"])
+  AS_ECHO(["  gmv.............................. : $enablegmv])
+  AS_ECHO(["  gzstream......................... : $enablegz])
+  AS_ECHO(["  hdf5............................. : $enablehdf5])
+  AS_ECHO(["  laspack.......................... : $enablelaspack])
+  AS_ECHO(["  libhilbert....................... : $enablelibhilbert])
+  AS_ECHO(["  metis............................ : $enablemetis])
+  AS_ECHO(["  mpi.............................. : $enablempi])
+  AS_ECHO(["  nanoflann........................ : $enablenanoflann])
+  AS_ECHO(["  nemesis.......................... : $enablenemesis])
   AS_IF([test "x$nemesisversion" != "xno"],
         [echo '     'version....................... : $nemesisversion])
   echo '  'netcdf........................... : $enablenetcdf
