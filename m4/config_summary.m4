@@ -109,12 +109,12 @@ fi
 if (test "x$enableoptional" = "xyes"); then
   echo
   echo Optional Packages:
-  echo '  'boost............................ : $enableboost
-  echo '  'capnproto........................ : $enablecapnproto
-  echo '  'cppunit.......................... : $enablecppunit
-  echo '  'curl............................. : $enablecurl
-  echo '  'eigen............................ : $enableeigen
-  echo '  'exodus........................... : $enableexodus
+  AS_ECHO(["  boost............................ : $enableboost"])
+  AS_ECHO(["  capnproto........................ : $enablecapnproto"])
+  AS_ECHO(["  cppunit.......................... : $enablecppunit"])
+  AS_ECHO(["  curl............................. : $enablecurl"])
+  AS_ECHO(["  eigen............................ : $enableeigen"])
+  AS_ECHO(["  exodus........................... : $enableexodus"])
   AS_IF([test "x$exodusversion" != "xno"],
         [echo '     'version....................... : $exodusversion])
   AS_ECHO(["  fparser.......................... : $enablefparser"])
@@ -136,26 +136,26 @@ if (test "x$enableoptional" = "xyes"); then
   AS_ECHO(["  nemesis.......................... : $enablenemesis"])
   AS_IF([test "x$nemesisversion" != "xno"],
         [echo '     'version....................... : $nemesisversion])
-  echo '  'netcdf........................... : $enablenetcdf
+  AS_ECHO(["  netcdf........................... : $enablenetcdf"])
   AS_IF([test "x$netcdfversion" != "xno"],
         [echo '     'version....................... : $netcdfversion])
-  echo '  'nlopt............................ : $enablenlopt
-  echo '  'parmetis......................... : $enableparmetis
-  echo '  'petsc............................ : $enablepetsc
+  AS_ECHO(["  nlopt............................ : $enablenlopt"])
+  AS_ECHO(["  parmetis......................... : $enableparmetis"])
+  AS_ECHO(["  petsc............................ : $enablepetsc"])
   AS_IF([test "x$enablepetsc" = "xyes"],
         [echo '     'version....................... : $petscversion])
-  echo '  'qhull............................ : $enableqhull
-  echo '  'sfcurves......................... : $enablesfc
-  echo '  'slepc............................ : $enableslepc
+  AS_ECHO(["  qhull............................ : $enableqhull"])
+  AS_ECHO(["  sfcurves......................... : $enablesfc"])
+  AS_ECHO(["  slepc............................ : $enableslepc"])
   AS_IF([test "x$enableslepc" = "xyes"],
         [echo '     'version....................... : $slepcversion])
-  echo '  'thread model..................... : $found_thread_model
-  echo '  'c++ rtti ........................ : $ac_cv_cxx_rtti
-  echo '  'tecio............................ : $enabletecio
-  echo '  'tecplot...\(vendor binaries\)...... : $enabletecplot
-  echo '  'tetgen........................... : $enabletetgen
-  echo '  'triangle......................... : $enabletriangle
-  echo '  'trilinos......................... : $enabletrilinos
+  AS_ECHO(["  thread model..................... : $found_thread_model"])
+  AS_ECHO(["  c++ rtti ........................ : $ac_cv_cxx_rtti"])
+  AS_ECHO(["  tecio............................ : $enabletecio"])
+  AS_ECHO(["  tecplot...\(vendor binaries\)...... : $enabletecplot"])
+  AS_ECHO(["  tetgen........................... : $enabletetgen"])
+  AS_ECHO(["  triangle......................... : $enabletriangle"])
+  AS_ECHO(["  trilinos......................... : $enabletrilinos"])
   AS_IF([test "x$enabletrilinos" = "xyes"],
         [
           echo '     'AztecOO....................... : $enableaztecoo
@@ -167,7 +167,7 @@ if (test "x$enableoptional" = "xyes"); then
           echo '     'Epetra........................ : $enableepetra
           echo '     'EpetraExt..................... : $enableepetraext
         ])
-  echo '  'vtk.............................. : $enablevtk
+  AS_ECHO(["  vtk.............................. : $enablevtk"])
   AS_IF([test "x$enablevtk" = "xyes"],
         [echo '     'version....................... : $vtkversion])
   dnl blank line
