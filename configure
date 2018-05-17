@@ -44896,21 +44896,21 @@ fi
   $as_echo "     build from version............ : release"
 fi
   if test "x$enablefparser" = "xyes" && test "x$enablefparserdevel" = "xyes"; then :
-  echo '     'build from version............ : devel
+  $as_echo "     build from version............ : devel"
 fi
   if test "x$enablefparser" = "xyes" && test "x$enablefparserdebugging" = "xyes"; then :
-  echo '     'fparser debugging............. : enabled
+  $as_echo "     fparser debugging............. : enabled"
 fi
-  echo '  'glpk............................. : $enableglpk
-  echo '  'gmv.............................. : $enablegmv
-  echo '  'gzstream......................... : $enablegz
-  echo '  'hdf5............................. : $enablehdf5
-  echo '  'laspack.......................... : $enablelaspack
-  echo '  'libhilbert....................... : $enablelibhilbert
-  echo '  'metis............................ : $enablemetis
-  echo '  'mpi.............................. : $enablempi
-  echo '  'nanoflann........................ : $enablenanoflann
-  echo '  'nemesis.......................... : $enablenemesis
+  $as_echo "  glpk............................. : $enableglpk"
+  $as_echo "  gmv.............................. : $enablegmv
+  $as_echo "  gzstream......................... : $enablegz
+  $as_echo "  hdf5............................. : $enablehdf5
+  $as_echo "  laspack.......................... : $enablelaspack
+  $as_echo "  libhilbert....................... : $enablelibhilbert
+  $as_echo "  metis............................ : $enablemetis
+  $as_echo "  mpi.............................. : $enablempi
+  $as_echo "  nanoflann........................ : $enablenanoflann
+  $as_echo "  nemesis.......................... : $enablenemesis
   if test "x$nemesisversion" != "xno"; then :
   echo '     'version....................... : $nemesisversion
 fi
