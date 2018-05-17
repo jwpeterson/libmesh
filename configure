@@ -34812,7 +34812,8 @@ else
 fi
 
 
-  if test "$withtrilinosdir" != no ; then
+  if test "x$withtrilinosdir" != "xno"; then :
+
     if test -r $withtrilinosdir/include/Makefile.export.Trilinos; then :
   TRILINOS_MAKEFILE_EXPORT=$withtrilinosdir/include/Makefile.export.Trilinos
 elif test -r $withtrilinosdir/Makefile.export.Trilinos; then :
@@ -35157,9 +35158,12 @@ $as_echo "<<< Configuring library with Trilinos Epetra support >>>" >&6; }
 fi
 
 fi
-  else
+
+else
+
     enabletrilinos10=no
-  fi
+
+fi
 
 
 
