@@ -18,15 +18,15 @@ AC_DEFUN([AX_SUMMARIZE_CONFIG],
 
 ######################################################################################
 AS_ECHO([])
-echo '----------------------------------- SUMMARY -----------------------------------'
+AS_ECHO(["----------------------------------- SUMMARY -----------------------------------"])
 AS_ECHO([])
-echo Package version.................... : $PACKAGE-$VERSION
+AS_ECHO(["Package version.................... : $PACKAGE-$VERSION"])
 AS_ECHO([])
-echo C++ compiler type.................. : $GXX_VERSION
-echo C++ compiler....................... : $CXX
-echo C compiler......................... : $CC
-echo Fortran compiler................... : $FC
-echo Build Methods...................... : $METHODS
+AS_ECHO(["C++ compiler type.................. : $GXX_VERSION"])
+AS_ECHO(["C++ compiler....................... : $CXX"])
+AS_ECHO(["C compiler......................... : $CC"])
+AS_ECHO(["Fortran compiler................... : $FC"])
+AS_ECHO(["Build Methods...................... : $METHODS"])
 AS_ECHO([])
 for method in ${METHODS}; do
      case "${method}" in
