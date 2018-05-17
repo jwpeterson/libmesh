@@ -44891,7 +44891,7 @@ if (test "x$enableoptional" = "xyes"); then
   if test "x$exodusversion" != "xno"; then :
   echo '     'version....................... : $exodusversion
 fi
-  echo '  'fparser.......................... : $enablefparser
+  $as_echo "  fparser.......................... : $enablefparser"
   if test "x$enablefparser" = "xyes" && test "x$enablefparserdevel" = "xno"; then :
   echo '     'build from version............ : release
 fi
