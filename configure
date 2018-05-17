@@ -44902,15 +44902,15 @@ fi
   $as_echo "     fparser debugging............. : enabled"
 fi
   $as_echo "  glpk............................. : $enableglpk"
-  $as_echo "  gmv.............................. : $enablegmv
-  $as_echo "  gzstream......................... : $enablegz
-  $as_echo "  hdf5............................. : $enablehdf5
-  $as_echo "  laspack.......................... : $enablelaspack
-  $as_echo "  libhilbert....................... : $enablelibhilbert
-  $as_echo "  metis............................ : $enablemetis
-  $as_echo "  mpi.............................. : $enablempi
-  $as_echo "  nanoflann........................ : $enablenanoflann
-  $as_echo "  nemesis.......................... : $enablenemesis
+  $as_echo "  gmv.............................. : $enablegmv"
+  $as_echo "  gzstream......................... : $enablegz"
+  $as_echo "  hdf5............................. : $enablehdf5"
+  $as_echo "  laspack.......................... : $enablelaspack"
+  $as_echo "  libhilbert....................... : $enablelibhilbert"
+  $as_echo "  metis............................ : $enablemetis"
+  $as_echo "  mpi.............................. : $enablempi"
+  $as_echo "  nanoflann........................ : $enablenanoflann"
+  $as_echo "  nemesis.......................... : $enablenemesis"
   if test "x$nemesisversion" != "xno"; then :
   echo '     'version....................... : $nemesisversion
 fi
