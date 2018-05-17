@@ -491,25 +491,26 @@ AC_DEFUN([CONFIGURE_TRILINOS],
         [
           dnl Trump --enable-trilinos with --disable-mpi
           AC_MSG_CHECKING([Whether MPI is available for Trilinos])
-          if (test "x$enablempi" = xno); then
-            enabletrilinos=no
-            AC_MSG_RESULT(no)
-          else
-            AC_MSG_RESULT(yes)
-          fi
+          AS_IF([test "x$enablempi" = "xno"],
+                [
+                  enabletrilinos=no
+                  AC_MSG_RESULT(no)
+                ],
+                [
+                  AC_MSG_RESULT(yes)
+                ])
 
-          AC_MSG_CHECKING([Whether Real precision is compatible with Trilinos])
           dnl Trump --enable-trilinos with --enable anything except double
           dnl precision - the modules we use are hardcoded to double
-
-          if (test "x$enablesingleprecision" != xno -o \
-                   "x$enabletripleprecision" != xno -o \
-                   "x$enablequadrupleprecision" != xno); then
-            enabletrilinos=no
-            AC_MSG_RESULT(no)
-          else
-            AC_MSG_RESULT(yes)
-          fi
+          AC_MSG_CHECKING([Whether Real precision is compatible with Trilinos])
+          AS_IF([test "x$enablesingleprecision" != "xno" || test "x$enabletripleprecision" != "xno" || test "x$enablequadrupleprecision" != "xno"],
+                [
+                  enabletrilinos=no
+                  AC_MSG_RESULT(no)
+                ],
+                [
+                  AC_MSG_RESULT(yes)
+                ])
         ])
 
   AC_ARG_VAR([TRILINOS_DIR],  [path to Trilinos installation])
