@@ -44849,7 +44849,7 @@ $as_echo "  unique-id support................ : $enableuniqueid"
 $as_echo "  id size (boundaries)............. : $boundary_bytes bytes"
 $as_echo "  id size (dofs)................... : $dof_bytes bytes"
 if test "x$enableuniqueid" = "xyes"; then :
-  echo '  id size (unique)................. :' $unique_bytes bytes
+  $as_echo "  id size (unique)................. : $unique_bytes bytes"
 fi
 $as_echo "  id size (processors)............. : $processor_bytes bytes"
 $as_echo "  id size (subdomains)............. : $subdomain_bytes bytes"
@@ -44866,13 +44866,13 @@ $as_echo "  track node valence............... : $enablenodevalence"
 $as_echo "  variational smoother............. : $enablevsmoother"
 $as_echo "  xdr binary I/O................... : $enablexdr"
 if test "x$enablelegacyincludepaths" = "xyes"; then :
-  echo '  non-prefixed include paths....... :' $enablelegacyincludepaths ***LEGACY FEATURE***
+  $as_echo "  non-prefixed include paths....... : $enablelegacyincludepaths ***LEGACY FEATURE***"
 fi
 if test "x$enablelegacyusingnamespace" = "xyes"; then :
-  echo '  adding using namespace libMesh... :' $enablelegacyusingnamespace ***LEGACY FEATURE***
+  $as_echo "  adding using namespace libMesh... : $enablelegacyusingnamespace ***LEGACY FEATURE***"
 fi
 if test "x$enabledefaultcommworld" = "xyes"; then :
-  echo '  providing libMesh::CommWorld..... :' $enabledefaultcommworld ***LEGACY FEATURE***
+  $as_echo "  providing libMesh::CommWorld..... : $enabledefaultcommworld ***LEGACY FEATURE***"
 fi
 
 
