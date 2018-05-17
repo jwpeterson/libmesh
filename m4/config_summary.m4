@@ -158,14 +158,14 @@ if (test "x$enableoptional" = "xyes"); then
   AS_ECHO(["  trilinos......................... : $enabletrilinos"])
   AS_IF([test "x$enabletrilinos" = "xyes"],
         [
-          echo '     'AztecOO....................... : $enableaztecoo
-          echo '     'NOX........................... : $enablenox
-          echo '     'ML............................ : $enableml
-          echo '     'Tpetra........................ : $enabletpetra
-          echo '     'DTK........................... : $enabledtk
-          echo '     'Ifpack........................ : $enableifpack
-          echo '     'Epetra........................ : $enableepetra
-          echo '     'EpetraExt..................... : $enableepetraext
+          AS_ECHO(["     AztecOO....................... : $enableaztecoo"])
+          AS_ECHO(["     NOX........................... : $enablenox"])
+          AS_ECHO(["     ML............................ : $enableml"])
+          AS_ECHO(["     Tpetra........................ : $enabletpetra"])
+          AS_ECHO(["     DTK........................... : $enabledtk"])
+          AS_ECHO(["     Ifpack........................ : $enableifpack"])
+          AS_ECHO(["     Epetra........................ : $enableepetra"])
+          AS_ECHO(["     EpetraExt..................... : $enableepetraext"])
         ])
   AS_ECHO(["  vtk.............................. : $enablevtk"])
   AS_IF([test "x$enablevtk" = "xyes"],
