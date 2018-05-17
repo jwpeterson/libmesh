@@ -16,7 +16,8 @@ AC_DEFUN([CONFIGURE_TRILINOS_10],
               withtrilinosdir=$withval,
               withtrilinosdir=$TRILINOS_DIR)
 
-  if test "$withtrilinosdir" != no ; then
+  AS_IF([test "x$withtrilinosdir" != "xno"],
+        [
     AS_IF([test -r $withtrilinosdir/include/Makefile.export.Trilinos],
           [TRILINOS_MAKEFILE_EXPORT=$withtrilinosdir/include/Makefile.export.Trilinos],
           [test -r $withtrilinosdir/Makefile.export.Trilinos],
@@ -211,9 +212,10 @@ AC_DEFUN([CONFIGURE_TRILINOS_10],
                AC_MSG_RESULT([<<< Configuring library with Trilinos Epetra support >>>])
              ])
           ])
-  else
+  ],
+  [
     enabletrilinos10=no
-  fi
+  ])
 
   AC_SUBST(TRILINOS_MAKEFILE_EXPORT)
 
