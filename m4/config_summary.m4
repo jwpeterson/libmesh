@@ -107,7 +107,7 @@ fi
 
 ######################################################################################
 if (test "x$enableoptional" = "xyes"); then
-  echo
+  AS_ECHO([])
   echo Optional Packages:
   AS_ECHO(["  boost............................ : $enableboost"])
   AS_ECHO(["  capnproto........................ : $enablecapnproto"])
