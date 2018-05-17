@@ -515,17 +515,18 @@ AC_DEFUN([CONFIGURE_TRILINOS],
 
   AC_ARG_VAR([TRILINOS_DIR],  [path to Trilinos installation])
 
-  if test "$enablecomplex" = no ; then
-    if test "$enabletrilinos" != no ; then
-      dnl -- try Trilinos 10 first
-      CONFIGURE_TRILINOS_10
-      dnl -- then Trilinos 9
-      if test "$enabletrilinos10" = no ; then
-        CONFIGURE_TRILINOS_9
-        if test "$enabletrilinos9" = no; then
-          enabletrilinos=no
-        fi
-      fi
-    fi
-  fi
+  AS_IF([test "x$enablecomplex" = "xno"],
+        [
+          AS_IF([test "x$enabletrilinos" != "xno"],
+                [
+                  dnl -- try Trilinos 10 first
+                  CONFIGURE_TRILINOS_10
+                  dnl -- then Trilinos 9
+                  AS_IF([test "x$enabletrilinos10" = "xno"],
+                        [
+                          CONFIGURE_TRILINOS_9
+                          AS_IF([test "x$enabletrilinos9" = "xno"], [enabletrilinos=no])
+                        ])
+                ])
+        ])
 ])
