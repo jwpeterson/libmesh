@@ -34812,7 +34812,8 @@ else
 fi
 
 
-  if test "$withtrilinosdir" != no ; then
+  if test "x$withtrilinosdir" != "xno"; then :
+
     if test -r $withtrilinosdir/include/Makefile.export.Trilinos; then :
   TRILINOS_MAKEFILE_EXPORT=$withtrilinosdir/include/Makefile.export.Trilinos
 elif test -r $withtrilinosdir/Makefile.export.Trilinos; then :
@@ -35158,7 +35159,8 @@ fi
     fi
   else
     enabletrilinos10=no
-  fi
+
+fi
 
 
 
