@@ -108,7 +108,7 @@ fi
 ######################################################################################
 if (test "x$enableoptional" = "xyes"); then
   AS_ECHO([])
-  echo Optional Packages:
+  AS_ECHO(["Optional Packages:"])
   AS_ECHO(["  boost............................ : $enableboost"])
   AS_ECHO(["  capnproto........................ : $enablecapnproto"])
   AS_ECHO(["  cppunit.......................... : $enablecppunit"])
@@ -116,7 +116,7 @@ if (test "x$enableoptional" = "xyes"); then
   AS_ECHO(["  eigen............................ : $enableeigen"])
   AS_ECHO(["  exodus........................... : $enableexodus"])
   AS_IF([test "x$exodusversion" != "xno"],
-        [echo '     'version....................... : $exodusversion])
+        [AS_ECHO(["     version....................... : $exodusversion"])])
   AS_ECHO(["  fparser.......................... : $enablefparser"])
   AS_IF([test "x$enablefparser" = "xyes" && test "x$enablefparserdevel" = "xno"],
         [AS_ECHO(["     build from version............ : release"])])
@@ -135,20 +135,20 @@ if (test "x$enableoptional" = "xyes"); then
   AS_ECHO(["  nanoflann........................ : $enablenanoflann"])
   AS_ECHO(["  nemesis.......................... : $enablenemesis"])
   AS_IF([test "x$nemesisversion" != "xno"],
-        [echo '     'version....................... : $nemesisversion])
+        [AS_ECHO(["     version....................... : $nemesisversion"])])
   AS_ECHO(["  netcdf........................... : $enablenetcdf"])
   AS_IF([test "x$netcdfversion" != "xno"],
-        [echo '     'version....................... : $netcdfversion])
+        [AS_ECHO(["     version....................... : $netcdfversion"])])
   AS_ECHO(["  nlopt............................ : $enablenlopt"])
   AS_ECHO(["  parmetis......................... : $enableparmetis"])
   AS_ECHO(["  petsc............................ : $enablepetsc"])
   AS_IF([test "x$enablepetsc" = "xyes"],
-        [echo '     'version....................... : $petscversion])
+        [AS_ECHO(["     version....................... : $petscversion"])])
   AS_ECHO(["  qhull............................ : $enableqhull"])
   AS_ECHO(["  sfcurves......................... : $enablesfc"])
   AS_ECHO(["  slepc............................ : $enableslepc"])
   AS_IF([test "x$enableslepc" = "xyes"],
-        [echo '     'version....................... : $slepcversion])
+        [AS_ECHO(["     version....................... : $slepcversion"])])
   AS_ECHO(["  thread model..................... : $found_thread_model"])
   AS_ECHO(["  c++ rtti ........................ : $ac_cv_cxx_rtti"])
   AS_ECHO(["  tecio............................ : $enabletecio"])
@@ -169,22 +169,21 @@ if (test "x$enableoptional" = "xyes"); then
         ])
   AS_ECHO(["  vtk.............................. : $enablevtk"])
   AS_IF([test "x$enablevtk" = "xyes"],
-        [echo '     'version....................... : $vtkversion])
+        [AS_ECHO(["     version....................... : $vtkversion"])])
   AS_ECHO([])
   AS_IF([test "x$libmesh_optional_INCLUDES" != "x"],
         [
-          echo '  'libmesh_optional_INCLUDES........ : $libmesh_optional_INCLUDES
+          AS_ECHO(["  libmesh_optional_INCLUDES........ : $libmesh_optional_INCLUDES"])
           AS_ECHO([])
         ])
   AS_IF([test "x$libmesh_optional_LIBS" != "x"],
         [
-          echo '  'libmesh_optional_LIBS............ : $libmesh_optional_LIBS
+          AS_ECHO(["  libmesh_optional_LIBS............ : $libmesh_optional_LIBS"])
           AS_ECHO([])
         ])
 fi
-echo '-------------------------------------------------------------------------------'
-
-echo Configure complete, now type \'make\' and then \'make install\'.
+AS_ECHO(["-------------------------------------------------------------------------------"])
+AS_ECHO(["Configure complete, now type \'make\' and then \'make install\'."])
 AS_ECHO([])
 
 ])
