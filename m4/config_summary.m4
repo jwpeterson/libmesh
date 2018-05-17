@@ -57,11 +57,11 @@ echo CFLAGS.....\(oprof\)................. : $CFLAGS_OPROF $CFLAGS
      esac
      AS_ECHO([])
 done
-echo Install dir........................ : $prefix
-echo Build user......................... : $USER
-echo Build host......................... : $BUILD_HOST
-echo Build architecture................. : $BUILD_ARCH
-echo Git revision....................... : $BUILD_VERSION
+AS_ECHO(["Install dir........................ : $prefix"])
+AS_ECHO(["Build user......................... : $USER"])
+AS_ECHO(["Build host......................... : $BUILD_HOST"])
+AS_ECHO(["Build architecture................. : $BUILD_ARCH"])
+AS_ECHO(["Git revision....................... : $BUILD_VERSION"])
 
 dnl Print out library features
 AS_ECHO([])
