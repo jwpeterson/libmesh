@@ -44939,14 +44939,14 @@ fi
   $as_echo "  trilinos......................... : $enabletrilinos"
   if test "x$enabletrilinos" = "xyes"; then :
 
-          echo '     'AztecOO....................... : $enableaztecoo
-          echo '     'NOX........................... : $enablenox
-          echo '     'ML............................ : $enableml
-          echo '     'Tpetra........................ : $enabletpetra
-          echo '     'DTK........................... : $enabledtk
-          echo '     'Ifpack........................ : $enableifpack
-          echo '     'Epetra........................ : $enableepetra
-          echo '     'EpetraExt..................... : $enableepetraext
+          $as_echo "     AztecOO....................... : $enableaztecoo"
+          $as_echo "     NOX........................... : $enablenox"
+          $as_echo "     ML............................ : $enableml"
+          $as_echo "     Tpetra........................ : $enabletpetra"
+          $as_echo "     DTK........................... : $enabledtk"
+          $as_echo "     Ifpack........................ : $enableifpack"
+          $as_echo "     Epetra........................ : $enableepetra"
+          $as_echo "     EpetraExt..................... : $enableepetraext"
 
 fi
   $as_echo "  vtk.............................. : $enablevtk"
