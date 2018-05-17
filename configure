@@ -40903,8 +40903,6 @@ BUILD_ARCH=${host}
 BUILD_HOST=${ac_hostname}
 BUILD_DATE=`date +'%F %H:%M'`
 
-# Determine method for querying Source code revisioning (assumes git)
-
 # Extract the first word of "git", so it can be a program name with args.
 set dummy git; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -40946,18 +40944,18 @@ fi
 
 
 
-if (test "x${gitquery}" = "x" -o ! -e $srcdir/.git) ; then
-   GIT_REVISION="external" #"cat $srcdir/dist_version"
-   GIT_CHECKOUT=false
-   BUILD_DEVSTATUS="External Release"
+if test "x${gitquery}" = "x" || test ! -e $srcdir/.git; then :
+
+        GIT_REVISION="external"
+        GIT_CHECKOUT=false
+        BUILD_DEVSTATUS="External Release"
+
 else
 
-   #echo "git revision=`cd $srcdir ; ${gitquery} rev-parse HEAD`"
-   #echo "git branch=`cd $srcdir ; ${gitquery} branch | awk '/^\\* / { print  }'`"
+        GIT_REVISION="`cd $srcdir ; ${gitquery} rev-parse HEAD`"
+        GIT_CHECKOUT=true
+        BUILD_DEVSTATUS="Development Build"
 
-   GIT_REVISION="`cd $srcdir ; ${gitquery} rev-parse HEAD`"
-   GIT_CHECKOUT=true
-   BUILD_DEVSTATUS="Development Build"
 fi
 
 
@@ -40972,11 +40970,7 @@ else
 fi
 
 
-# Query current version.
-
 BUILD_VERSION=${GIT_REVISION}
-
-# Versioning info - check local developer version (if checked out)
 
 
 cat >>confdefs.h <<_ACEOF
