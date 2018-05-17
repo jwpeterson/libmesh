@@ -44789,17 +44789,17 @@ fi
 
 
 ######################################################################################
-echo
+$as_echo
 echo '----------------------------------- SUMMARY -----------------------------------'
-echo
+$as_echo
 echo Package version.................... : $PACKAGE-$VERSION
-echo
+$as_echo
 echo C++ compiler type.................. : $GXX_VERSION
 echo C++ compiler....................... : $CXX
 echo C compiler......................... : $CC
 echo Fortran compiler................... : $FC
 echo Build Methods...................... : $METHODS
-echo " "
+$as_echo
 for method in ${METHODS}; do
      case "${method}" in
          opt)
@@ -44827,7 +44827,7 @@ echo CPPFLAGS...\(oprof\)................. : $CPPFLAGS_OPROF $CPFLAGS
 echo CXXFLAGS...\(oprof\)................. : $CXXFLAGS_OPROF $CXXFLAGS
 echo CFLAGS.....\(oprof\)................. : $CFLAGS_OPROF $CFLAGS
      esac
-     echo " "
+     $as_echo
 done
 echo Install dir........................ : $prefix
 echo Build user......................... : $USER
@@ -44836,7 +44836,7 @@ echo Build architecture................. : $BUILD_ARCH
 echo Git revision....................... : $BUILD_VERSION
 
 ######################################################################################
-echo
+$as_echo
 echo Library Features:
 echo '  library warnings................. :' $enablewarnings
 echo '  library deprecated code support.. :' $enabledeprecated
@@ -44880,7 +44880,7 @@ fi
 
 ######################################################################################
 if (test "x$enableoptional" = "xyes"); then
-  echo
+  $as_echo
   echo Optional Packages:
   $as_echo "  boost............................ : $enableboost"
   $as_echo "  capnproto........................ : $enablecapnproto"
@@ -44953,24 +44953,24 @@ fi
   if test "x$enablevtk" = "xyes"; then :
   echo '     'version....................... : $vtkversion
 fi
-    echo
+  $as_echo
   if test "x$libmesh_optional_INCLUDES" != "x"; then :
 
           echo '  'libmesh_optional_INCLUDES........ : $libmesh_optional_INCLUDES
-          echo
+          $as_echo
 
 fi
   if test "x$libmesh_optional_LIBS" != "x"; then :
 
           echo '  'libmesh_optional_LIBS............ : $libmesh_optional_LIBS
-          echo
+          $as_echo
 
 fi
 fi
 echo '-------------------------------------------------------------------------------'
 
 echo Configure complete, now type \'make\' and then \'make install\'.
-echo
+$as_echo
 
 
 
