@@ -117,7 +117,7 @@ if (test "x$enableoptional" = "xyes"); then
   echo '  'exodus........................... : $enableexodus
   AS_IF([test "x$exodusversion" != "xno"],
         [echo '     'version....................... : $exodusversion])
-  echo '  'fparser.......................... : $enablefparser
+  AS_ECHO(["  fparser.......................... : $enablefparser"])
   AS_IF([test "x$enablefparser" = "xyes" && test "x$enablefparserdevel" = "xno"],
         [echo '     'build from version............ : release])
   AS_IF([test "x$enablefparser" = "xyes" && test "x$enablefparserdevel" = "xyes"],
