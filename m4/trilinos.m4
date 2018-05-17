@@ -487,37 +487,38 @@ AC_DEFUN([CONFIGURE_TRILINOS],
                                  [AC_MSG_ERROR(bad value ${enableval} for --enable-trilinos)])],
                                [enabletrilinos=$enableoptional])
 
-  if (test "x$enabletrilinos" = xyes); then
-    # Trump --enable-trilinos with --disable-mpi
-    AC_MSG_CHECKING([Whether MPI is available for Trilinos])
-    if (test "x$enablempi" = xno); then
-      enabletrilinos=no
-      AC_MSG_RESULT(no)
-    else
-      AC_MSG_RESULT(yes)
-    fi
+  AS_IF([test "x$enabletrilinos" = xyes],
+        [
+          dnl Trump --enable-trilinos with --disable-mpi
+          AC_MSG_CHECKING([Whether MPI is available for Trilinos])
+          if (test "x$enablempi" = xno); then
+            enabletrilinos=no
+            AC_MSG_RESULT(no)
+          else
+            AC_MSG_RESULT(yes)
+          fi
 
-    AC_MSG_CHECKING([Whether Real precision is compatible with Trilinos])
-    # Trump --enable-trilinos with --enable anything except double
-    # precision - the modules we use are hardcoded to double
+          AC_MSG_CHECKING([Whether Real precision is compatible with Trilinos])
+          dnl Trump --enable-trilinos with --enable anything except double
+          dnl precision - the modules we use are hardcoded to double
 
-    if (test "x$enablesingleprecision" != xno -o \
-             "x$enabletripleprecision" != xno -o \
-             "x$enablequadrupleprecision" != xno); then
-      enabletrilinos=no
-      AC_MSG_RESULT(no)
-    else
-      AC_MSG_RESULT(yes)
-    fi
-  fi
+          if (test "x$enablesingleprecision" != xno -o \
+                   "x$enabletripleprecision" != xno -o \
+                   "x$enablequadrupleprecision" != xno); then
+            enabletrilinos=no
+            AC_MSG_RESULT(no)
+          else
+            AC_MSG_RESULT(yes)
+          fi
+        ])
 
   AC_ARG_VAR([TRILINOS_DIR],  [path to Trilinos installation])
 
   if test "$enablecomplex" = no ; then
     if test "$enabletrilinos" != no ; then
-      # -- try Trilinos 10 first
+      dnl -- try Trilinos 10 first
       CONFIGURE_TRILINOS_10
-      # -- then Trilinos 9
+      dnl -- then Trilinos 9
       if test "$enabletrilinos10" = no ; then
         CONFIGURE_TRILINOS_9
         if test "$enabletrilinos9" = no; then
