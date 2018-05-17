@@ -44835,20 +44835,19 @@ echo Build host......................... : $BUILD_HOST
 echo Build architecture................. : $BUILD_ARCH
 echo Git revision....................... : $BUILD_VERSION
 
-######################################################################################
 $as_echo
-echo Library Features:
-echo '  library warnings................. :' $enablewarnings
-echo '  library deprecated code support.. :' $enabledeprecated
-echo '  adaptive mesh refinement......... :' $enableamr
-echo '  blocked matrix/vector storage.... :' $enableblockedstorage
-echo '  complex variables................ :' $enablecomplex
-echo '  example suite.................... :' $enableexamples
-echo '  ghosted vectors.................. :' $enableghosted
-echo '  high-order shape functions....... :' $enablepfem
-echo '  unique-id support................ :' $enableuniqueid
-echo '  id size (boundaries)............. :' $boundary_bytes bytes
-echo '  id size (dofs)................... :' $dof_bytes bytes
+$as_echo "Library Features:"
+$as_echo "  library warnings................. : $enablewarnings"
+$as_echo "  library deprecated code support.. : $enabledeprecated"
+$as_echo "  adaptive mesh refinement......... : $enableamr"
+$as_echo "  blocked matrix/vector storage.... : $enableblockedstorage"
+$as_echo "  complex variables................ : $enablecomplex"
+$as_echo "  example suite.................... : $enableexamples"
+$as_echo "  ghosted vectors.................. : $enableghosted"
+$as_echo "  high-order shape functions....... : $enablepfem"
+$as_echo "  unique-id support................ : $enableuniqueid"
+$as_echo "  id size (boundaries)............. : $boundary_bytes bytes"
+$as_echo "  id size (dofs)................... : $dof_bytes bytes"
 if test "x$enableuniqueid" = "xyes"; then :
   echo '  id size (unique)................. :' $unique_bytes bytes
 fi
