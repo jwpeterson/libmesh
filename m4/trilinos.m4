@@ -23,7 +23,8 @@ AC_DEFUN([CONFIGURE_TRILINOS_10],
           [TRILINOS_MAKEFILE_EXPORT=$withtrilinosdir/Makefile.export.Trilinos],
           [enabletrilinos10=no])
 
-    if test "$enabletrilinos10" != no ; then
+    AS_IF([test "x$enabletrilinos10" != "xno"],
+          [
        dnl This actually implies Trilinos 10+, as this configure
        dnl function also works with Trilinos 11.
        enabletrilinos10=yes
@@ -209,8 +210,7 @@ AC_DEFUN([CONFIGURE_TRILINOS_10],
                AC_DEFINE(TRILINOS_HAVE_EPETRA, 1, [Flag indicating whether the library shall be compiled to use Epetra interface in Trilinos])
                AC_MSG_RESULT([<<< Configuring library with Trilinos Epetra support >>>])
              ])
-
-    fi
+          ])
   else
     enabletrilinos10=no
   fi
