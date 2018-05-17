@@ -44882,12 +44882,12 @@ fi
 if (test "x$enableoptional" = "xyes"); then
   echo
   echo Optional Packages:
-  echo '  'boost............................ : $enableboost
-  echo '  'capnproto........................ : $enablecapnproto
-  echo '  'cppunit.......................... : $enablecppunit
-  echo '  'curl............................. : $enablecurl
-  echo '  'eigen............................ : $enableeigen
-  echo '  'exodus........................... : $enableexodus
+  $as_echo "  boost............................ : $enableboost"
+  $as_echo "  capnproto........................ : $enablecapnproto"
+  $as_echo "  cppunit.......................... : $enablecppunit"
+  $as_echo "  curl............................. : $enablecurl"
+  $as_echo "  eigen............................ : $enableeigen"
+  $as_echo "  exodus........................... : $enableexodus"
   if test "x$exodusversion" != "xno"; then :
   echo '     'version....................... : $exodusversion
 fi
@@ -44914,29 +44914,29 @@ fi
   if test "x$nemesisversion" != "xno"; then :
   echo '     'version....................... : $nemesisversion
 fi
-  echo '  'netcdf........................... : $enablenetcdf
+  $as_echo "  netcdf........................... : $enablenetcdf"
   if test "x$netcdfversion" != "xno"; then :
   echo '     'version....................... : $netcdfversion
 fi
-  echo '  'nlopt............................ : $enablenlopt
-  echo '  'parmetis......................... : $enableparmetis
-  echo '  'petsc............................ : $enablepetsc
+  $as_echo "  nlopt............................ : $enablenlopt"
+  $as_echo "  parmetis......................... : $enableparmetis"
+  $as_echo "  petsc............................ : $enablepetsc"
   if test "x$enablepetsc" = "xyes"; then :
   echo '     'version....................... : $petscversion
 fi
-  echo '  'qhull............................ : $enableqhull
-  echo '  'sfcurves......................... : $enablesfc
-  echo '  'slepc............................ : $enableslepc
+  $as_echo "  qhull............................ : $enableqhull"
+  $as_echo "  sfcurves......................... : $enablesfc"
+  $as_echo "  slepc............................ : $enableslepc"
   if test "x$enableslepc" = "xyes"; then :
   echo '     'version....................... : $slepcversion
 fi
-  echo '  'thread model..................... : $found_thread_model
-  echo '  'c++ rtti ........................ : $ac_cv_cxx_rtti
-  echo '  'tecio............................ : $enabletecio
-  echo '  'tecplot...\(vendor binaries\)...... : $enabletecplot
-  echo '  'tetgen........................... : $enabletetgen
-  echo '  'triangle......................... : $enabletriangle
-  echo '  'trilinos......................... : $enabletrilinos
+  $as_echo "  thread model..................... : $found_thread_model"
+  $as_echo "  c++ rtti ........................ : $ac_cv_cxx_rtti"
+  $as_echo "  tecio............................ : $enabletecio"
+  $as_echo "  tecplot...\(vendor binaries\)...... : $enabletecplot"
+  $as_echo "  tetgen........................... : $enabletetgen"
+  $as_echo "  triangle......................... : $enabletriangle"
+  $as_echo "  trilinos......................... : $enabletrilinos"
   if test "x$enabletrilinos" = "xyes"; then :
 
           echo '     'AztecOO....................... : $enableaztecoo
@@ -44949,7 +44949,7 @@ fi
           echo '     'EpetraExt..................... : $enableepetraext
 
 fi
-  echo '  'vtk.............................. : $enablevtk
+  $as_echo "  vtk.............................. : $enablevtk"
   if test "x$enablevtk" = "xyes"; then :
   echo '     'version....................... : $vtkversion
 fi
