@@ -44849,8 +44849,8 @@ echo '  high-order shape functions....... :' $enablepfem
 echo '  unique-id support................ :' $enableuniqueid
 echo '  id size (boundaries)............. :' $boundary_bytes bytes
 echo '  id size (dofs)................... :' $dof_bytes bytes
-if (test "x$enableuniqueid" = "xyes"); then
-echo '  id size (unique)................. :' $unique_bytes bytes
+if test "x$enableuniqueid" = "xyes"; then :
+  echo '  id size (unique)................. :' $unique_bytes bytes
 fi
 echo '  id size (processors)............. :' $processor_bytes bytes
 echo '  id size (subdomains)............. :' $subdomain_bytes bytes
@@ -44886,25 +44886,21 @@ if (test "x$enableoptional" = "xyes"); then
   echo '  'capnproto........................ : $enablecapnproto
   echo '  'cppunit.......................... : $enablecppunit
   echo '  'curl............................. : $enablecurl
-#  if (test "x$enablecppunit" = "xyes"); then
-#  echo '     'CPPUNIT_CFLAGS................ : $CPPUNIT_CFLAGS
-#  echo '     'CPPUNIT_LIBS.................. : $CPPUNIT_LIBS
-#  fi
   echo '  'eigen............................ : $enableeigen
   echo '  'exodus........................... : $enableexodus
-  if (test "x$exodusversion" != "xno"); then
+  if test "x$exodusversion" != "xno"; then :
   echo '     'version....................... : $exodusversion
-  fi
+fi
   echo '  'fparser.......................... : $enablefparser
-  if (test "x$enablefparser" = "xyes" -a "x$enablefparserdevel" = "xno"); then
+  if test "x$enablefparser" = "xyes" && test "x$enablefparserdevel" = "xno"; then :
   echo '     'build from version............ : release
-  fi
-  if (test "x$enablefparser" = "xyes" -a "x$enablefparserdevel" = "xyes"); then
+fi
+  if test "x$enablefparser" = "xyes" && test "x$enablefparserdevel" = "xyes"; then :
   echo '     'build from version............ : devel
-  fi
-  if (test "x$enablefparser" = "xyes" -a "x$enablefparserdebugging" = "xyes"); then
+fi
+  if test "x$enablefparser" = "xyes" && test "x$enablefparserdebugging" = "xyes"; then :
   echo '     'fparser debugging............. : enabled
-  fi
+fi
   echo '  'glpk............................. : $enableglpk
   echo '  'gmv.............................. : $enablegmv
   echo '  'gzstream......................... : $enablegz
@@ -44915,25 +44911,25 @@ if (test "x$enableoptional" = "xyes"); then
   echo '  'mpi.............................. : $enablempi
   echo '  'nanoflann........................ : $enablenanoflann
   echo '  'nemesis.......................... : $enablenemesis
-  if (test "x$nemesisversion" != "xno"); then
+  if test "x$nemesisversion" != "xno"; then :
   echo '     'version....................... : $nemesisversion
-  fi
+fi
   echo '  'netcdf........................... : $enablenetcdf
-  if (test "x$netcdfversion" != "xno"); then
+  if test "x$netcdfversion" != "xno"; then :
   echo '     'version....................... : $netcdfversion
-  fi
+fi
   echo '  'nlopt............................ : $enablenlopt
   echo '  'parmetis......................... : $enableparmetis
   echo '  'petsc............................ : $enablepetsc
-  if (test "x$enablepetsc" = "xyes"); then
+  if test "x$enablepetsc" = "xyes"; then :
   echo '     'version....................... : $petscversion
-  fi
+fi
   echo '  'qhull............................ : $enableqhull
   echo '  'sfcurves......................... : $enablesfc
   echo '  'slepc............................ : $enableslepc
-  if (test "x$enableslepc" = "xyes"); then
+  if test "x$enableslepc" = "xyes"; then :
   echo '     'version....................... : $slepcversion
-  fi
+fi
   echo '  'thread model..................... : $found_thread_model
   echo '  'c++ rtti ........................ : $ac_cv_cxx_rtti
   echo '  'tecio............................ : $enabletecio
@@ -44941,29 +44937,35 @@ if (test "x$enableoptional" = "xyes"); then
   echo '  'tetgen........................... : $enabletetgen
   echo '  'triangle......................... : $enabletriangle
   echo '  'trilinos......................... : $enabletrilinos
-  if (test "x$enabletrilinos" = "xyes"); then
-  echo '     'AztecOO....................... : $enableaztecoo
-  echo '     'NOX........................... : $enablenox
-  echo '     'ML............................ : $enableml
-  echo '     'Tpetra........................ : $enabletpetra
-  echo '     'DTK........................... : $enabledtk
-  echo '     'Ifpack........................ : $enableifpack
-  echo '     'Epetra........................ : $enableepetra
-  echo '     'EpetraExt..................... : $enableepetraext
-  fi
+  if test "x$enabletrilinos" = "xyes"; then :
+
+          echo '     'AztecOO....................... : $enableaztecoo
+          echo '     'NOX........................... : $enablenox
+          echo '     'ML............................ : $enableml
+          echo '     'Tpetra........................ : $enabletpetra
+          echo '     'DTK........................... : $enabledtk
+          echo '     'Ifpack........................ : $enableifpack
+          echo '     'Epetra........................ : $enableepetra
+          echo '     'EpetraExt..................... : $enableepetraext
+
+fi
   echo '  'vtk.............................. : $enablevtk
-  if (test "x$enablevtk" = "xyes"); then
+  if test "x$enablevtk" = "xyes"; then :
   echo '     'version....................... : $vtkversion
-  fi
-  echo
-  if (test "x$libmesh_optional_INCLUDES" != "x"); then
-  echo '  'libmesh_optional_INCLUDES........ : $libmesh_optional_INCLUDES
-  echo
-  fi
-  if (test "x$libmesh_optional_LIBS" != "x"); then
-  echo '  'libmesh_optional_LIBS............ : $libmesh_optional_LIBS
-  echo
-  fi
+fi
+    echo
+  if test "x$libmesh_optional_INCLUDES" != "x"; then :
+
+          echo '  'libmesh_optional_INCLUDES........ : $libmesh_optional_INCLUDES
+          echo
+
+fi
+  if test "x$libmesh_optional_LIBS" != "x"; then :
+
+          echo '  'libmesh_optional_LIBS............ : $libmesh_optional_LIBS
+          echo
+
+fi
 fi
 echo '-------------------------------------------------------------------------------'
 
