@@ -79,20 +79,20 @@ AS_ECHO(["  id size (boundaries)............. : $boundary_bytes bytes"])
 AS_ECHO(["  id size (dofs)................... : $dof_bytes bytes"])
 AS_IF([test "x$enableuniqueid" = "xyes"],
       [echo '  id size (unique)................. :' $unique_bytes bytes])
-echo '  id size (processors)............. :' $processor_bytes bytes
-echo '  id size (subdomains)............. :' $subdomain_bytes bytes
-echo '  infinite elements................ :' $enableifem
-echo '  Dirichlet constraints............ :' $enabledirichlet
-echo '  node constraints................. :' $enablenodeconstraint
-echo '  parallel mesh.................... :' $enableparmesh
-echo '  performance logging.............. :' $enableperflog
-echo '  periodic boundary conditions..... :' $enableperiodic
-echo '  reference counting............... :' $enablerefct
-echo '  shape function 2nd derivatives... :' $enablesecond
-echo '  stack trace files................ :' $enabletracefiles
-echo '  track node valence............... :' $enablenodevalence
-echo '  variational smoother............. :' $enablevsmoother
-echo '  xdr binary I/O................... :' $enablexdr
+AS_ECHO(["  id size (processors)............. : $processor_bytes bytes"])
+AS_ECHO(["  id size (subdomains)............. : $subdomain_bytes bytes"])
+AS_ECHO(["  infinite elements................ : $enableifem"])
+AS_ECHO(["  Dirichlet constraints............ : $enabledirichlet"])
+AS_ECHO(["  node constraints................. : $enablenodeconstraint"])
+AS_ECHO(["  parallel mesh.................... : $enableparmesh"])
+AS_ECHO(["  performance logging.............. : $enableperflog"])
+AS_ECHO(["  periodic boundary conditions..... : $enableperiodic"])
+AS_ECHO(["  reference counting............... : $enablerefct"])
+AS_ECHO(["  shape function 2nd derivatives... : $enablesecond"])
+AS_ECHO(["  stack trace files................ : $enabletracefiles"])
+AS_ECHO(["  track node valence............... : $enablenodevalence"])
+AS_ECHO(["  variational smoother............. : $enablevsmoother"])
+AS_ECHO(["  xdr binary I/O................... : $enablexdr"])
 if (test "x$enablelegacyincludepaths" = "xyes"); then
 echo '  non-prefixed include paths....... :' $enablelegacyincludepaths ***LEGACY FEATURE***
 fi
