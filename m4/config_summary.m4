@@ -63,20 +63,20 @@ echo Build host......................... : $BUILD_HOST
 echo Build architecture................. : $BUILD_ARCH
 echo Git revision....................... : $BUILD_VERSION
 
-######################################################################################
+dnl Print out library features
 AS_ECHO([])
-echo Library Features:
-echo '  library warnings................. :' $enablewarnings
-echo '  library deprecated code support.. :' $enabledeprecated
-echo '  adaptive mesh refinement......... :' $enableamr
-echo '  blocked matrix/vector storage.... :' $enableblockedstorage
-echo '  complex variables................ :' $enablecomplex
-echo '  example suite.................... :' $enableexamples
-echo '  ghosted vectors.................. :' $enableghosted
-echo '  high-order shape functions....... :' $enablepfem
-echo '  unique-id support................ :' $enableuniqueid
-echo '  id size (boundaries)............. :' $boundary_bytes bytes
-echo '  id size (dofs)................... :' $dof_bytes bytes
+AS_ECHO(["Library Features:"])
+AS_ECHO(["  library warnings................. : $enablewarnings"])
+AS_ECHO(["  library deprecated code support.. : $enabledeprecated"])
+AS_ECHO(["  adaptive mesh refinement......... : $enableamr"])
+AS_ECHO(["  blocked matrix/vector storage.... : $enableblockedstorage"])
+AS_ECHO(["  complex variables................ : $enablecomplex"])
+AS_ECHO(["  example suite.................... : $enableexamples"])
+AS_ECHO(["  ghosted vectors.................. : $enableghosted"])
+AS_ECHO(["  high-order shape functions....... : $enablepfem"])
+AS_ECHO(["  unique-id support................ : $enableuniqueid"])
+AS_ECHO(["  id size (boundaries)............. : $boundary_bytes bytes"])
+AS_ECHO(["  id size (dofs)................... : $dof_bytes bytes"])
 AS_IF([test "x$enableuniqueid" = "xyes"],
       [echo '  id size (unique)................. :' $unique_bytes bytes])
 echo '  id size (processors)............. :' $processor_bytes bytes
