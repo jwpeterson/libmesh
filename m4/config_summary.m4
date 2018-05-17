@@ -121,9 +121,9 @@ if (test "x$enableoptional" = "xyes"); then
   AS_IF([test "x$enablefparser" = "xyes" && test "x$enablefparserdevel" = "xno"],
         [AS_ECHO(["     build from version............ : release"])])
   AS_IF([test "x$enablefparser" = "xyes" && test "x$enablefparserdevel" = "xyes"],
-        [echo '     'build from version............ : devel])
+        [AS_ECHO(["     build from version............ : devel"])])
   AS_IF([test "x$enablefparser" = "xyes" && test "x$enablefparserdebugging" = "xyes"],
-        [echo '     'fparser debugging............. : enabled])
+        [AS_ECHO(["     fparser debugging............. : enabled"])])
   echo '  'glpk............................. : $enableglpk
   echo '  'gmv.............................. : $enablegmv
   echo '  'gzstream......................... : $enablegz
