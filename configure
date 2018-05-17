@@ -44893,7 +44893,7 @@ if (test "x$enableoptional" = "xyes"); then
 fi
   $as_echo "  fparser.......................... : $enablefparser"
   if test "x$enablefparser" = "xyes" && test "x$enablefparserdevel" = "xno"; then :
-  echo '     'build from version............ : release
+  $as_echo "     build from version............ : release"
 fi
   if test "x$enablefparser" = "xyes" && test "x$enablefparserdevel" = "xyes"; then :
   echo '     'build from version............ : devel
