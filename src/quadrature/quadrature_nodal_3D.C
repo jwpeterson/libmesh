@@ -43,6 +43,33 @@ void QNodal::init_3D(const ElemType, unsigned int)
         return;
       }
 
+    case PYRAMID5:
+      {
+        // A rule with 5 points which is exact only for constants.
+        // Note: it is not possible to construct a rule with 5 points
+        // at the vertices which is exact for linears, so the weights
+        // are instead chosen as described below.  The quadrature
+        // points are numbered the same way as the reference element
+        // nodes.
+        _points =
+          {
+            Point(-1,-1,0.), Point(+1,-1,0.), Point(+1,+1,0.), Point(-1,+1,0.),
+            Point(0.,0.,+1)
+          };
+
+        // base vertex (wb), and apex vertex (wa) weights are obtained by:
+        // 1.) Requiring that they sum to the reference element volume.
+        // 2.) Minimizing the Frobenius norm of the difference between
+        //     the resulting nodal quadrature (diagonal) mass matrix
+        //     and the true mass matrix for the reference element.
+        Real wb = Real(58) / 225;
+        Real wa = Real(68) / 225;
+
+        _weights = {wb, wb, wb, wb, wa};
+
+        return;
+      }
+
     case PRISM15:
       {
         // A rule with 15 points which is exact for linears, and
