@@ -103,6 +103,41 @@ void QNodal::init_3D(const ElemType, unsigned int)
         return;
       }
 
+    case PYRAMID14:
+      {
+        // A rule with 14 points which is exact for linears, and
+        // naturally produces a lumped approximation to the mass
+        // matrix. The quadrature points are numbered the same way as
+        // the reference element nodes.
+        _points =
+          {
+            Point(-1.,-1., 0.), Point( 1.,-1., 0.), Point( 1., 1., 0.), Point(-1., 1., 0.),
+            Point( 0., 0., 1.),
+            Point( 0.,-1., 0.), Point( 1., 0., 0.), Point( 0., 1., 0.), Point(-1., 0., 0.),
+            Point(-.5,-.5, .5), Point( .5,-.5, .5), Point( .5, .5, .5), Point(-.5, .5, .5),
+            Point( 0., 0., 0.)
+          };
+
+        // wb (4) base (vertex) weights
+        // wa (1) apex (vertex) weight
+        // wq (4) quad (edge) weights
+        // we (4) tri (edge) weights
+        // wc (1) base centroid weight
+        Real wb = Real(4726)  / 89775; // ~0.05264
+        Real wa = Real(7783)  / 89775; // ~0.08669
+        Real wq = Real(2519)  / 29925; // ~0.08418
+        Real we = Real(11071) / 89775; // ~0.12332
+        Real wc = Real(881)   / 4275;  // ~0.20608
+
+        _weights = {wb, wb, wb, wb,
+                    wa,
+                    wq, wq, wq, wq,
+                    we, we, we, we,
+                    wc};
+
+        return;
+      }
+
     case HEX20:
       {
         // A rule with 20 points which is exact for linears, and
