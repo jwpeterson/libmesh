@@ -46,15 +46,17 @@ void QNodal::init_3D(const ElemType, unsigned int)
     case PYRAMID5:
       {
         // A rule with 5 points which is exact only for constants.
-        // Note: it is not possible to construct a rule with 5 points
+        // Note 1: it is not possible to construct a rule with 5 points
         // at the vertices which is exact for linears, so the weights
         // are instead chosen as described below.  The quadrature
         // points are numbered the same way as the reference element
         // nodes.
+        // Note 2: we don't place a quadrature point exactly at the apex,
+        // since the element Jacobian goes to zero there.
         _points =
           {
             Point(-1,-1,0.), Point(+1,-1,0.), Point(+1,+1,0.), Point(-1,+1,0.),
-            Point(0.,0.,+1)
+            Point(0.,0.,+1 - std::numeric_limits<Real>::epsilon())
           };
 
         // base vertex (wb), and apex vertex (wa) weights are obtained by:
@@ -109,10 +111,12 @@ void QNodal::init_3D(const ElemType, unsigned int)
         // naturally produces a lumped approximation to the mass
         // matrix. The quadrature points are numbered the same way as
         // the reference element nodes.
+        // Note: we don't place a quadrature point exactly at the apex,
+        // since the element Jacobian goes to zero there.
         _points =
           {
             Point(-1.,-1., 0.), Point( 1.,-1., 0.), Point( 1., 1., 0.), Point(-1., 1., 0.),
-            Point( 0., 0., 1.),
+            Point( 0., 0., 1. - std::numeric_limits<Real>::epsilon()),
             Point( 0.,-1., 0.), Point( 1., 0., 0.), Point( 0., 1., 0.), Point(-1., 0., 0.),
             Point(-.5,-.5, .5), Point( .5,-.5, .5), Point( .5, .5, .5), Point(-.5, .5, .5),
             Point( 0., 0., 0.)
