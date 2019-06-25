@@ -116,7 +116,7 @@ void QNodal::init_3D(const ElemType, unsigned int)
         _points =
           {
             Point(-1.,-1., 0.), Point( 1.,-1., 0.), Point( 1., 1., 0.), Point(-1., 1., 0.),
-            Point( 0., 0., 1. - std::numeric_limits<Real>::epsilon()),
+            Point( 0., 0., 1. - 100.*std::numeric_limits<Real>::epsilon()),
             Point( 0.,-1., 0.), Point( 1., 0., 0.), Point( 0., 1., 0.), Point(-1., 0., 0.),
             Point(-.5,-.5, .5), Point( .5,-.5, .5), Point( .5, .5, .5), Point(-.5, .5, .5)
           };
