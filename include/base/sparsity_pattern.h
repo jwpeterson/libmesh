@@ -100,7 +100,11 @@ private:
   std::unordered_set<dof_id_type> hashed_dof_sets;
 
   void handle_vi_vj(const std::vector<dof_id_type> & element_dofs_i,
-                    const std::vector<dof_id_type> & element_dofs_j);
+                    const std::vector<dof_id_type> & element_dofs_j,
+                    dof_id_type elem_id_i,
+                    dof_id_type elem_id_j,
+                    unsigned int var_id_i,
+                    unsigned int var_id_j);
 
   void sorted_connected_dofs(const Elem * elem,
                              std::vector<dof_id_type> & dofs_vi,

@@ -98,7 +98,11 @@ void Build::sorted_connected_dofs(const Elem * elem,
 
 
 void Build::handle_vi_vj(const std::vector<dof_id_type> & element_dofs_i,
-                         const std::vector<dof_id_type> & element_dofs_j)
+                         const std::vector<dof_id_type> & element_dofs_j,
+                         dof_id_type elem_id_i,
+                         dof_id_type elem_id_j,
+                         unsigned int var_id_i,
+                         unsigned int var_id_j)
 {
   const unsigned int n_dofs_on_element_i =
     cast_int<unsigned int>(element_dofs_i.size());
@@ -120,6 +124,10 @@ void Build::handle_vi_vj(const std::vector<dof_id_type> & element_dofs_i,
   // entries in element_dofs_i for O(10^3) elements. Making this
   // number larger will disable the hashing optimization in more
   // cases.
+  libMesh::out << "elem_id_i=" << elem_id_i << std::endl;
+  libMesh::out << "elem_id_j=" << elem_id_j << std::endl;
+  libMesh::out << "var_id_i=" << var_id_i << std::endl;
+  libMesh::out << "var_id_j=" << var_id_j << std::endl;
   bool dofs_seen = false;
   if (n_dofs_on_element_j > 0 && n_dofs_on_element_i > 256)
     {
@@ -127,6 +135,18 @@ void Build::handle_vi_vj(const std::vector<dof_id_type> & element_dofs_i,
       auto hash_j = Utility::hashword(element_dofs_j);
       auto final_hash = Utility::hashword2(hash_i, hash_j);
       auto result = hashed_dof_sets.insert(final_hash);
+      libMesh::out << "final_hash=" << final_hash << std::endl;
+
+      libMesh::out << "element_dofs_i = ";
+      for (const auto & id : element_dofs_i)
+        libMesh::out << id << " ";
+      libMesh::out << std::endl;
+
+      libMesh::out << "element_dofs_j = ";
+      for (const auto & id : element_dofs_j)
+        libMesh::out << id << " ";
+      libMesh::out << std::endl;
+
       // if insert failed, we have already seen these dofs
       dofs_seen = !result.second;
     }
@@ -292,12 +312,16 @@ void Build::operator()(const ConstElemRange & range)
                   for (const auto & idx : ccr)
                     {
                       if (partner == elem)
-                        this->handle_vi_vj(element_dofs_i[vi], element_dofs_i[idx]);
+                        this->handle_vi_vj(element_dofs_i[vi], element_dofs_i[idx],
+                                           elem->id(), elem->id(),
+                                           vi, idx);
                       else
                         {
                           std::vector<dof_id_type> partner_dofs;
                           this->sorted_connected_dofs(partner, partner_dofs, idx);
-                          this->handle_vi_vj(element_dofs_i[vi], partner_dofs);
+                          this->handle_vi_vj(element_dofs_i[vi], partner_dofs,
+                                             elem->id(), partner->id(),
+                                             vi, idx);
                         }
                     }
                 }
@@ -306,12 +330,16 @@ void Build::operator()(const ConstElemRange & range)
                   for (unsigned int vj = 0; vj != n_var; ++vj)
                     {
                       if (partner == elem)
-                        this->handle_vi_vj(element_dofs_i[vi], element_dofs_i[vj]);
+                        this->handle_vi_vj(element_dofs_i[vi], element_dofs_i[vj],
+                                           elem->id(), elem->id(),
+                                           vi, vj);
                       else
                         {
                           std::vector<dof_id_type> partner_dofs;
                           this->sorted_connected_dofs(partner, partner_dofs, vj);
-                          this->handle_vi_vj(element_dofs_i[vi], partner_dofs);
+                          this->handle_vi_vj(element_dofs_i[vi], partner_dofs,
+                                             elem->id(), partner->id(),
+                                             vi, vj);
                         }
                     }
                 }
