@@ -1722,6 +1722,11 @@ Point FEMap::inverse_map (const unsigned int dim,
       //  Increment in current iterate \p p, will be computed.
       Point dp;
 
+      // Debugging
+      libMesh::out << std::endl;
+      libMesh::out << "cnt = " << cnt << std::endl;
+      libMesh::out << "physical_guess = " << physical_guess << std::endl;
+      libMesh::out << "delta = " << delta << std::endl;
 
       //  The form of the map and how we invert it depends
       //  on the dimension that we are in.
@@ -1745,7 +1750,11 @@ Point FEMap::inverse_map (const unsigned int dim,
           //  \p physical_point actually lives in 3D.
         case 1:
           {
+            // libMesh::out << "In case dim==1" << std::endl;
+
             const Point dxi = map_deriv (dim, elem, 0, p);
+
+            libMesh::out << "dxi = " << dxi << std::endl;
 
             //  Newton's method in this case looks like
             //
@@ -1770,6 +1779,8 @@ Point FEMap::inverse_map (const unsigned int dim,
             const Real  dxidelta = dxi*delta;
 
             dp(0) = Ginv*dxidelta;
+
+            libMesh::out << "dp = " << dp << std::endl;
 
             // No master elements have radius > 4, but sometimes we
             // can take a step that big while still converging
