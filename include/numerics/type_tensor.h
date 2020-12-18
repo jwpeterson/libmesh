@@ -321,36 +321,6 @@ public:
   const TypeTensor<T> & operator *= (const TypeTensor<T2> &);
 
   /**
-   * Computes the matrix-matrix-matrix product, D = A * B * C, or
-   * D_ij = A_ik * B_kl * C_lj
-   * without creating a temporary. This makes sense as a static function
-   * since it does not require an object.
-   */
-  static
-  TypeTensor<T>
-  mat_mult3(const TypeTensor<T> & A,
-            const TypeTensor<T> & B,
-            const TypeTensor<T> & C)
-  {
-    // First try, turned out to be slower than A * B * C
-    // TypeTensor<T> D;
-    // for (int i=0; i<LIBMESH_DIM; i++)
-    //   for (int j=0; j<LIBMESH_DIM; j++)
-    //     for (int k=0; k<LIBMESH_DIM; k++)
-    //       {
-    //         T Aik = A(i,k);
-    //         for (int l=0; l<LIBMESH_DIM; l++)
-    //           D(i,j) += Aik * B(k,l) * C(l,j);
-    //       }
-    // return D;
-
-    // Second try: just use operators
-    TypeTensor<T> D = A*B;
-    D *= C;
-    return D;
-  }
-
-  /**
    * Multiply 2 tensors together to return a scalar, i.e.
    * \f$ \sum_{ij} A_{ij} B_{ij} \f$
    * The tensors may contain different numeric types.
