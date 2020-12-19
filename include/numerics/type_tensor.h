@@ -364,14 +364,10 @@ public:
        const TypeVector<T> & x,
        const TypeVector<T> & y)
   {
-    TypeVector<T> z;
+    TypeVector<T> z = y;
     for (int i=0; i<LIBMESH_DIM; i++)
-      {
-        for (int j=0; j<LIBMESH_DIM; j++)
-          z(i) += A(i,j) * x(j);
-
-        z(i) += y(i);
-      }
+      for (int j=0; j<LIBMESH_DIM; j++)
+        z(i) += A(i,j) * x(j);
     return z;
   }
 
