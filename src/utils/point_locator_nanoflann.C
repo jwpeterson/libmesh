@@ -29,6 +29,9 @@
 #include "libmesh/mesh_tools.h"
 #include "libmesh/nanoflann.hpp"
 
+// C++ includes
+#include <array>
+
 namespace libMesh
 {
 
@@ -81,7 +84,46 @@ PointLocatorNanoflann::operator() (const Point & p,
 
   LOG_SCOPE("operator()", "PointLocatorNanoflann");
 
-  // TODO
+  // We are searching for Points close to the rotated centroid.
+  std::array<Real, 3> query_pt = {p(0), p(1), p(2)};
+
+  // The number of results we want to get back from Nanoflann.
+  // Hopefully there is only 1 "obvious" nearest node, but it is
+  // good to verify this.
+  const std::size_t num_results = 3;
+
+  // To catch values returned by the search
+  std::array<std::size_t, num_results> ret_index;
+  std::array<Real, num_results> out_dist_sqr;
+  nanoflann::KNNResultSet<Real> result_set(num_results);
+
+  // Initialize the result_set
+  result_set.init(ret_index.data(), out_dist_sqr.data());
+
+  // Do the search
+  kd_tree.findNeighbors(result_set, query_pt.data(), nanoflann::SearchParams(10));
+
+  // Debugging: print the results
+  for (unsigned r=0; r<result_set.size(); ++r)
+    {
+      // For indexing into original data structures.
+      unsigned int i = ret_index[r];
+
+      libMesh::out << "ret_index = " << i
+                   << ", dist^2 = " << out_dist_sqr[r]
+                   << ", position = " << low_elem_side_centroids[i]
+                   << ", elem = " << low_elem_side_pairs[i].first
+                   << ", side = " << low_elem_side_pairs[i].second
+                   << std::endl;
+    }
+
+  // TODO: we found the closest Node, but that Node will be connected
+  // to several elements, and we would need to know which connected
+  // Elem the query point is actually inside, which would require a
+  // bunch of contains_point() checks. So for this reason it is better
+  // to make the KD-Tree from a list of Points which correspond to the
+  // Elem centroids.
+  return nullptr;
 }
 
 
