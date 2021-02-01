@@ -16,8 +16,12 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
+#include "libmesh/libmesh_config.h"
 
-// Local Includes
+// This class is not defined unless libmesh is built with Nanoflann support
+#ifdef LIBMESH_HAVE_NANOFLANN
+
+// libmesh includes
 #include "libmesh/elem.h"
 #include "libmesh/libmesh_logging.h"
 #include "libmesh/mesh_base.h"
@@ -93,6 +97,6 @@ void PointLocatorNanoflann::disable_out_of_mesh_mode ()
   _out_of_mesh_mode = false;
 }
 
-
-
 } // namespace libMesh
+
+#endif

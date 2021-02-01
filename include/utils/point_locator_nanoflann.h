@@ -20,6 +20,11 @@
 #ifndef LIBMESH_POINT_LOCATOR_NANOFLANN_H
 #define LIBMESH_POINT_LOCATOR_NANOFLANN_H
 
+#include "libmesh/libmesh_config.h"
+
+// This class is not defined unless libmesh is built with Nanoflann support
+#ifdef LIBMESH_HAVE_NANOFLANN
+
 // libmesh includes
 #include "libmesh/point_locator_base.h"
 
@@ -113,4 +118,5 @@ protected:
 
 } // namespace libMesh
 
+#endif // LIBMESH_HAVE_NANOFLANN
 #endif // LIBMESH_POINT_LOCATOR_NANOFLANN_H
