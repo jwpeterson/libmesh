@@ -46,13 +46,15 @@ PointLocatorNanoflann::~PointLocatorNanoflann () = default;
 
 
 
-void PointLocatorNanoflann::clear ()
+void
+PointLocatorNanoflann::clear ()
 {
 }
 
 
 
-void PointLocatorNanoflann::init ()
+void
+PointLocatorNanoflann::init ()
 {
   // TODO
 
@@ -84,7 +86,8 @@ PointLocatorNanoflann::operator() (const Point & p,
 }
 
 
-void PointLocatorNanoflann::enable_out_of_mesh_mode ()
+void
+PointLocatorNanoflann::enable_out_of_mesh_mode ()
 {
   // Out-of-mesh mode should now work properly even on meshes with
   // non-affine elements.
@@ -92,9 +95,50 @@ void PointLocatorNanoflann::enable_out_of_mesh_mode ()
 }
 
 
-void PointLocatorNanoflann::disable_out_of_mesh_mode ()
+void
+PointLocatorNanoflann::disable_out_of_mesh_mode ()
 {
   _out_of_mesh_mode = false;
+}
+
+//
+// Required Nanoflann APIs
+//
+
+std::size_t PointLocatorNanoflann::kdtree_get_point_count() const
+{
+  return _mesh.n_nodes();
+}
+
+
+
+PointLocatorNanoflann::coord_t
+PointLocatorNanoflann::kdtree_distance(const coord_t * p1,
+                                       const std::size_t idx_p2,
+                                       std::size_t size) const
+{
+  // Construct a libmesh Point object from the input coord_t.  This
+  // assumes LIBMESH_DIM==3.
+  Point point1(p1[0],
+               size > 1 ? p1[1] : 0.,
+               size > 2 ? p1[2] : 0.);
+
+  // Get the referred-to point from the Mesh
+  const Point & point2 = _mesh.point(idx_p2);
+
+  // Compute Euclidean distance, squared
+  return (point1 - point2).norm_sq();
+}
+
+
+
+PointLocatorNanoflann::coord_t
+PointLocatorNanoflann::kdtree_get_pt(const std::size_t idx, int dim) const
+{
+  libmesh_assert_less (idx, _mesh.n_nodes());
+  libmesh_assert_less (dim, LIBMESH_DIM);
+
+  return _mesh.point(idx)(dim);
 }
 
 } // namespace libMesh

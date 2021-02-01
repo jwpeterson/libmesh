@@ -107,6 +107,43 @@ public:
    */
   virtual void disable_out_of_mesh_mode () override;
 
+  //
+  // Required Nanoflann typedefs and APIs
+  //
+
+  /**
+   * Floating point type used for storing coordinates
+   */
+  typedef Real coord_t;
+
+  /**
+   * Must return the number of data points
+   */
+  std::size_t kdtree_get_point_count() const;
+
+  /**
+   * Returns the squared distance between the vector "p1[0:size-1]"
+   * and the data point with index "idx_p2" stored in _mesh
+   */
+  coord_t kdtree_distance(const coord_t * p1,
+                          const std::size_t idx_p2,
+                          std::size_t size) const;
+
+  /**
+   * Returns the dim'th component of the idx'th point in the class.
+   */
+  coord_t kdtree_get_pt(const std::size_t idx, int dim) const;
+
+  /**
+   * Optional bounding-box computation: return false to default to a
+   * standard bbox computation loop.  Return true if the BBOX was
+   * already computed by the class and returned in "bb" we can avoid
+   * recomputing it. Look at bb.size() to find out the expected
+   * dimensionality (e.g. 2 or 3 for point clouds)
+   */
+  template <class BBOX>
+  bool kdtree_get_bbox(BBOX & /*bb*/) const { return false; }
+
 protected:
 
   /**
