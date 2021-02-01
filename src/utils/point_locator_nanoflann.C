@@ -65,12 +65,23 @@ PointLocatorNanoflann::init ()
   // TODO: for the moment we ignore whether the "_master" flag is set or not.
   if (!_initialized)
     {
-      // TODO: fill in the _centroids array
+      // Fill in the _centroids array with the active element
+      // centroids.
+      //
+      // TODO: Currently we assume replicated Mesh, but one way to
+      // parallelize the Nanoflann PointLocator would be to create
+      // separate KD-Trees for each partition, do the search locally,
+      // and then gather the results. Since the KD-Tree seems to be
+      // pretty fast and light-weight, we'll have to profile to see
+      // whether this optimization is necessary...
+      _centroids.clear();
+      _centroids.reserve(_mesh.n_elem());
+      for (const auto & elem : _mesh.active_element_ptr_range())
+        _centroids.push_back(elem->centroid());
 
-
-      // Construct the KD-Tree tree
+      // Construct the KD-Tree
       _kd_tree = libmesh_make_unique<kd_tree_t>
-        (3, *this, nanoflann::KDTreeSingleIndexAdaptorParams(/*max leaf=*/10));
+        (LIBMESH_DIM, *this, nanoflann::KDTreeSingleIndexAdaptorParams(/*max leaf=*/10));
 
       _kd_tree->buildIndex();
 
@@ -117,12 +128,29 @@ PointLocatorNanoflann::operator() (const Point & p,
                    << std::endl;
     }
 
-  // TODO: we found the closest Node, but that Node will be connected
-  // to several elements, and we would need to know which connected
-  // Elem the query point is actually inside, which would require a
-  // bunch of contains_point() checks. So for this reason it is better
-  // to make the KD-Tree from a list of Points which correspond to the
-  // Elem centroids.
+  // We assume that the Point, if it is contained in _any_ element,
+  // will be contained in the one whose centroid it is closest to.
+  // If this assumption ever wrong?
+  const Elem * elem = _mesh.elem_ptr(ret_index[0]);
+
+  // If we are using a tolerance pass it to the contains_point() call.
+  bool inside = _use_contains_point_tol ?
+    elem->contains_point(p, _contains_point_tol) :
+    elem->contains_point(p);
+
+  if (inside)
+    return elem;
+
+  else // outside
+    {
+      if (_out_of_mesh_mode)
+        return nullptr;
+      else
+        libmesh_error_msg("Point was not contained within the Elem (to within the required tolerance) "
+                          "whose centroid it was closest to, and _out_of_mesh_mode was not enabled.");
+    }
+
+  // We'll never get here, see above
   return nullptr;
 }
 
@@ -137,6 +165,7 @@ PointLocatorNanoflann::operator() (const Point & p,
   LOG_SCOPE("operator() returning set", "PointLocatorNanoflann");
 
   // TODO
+  libmesh_not_implemented();
 }
 
 
@@ -161,7 +190,7 @@ PointLocatorNanoflann::disable_out_of_mesh_mode ()
 
 std::size_t PointLocatorNanoflann::kdtree_get_point_count() const
 {
-  return _mesh.n_nodes();
+  return _centroids.size();
 }
 
 
@@ -177,11 +206,8 @@ PointLocatorNanoflann::kdtree_distance(const coord_t * p1,
                size > 1 ? p1[1] : 0.,
                size > 2 ? p1[2] : 0.);
 
-  // Get the referred-to point from the Mesh
-  const Point & point2 = _mesh.point(idx_p2);
-
   // Compute Euclidean distance, squared
-  return (point1 - point2).norm_sq();
+  return (point1 - _centroids[idx_p2]).norm_sq();
 }
 
 
@@ -192,7 +218,7 @@ PointLocatorNanoflann::kdtree_get_pt(const std::size_t idx, int dim) const
   libmesh_assert_less (idx, _mesh.n_nodes());
   libmesh_assert_less (dim, LIBMESH_DIM);
 
-  return _mesh.point(idx)(dim);
+  return _centroids[idx](dim);
 }
 
 } // namespace libMesh

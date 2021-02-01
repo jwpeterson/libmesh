@@ -127,15 +127,15 @@ public:
   std::size_t kdtree_get_point_count() const;
 
   /**
-   * Returns the squared distance between the vector "p1[0:size-1]"
-   * and the data point with index "idx_p2" stored in _mesh
+   * Returns the squared distance between the vector (p1[0], p1[1], p1[2])
+   * and the centroid of Elem "idx_p2" stored in _mesh
    */
   coord_t kdtree_distance(const coord_t * p1,
                           const std::size_t idx_p2,
                           std::size_t size) const;
 
   /**
-   * Returns the dim'th component of the idx'th point in the class.
+   * Returns the dim'th component of the idx'th centroid.
    */
   coord_t kdtree_get_pt(const std::size_t idx, int dim) const;
 
@@ -145,6 +145,9 @@ public:
    * already computed by the class and returned in "bb" we can avoid
    * recomputing it. Look at bb.size() to find out the expected
    * dimensionality (e.g. 2 or 3 for point clouds)
+   *
+   * TODO: I don't yet know how this works, I should probably figure
+   * it out for optimization purposes.
    */
   template <class BBOX>
   bool kdtree_get_bbox(BBOX & /*bb*/) const { return false; }
@@ -166,7 +169,7 @@ protected:
   // kd_tree will be initialized during init() and then automatically
   // cleaned up by the destructor.
   typedef nanoflann::L2_Simple_Adaptor<Real, PointLocatorNanoflann> adapter_t;
-  typedef nanoflann::KDTreeSingleIndexAdaptor<adapter_t, PointLocatorNanoflann, 3> kd_tree_t;
+  typedef nanoflann::KDTreeSingleIndexAdaptor<adapter_t, PointLocatorNanoflann, LIBMESH_DIM> kd_tree_t;
   std::unique_ptr<kd_tree_t> _kd_tree;
 };
 
