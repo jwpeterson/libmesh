@@ -50,13 +50,13 @@ class PointLocatorNanoflann : public PointLocatorBase
 public:
   /**
    * Constructor. Needs the \p mesh in which the points should be
-   * located. Optionally takes a pointer to a "primary" PointLocator
+   * located. Optionally takes a pointer to a "master" PointLocator
    * object. If non-nullptr, this object simply forwards its calls
-   * onto the primary, so we can have multiple pointers that use the
+   * onto the master, so we can have multiple pointers that use the
    * same Nanoflann KD-Tree data structure.
    */
   PointLocatorNanoflann (const MeshBase & mesh,
-                         const PointLocatorBase * primary = nullptr);
+                         const PointLocatorBase * master = nullptr);
 
   /**
    * Destructor.

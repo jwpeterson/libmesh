@@ -27,7 +27,7 @@
 #include "libmesh/libmesh_logging.h"
 #include "libmesh/mesh_base.h"
 #include "libmesh/mesh_tools.h"
-#include "libmesh/tree.h"
+#include "libmesh/nanoflann.hpp"
 
 namespace libMesh
 {
@@ -56,9 +56,21 @@ PointLocatorNanoflann::clear ()
 void
 PointLocatorNanoflann::init ()
 {
-  // TODO
+  // TODO: for the moment we ignore whether the "_master" flag is set or not.
+  typedef nanoflann::L2_Simple_Adaptor<Real, PointLocatorNanoflann> adapter_t;
+  typedef nanoflann::KDTreeSingleIndexAdaptor<adapter_t, PointLocatorNanoflann, 3> kd_tree_t;
 
-  this->_initialized = true;
+  if (!_initialized)
+    {
+      kd_tree_t kd_tree
+        (3, *this, nanoflann::KDTreeSingleIndexAdaptorParams(/*max leaf=*/10));
+
+      // Construct the KD-Tree tree
+      kd_tree.buildIndex();
+
+      // We are initialized now
+      this->_initialized = true;
+    }
 }
 
 const Elem *
