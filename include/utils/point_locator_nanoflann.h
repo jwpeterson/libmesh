@@ -27,6 +27,11 @@
 
 // libmesh includes
 #include "libmesh/point_locator_base.h"
+#include "libmesh/nanoflann.hpp"
+
+// C++ includes
+#include <vector>
+#include <memory>
 
 namespace libMesh
 {
@@ -151,6 +156,18 @@ protected:
    * enable_out_of_mesh_mode() for details.
    */
   bool _out_of_mesh_mode;
+
+  /**
+   * A list of Mesh centroids which is created when init() is
+   * called. These are the points used in the KD-Tree.
+   */
+  std::vector<Point> _centroids;
+
+  // kd_tree will be initialized during init() and then automatically
+  // cleaned up by the destructor.
+  typedef nanoflann::L2_Simple_Adaptor<Real, PointLocatorNanoflann> adapter_t;
+  typedef nanoflann::KDTreeSingleIndexAdaptor<adapter_t, PointLocatorNanoflann, 3> kd_tree_t;
+  std::unique_ptr<kd_tree_t> _kd_tree;
 };
 
 } // namespace libMesh

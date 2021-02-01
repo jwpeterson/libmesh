@@ -27,7 +27,6 @@
 #include "libmesh/libmesh_logging.h"
 #include "libmesh/mesh_base.h"
 #include "libmesh/mesh_tools.h"
-#include "libmesh/nanoflann.hpp"
 
 // C++ includes
 #include <array>
@@ -52,6 +51,10 @@ PointLocatorNanoflann::~PointLocatorNanoflann () = default;
 void
 PointLocatorNanoflann::clear ()
 {
+  this->_initialized = false;
+  this->_out_of_mesh_mode = false;
+  _centroids.clear();
+  _kd_tree.reset();
 }
 
 
@@ -60,16 +63,16 @@ void
 PointLocatorNanoflann::init ()
 {
   // TODO: for the moment we ignore whether the "_master" flag is set or not.
-  typedef nanoflann::L2_Simple_Adaptor<Real, PointLocatorNanoflann> adapter_t;
-  typedef nanoflann::KDTreeSingleIndexAdaptor<adapter_t, PointLocatorNanoflann, 3> kd_tree_t;
-
   if (!_initialized)
     {
-      kd_tree_t kd_tree
-        (3, *this, nanoflann::KDTreeSingleIndexAdaptorParams(/*max leaf=*/10));
+      // TODO: fill in the _centroids array
+
 
       // Construct the KD-Tree tree
-      kd_tree.buildIndex();
+      _kd_tree = libmesh_make_unique<kd_tree_t>
+        (3, *this, nanoflann::KDTreeSingleIndexAdaptorParams(/*max leaf=*/10));
+
+      _kd_tree->buildIndex();
 
       // We are initialized now
       this->_initialized = true;
@@ -101,7 +104,7 @@ PointLocatorNanoflann::operator() (const Point & p,
   result_set.init(ret_index.data(), out_dist_sqr.data());
 
   // Do the search
-  kd_tree.findNeighbors(result_set, query_pt.data(), nanoflann::SearchParams(10));
+  _kd_tree->findNeighbors(result_set, query_pt.data(), nanoflann::SearchParams(10));
 
   // Debugging: print the results
   for (unsigned r=0; r<result_set.size(); ++r)
@@ -111,9 +114,6 @@ PointLocatorNanoflann::operator() (const Point & p,
 
       libMesh::out << "ret_index = " << i
                    << ", dist^2 = " << out_dist_sqr[r]
-                   << ", position = " << low_elem_side_centroids[i]
-                   << ", elem = " << low_elem_side_pairs[i].first
-                   << ", side = " << low_elem_side_pairs[i].second
                    << std::endl;
     }
 
