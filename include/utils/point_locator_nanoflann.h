@@ -17,15 +17,11 @@
 
 
 
-#ifndef LIBMESH_POINT_LOCATOR_TREE_H
-#define LIBMESH_POINT_LOCATOR_TREE_H
+#ifndef LIBMESH_POINT_LOCATOR_NANOFLANN_H
+#define LIBMESH_POINT_LOCATOR_NANOFLANN_H
 
-// Local Includes
+// libmesh includes
 #include "libmesh/point_locator_base.h"
-#include "libmesh/tree_base.h"
-
-// C++ includes
-#include <cstddef>
 
 namespace libMesh
 {
@@ -36,164 +32,85 @@ class Point;
 class Elem;
 
 /**
- * This is a point locator.  It locates points in space
- * using a tree: given a mesh they return the element
- * and local coordinates for a given point in global coordinates.
- * Use \p PointLocatorBase::build() to create objects of this
- * type at run time.
+ * This is a PointLocator that uses Nanoflann for its implementation.
+ * Nanoflann is distributed with libmesh (see: contrib/nanoflann) and
+ * libmesh must be built with nanoflann enabled for this class to
+ * work.
  *
- * \author Daniel Dreyer
- * \date 2003
+ * \author John W. Peterson
+ * \date 2020
  */
-class PointLocatorTree : public PointLocatorBase
+class PointLocatorNanoflann : public PointLocatorBase
 {
 public:
   /**
-   * Constructor.  Needs the \p mesh in which the points
-   * should be located.  Optionally takes a master
-   * interpolator.  This master helps in saving memory
-   * by reducing the number of trees in use.  Only the
-   * master locator holds a  tree, the others simply
-   * use the master's tree.
+   * Constructor. Needs the \p mesh in which the points should be
+   * located. Optionally takes a pointer to a "primary" PointLocator
+   * object. If non-nullptr, this object simply forwards its calls
+   * onto the primary, so we can have multiple pointers that use the
+   * same Nanoflann KD-Tree data structure.
    */
-  PointLocatorTree (const MeshBase & mesh,
-                    const PointLocatorBase * master = nullptr);
-
-
-  /**
-   * Constructor.  Needs the \p mesh in which the points
-   * should be located.  Allows the user to specify the
-   * method to use when building the tree.
-   * Optionally takes a master interpolator.
-   * This master helps in saving memory
-   * by reducing the number of trees in use.  Only the
-   * master locator holds a  tree, the others simply
-   * use the master's tree. Allows the user to specify
-   * the build type.
-   */
-  PointLocatorTree (const MeshBase & mesh,
-                    const Trees::BuildType build_type,
-                    const PointLocatorBase * master = nullptr);
+  PointLocatorNanoflann (const MeshBase & mesh,
+                         const PointLocatorBase * primary = nullptr);
 
   /**
    * Destructor.
    */
-  ~PointLocatorTree ();
+  virtual ~PointLocatorNanoflann ();
 
   /**
-   * Clears the locator.  This function frees dynamic memory with "delete".
+   * Restore to PointLocator to a just-constructed state.
    */
   virtual void clear() override;
 
   /**
    * Initializes the locator, so that the \p operator() methods can
-   * be used.  This function allocates dynamic memory with "new".
-   */
-  void init(Trees::BuildType build_type);
-
-  /**
-   * Initializes the locator, so that the \p operator() methods can
-   * be used.  This function allocates dynamic memory with "new".
+   * be used. This function allocates dynamic memory with "new".
    */
   virtual void init() override;
 
   /**
-   * Locates the element in which the point with global coordinates
-   * \p p is located, optionally restricted to a set of allowed subdomains.
-   * The mutable _element member is used to cache
-   * the result and allow it to be used during the next call to
-   * operator().
+   * Locates the element in which the point with global coordinates \p
+   * p is located, optionally restricted to a set of allowed
+   * subdomains.
    */
   virtual const Elem * operator() (const Point & p,
                                    const std::set<subdomain_id_type> * allowed_subdomains = nullptr) const override;
 
   /**
-   * Locates a set of elements in proximity to the point with global coordinates
-   * \p p  Pure virtual. Optionally allows the user to restrict the subdomains searched.
+   * Locates a set of elements in proximity to the point with global
+   * coordinates \p p. Optionally allows the user to restrict the
+   * subdomains searched.  The idea here is that if a Point lies on
+   * the boundary between two elements, so that it is "in" both
+   * elements (to within some tolerance) then the candidate_elements
+   * set will contain both of these elements instead of just picking
+   * one or the other.
    */
   virtual void operator() (const Point & p,
                            std::set<const Elem *> & candidate_elements,
                            const std::set<subdomain_id_type> * allowed_subdomains = nullptr) const override;
 
   /**
-   * As a fallback option, it's helpful to be able to do a linear
-   * search over the entire mesh. This can be used if operator()
-   * fails to find an element that contains \p p, for example.
-   * Optionally specify a "close to point" tolerance to use in
-   * the linear search.
-   * Return nullptr if no element is found.
-   */
-  const Elem * perform_linear_search(const Point & p,
-                                     const std::set<subdomain_id_type> * allowed_subdomains,
-                                     bool use_close_to_point,
-                                     Real close_to_point_tolerance=TOLERANCE) const;
-
-  /**
-   * A method to check if "fat" point p is in multiple elements. This would happen
-   * if p is close to a face or node. This is important for evaluating MeshFunction
-   * on faces when discontinuous shape functions are used.
-   */
-  std::set<const Elem *> perform_fuzzy_linear_search(const Point & p,
-                                                     const std::set<subdomain_id_type> * allowed_subdomains,
-                                                     Real close_to_point_tolerance=TOLERANCE) const;
-
-  /**
-   * Enables out-of-mesh mode.  In this mode, if asked to find a point
-   * that is contained in no mesh at all, the point locator will
-   * return nullptr instead of crashing.  Per default, this
-   * mode is off.
+   * Enables out-of-mesh mode. In this mode, if a searched-for Point
+   * is not contained in any element of the Mesh, return nullptr
+   * instead of throwing an error. By default, this mode is off.
    */
   virtual void enable_out_of_mesh_mode () override;
 
   /**
-   * Disables out-of-mesh mode (default).  If asked to find a point
-   * that is contained in no mesh at all, the point locator will now
-   * crash.
+   * Disables out-of-mesh mode (default). See above.
    */
   virtual void disable_out_of_mesh_mode () override;
 
-  /**
-   * Set the target bin size.
-   */
-  void set_target_bin_size(unsigned int target);
-
-  /**
-   * Get the target bin size.
-   */
-  unsigned int get_target_bin_size() const;
-
 protected:
-  /**
-   * Pointer to our tree.  The tree is built at run-time
-   * through \p init().  For servant PointLocators (not master),
-   * this simply points to the tree of the master.
-   */
-  TreeBase * _tree;
-
-  /**
-   * Pointer to the last element that was found by the tree.
-   * Chances are that this may be close to the next call to
-   * \p operator()...
-   */
-  mutable const Elem * _element;
 
   /**
    * \p true if out-of-mesh mode is enabled.  See \p
    * enable_out_of_mesh_mode() for details.
    */
   bool _out_of_mesh_mode;
-
-  /**
-   * Target bin size, which gets passed to the constructor of _tree.
-   */
-  unsigned int _target_bin_size;
-
-  /**
-   * How the underlying tree is built.
-   */
-  Trees::BuildType _build_type;
 };
 
 } // namespace libMesh
 
-#endif // LIBMESH_POINT_LOCATOR_TREE_H
+#endif // LIBMESH_POINT_LOCATOR_NANOFLANN_H
