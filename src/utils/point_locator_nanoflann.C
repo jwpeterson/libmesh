@@ -22,11 +22,11 @@
 #ifdef LIBMESH_HAVE_NANOFLANN
 
 // libmesh includes
+#include "libmesh/point_locator_nanoflann.h"
 #include "libmesh/elem.h"
 #include "libmesh/libmesh_logging.h"
 #include "libmesh/mesh_base.h"
 #include "libmesh/mesh_tools.h"
-#include "libmesh/point_locator_tree.h"
 #include "libmesh/tree.h"
 
 namespace libMesh
