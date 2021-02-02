@@ -27,6 +27,7 @@
 #include "libmesh/libmesh_logging.h"
 #include "libmesh/mesh_base.h"
 #include "libmesh/mesh_tools.h"
+#include "libmesh/int_range.h" // make_range
 
 // C++ includes
 #include <array>
@@ -98,8 +99,15 @@ PointLocatorNanoflann::operator() (const Point & p,
 
   LOG_SCOPE("operator()", "PointLocatorNanoflann");
 
-  // We are searching for Points close to the rotated centroid.
-  std::array<Real, 3> query_pt = {p(0), p(1), p(2)};
+  // We are searching for the Point(s) closest to Point p.
+  //
+  // TODO: The kd_tree's findNeighbors() routine needs a pointer to
+  // Real of length LIBMESH_DIM. It might be convenient if libMesh
+  // Points had a data() member that provided this, for now we just
+  // copy the coordinates into a std::array of the appropriate size.
+  std::array<Real, LIBMESH_DIM> query_pt;
+  for (int i=0; i<LIBMESH_DIM; ++i)
+    query_pt[i] = p(i);
 
   // The number of results we want to get back from Nanoflann.
   // Hopefully there is only 1 "obvious" nearest node, but it is
@@ -118,12 +126,12 @@ PointLocatorNanoflann::operator() (const Point & p,
   _kd_tree->findNeighbors(result_set, query_pt.data(), nanoflann::SearchParams(10));
 
   // Debugging: print the results
-  for (unsigned r=0; r<result_set.size(); ++r)
+  for (auto r : make_range(result_set.size()))
     {
       // For indexing into original data structures.
       unsigned int i = ret_index[r];
 
-      libMesh::out << "ret_index = " << i
+      libMesh::out << "Centroid/Elem id = " << i
                    << ", dist^2 = " << out_dist_sqr[r]
                    << std::endl;
     }
@@ -220,11 +228,15 @@ PointLocatorNanoflann::kdtree_distance(const coord_t * p1,
                                        const std::size_t idx_p2,
                                        std::size_t size) const
 {
-  // Construct a libmesh Point object from the input coord_t.  This
-  // assumes LIBMESH_DIM==3.
-  Point point1(p1[0],
-               size > 1 ? p1[1] : 0.,
-               size > 2 ? p1[2] : 0.);
+  // We only consider LIBMESH_DIM dimensional KD-Trees, so just make
+  // sure we were called consistently.
+  libmesh_assert(size == LIBMESH_DIM);
+
+  // Construct a libmesh Point object from the LIBMESH_DIM-dimensional
+  // input object, p1.
+  Point point1;
+  for (int i=0; i<LIBMESH_DIM; ++i)
+    point1(i) = p1[i];
 
   // Compute Euclidean distance, squared
   return (point1 - _centroids[idx_p2]).norm_sq();
@@ -235,7 +247,7 @@ PointLocatorNanoflann::kdtree_distance(const coord_t * p1,
 PointLocatorNanoflann::coord_t
 PointLocatorNanoflann::kdtree_get_pt(const std::size_t idx, int dim) const
 {
-  libmesh_assert_less (idx, _mesh.n_nodes());
+  libmesh_assert_less (idx, _centroids.size());
   libmesh_assert_less (dim, LIBMESH_DIM);
 
   return _centroids[idx](dim);

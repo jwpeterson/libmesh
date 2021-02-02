@@ -141,13 +141,11 @@ public:
 
   /**
    * Optional bounding-box computation: return false to default to a
-   * standard bbox computation loop.  Return true if the BBOX was
-   * already computed by the class and returned in "bb" we can avoid
-   * recomputing it. Look at bb.size() to find out the expected
-   * dimensionality (e.g. 2 or 3 for point clouds)
-   *
-   * TODO: I don't yet know how this works, I should probably figure
-   * it out for optimization purposes.
+   * standard bbox computation loop.  Return true if the BBOX can
+   * be computed more efficiently (and returned in "bb") than the
+   * standard bounding box computation. The BBOX template parameter
+   * must at least support bb.size() to find out the expected
+   * dimensionality of the box (e.g. 2 or 3 for point clouds).
    */
   template <class BBOX>
   bool kdtree_get_bbox(BBOX & /*bb*/) const { return false; }
@@ -167,7 +165,8 @@ protected:
   std::vector<Point> _centroids;
 
   // kd_tree will be initialized during init() and then automatically
-  // cleaned up by the destructor.
+  // cleaned up by the destructor. We always create a LIBMESH_DIM
+  // dimensional Nanoflann object.
   typedef nanoflann::L2_Simple_Adaptor<Real, PointLocatorNanoflann> adapter_t;
   typedef nanoflann::KDTreeSingleIndexAdaptor<adapter_t, PointLocatorNanoflann, LIBMESH_DIM> kd_tree_t;
   std::unique_ptr<kd_tree_t> _kd_tree;
