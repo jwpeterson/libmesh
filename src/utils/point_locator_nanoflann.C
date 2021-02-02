@@ -133,6 +133,26 @@ PointLocatorNanoflann::operator() (const Point & p,
   // If this assumption ever wrong?
   const Elem * elem = _mesh.elem_ptr(ret_index[0]);
 
+  // Before we even check whether the Elem actually contains the
+  // Point, we should check whether the Elem is from an allowed
+  // subdomain.
+  if (allowed_subdomains)
+    {
+      bool allowed = allowed_subdomains->count(elem->subdomain_id());
+
+      // If the Elem with the nearest centroid is not from an allowed
+      // subdomain, then we return either nullptr (when
+      // out-of-mesh-mode is enabled) or throw an error.
+      if (!allowed)
+        {
+          if (_out_of_mesh_mode)
+            return nullptr;
+          else
+            libmesh_error_msg("The Elem closest to the searched-for Point is not in an "
+                              "allowed subdomain, and _out_of_mesh_mode was not enabled.");
+        }
+    }
+
   // If we are using a tolerance pass it to the contains_point() call.
   bool inside = _use_contains_point_tol ?
     elem->contains_point(p, _contains_point_tol) :
