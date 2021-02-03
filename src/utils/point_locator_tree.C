@@ -220,11 +220,15 @@ const Elem * PointLocatorTree::operator() (const Point & p,
           // search using a tolerance.
           if (_use_close_to_point_tol)
             {
-              if (_verbose)
+              if (true /*_verbose*/)
                 {
                   libMesh::out << "Performing linear search using close-to-point tolerance "
                                << _close_to_point_tol
                                << std::endl;
+
+                  if (_use_contains_point_tol)
+                    libMesh::out << "Note: the tree search used _contains_point_tol == " << _contains_point_tol
+                                 << ", which is a potentially different tolerance than that used by the linear search." << std::endl;
                 }
 
               this->_element =
