@@ -17,8 +17,6 @@
 
 
 
-// C++ includes
-
 // Local Includes
 #include "libmesh/elem.h"
 #include "libmesh/libmesh_logging.h"
@@ -26,6 +24,7 @@
 #include "libmesh/mesh_tools.h"
 #include "libmesh/point_locator_tree.h"
 #include "libmesh/tree.h"
+#include "libmesh/print_trace.h"
 
 namespace libMesh
 {
@@ -229,7 +228,14 @@ const Elem * PointLocatorTree::operator() (const Point & p,
                   if (_use_contains_point_tol)
                     libMesh::out << "Note: the tree search used _contains_point_tol == " << _contains_point_tol
                                  << ", which is a potentially different tolerance than that used by the linear search." << std::endl;
+                  else
+                    libMesh::out << "_use_contains_point_tol is not set. This means that the tree search was not "
+                                 << "using a tolerance and therefore was not accepting points slightly outside of elements."
+                                 << std::endl;
                 }
+
+              // Print a stack trace the first time we do a linear search
+              libmesh_do_once(print_trace());
 
               this->_element =
                 this->perform_linear_search(p,
