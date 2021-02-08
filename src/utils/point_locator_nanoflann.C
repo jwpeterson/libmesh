@@ -114,7 +114,11 @@ PointLocatorNanoflann::kd_tree_find_neighbors(const Point & p) const
   result_set.init(ret_index.data(), out_dist_sqr.data());
 
   // Do the search
-  _kd_tree->findNeighbors(result_set, query_pt.data(), nanoflann::SearchParams(10));
+  // We leave all the SearchParams ctor args on their defaults:
+  // int ignored == 32
+  // float eps == 0
+  // bool sorted == true
+  _kd_tree->findNeighbors(result_set, query_pt.data(), nanoflann::SearchParams());
 
   return std::make_tuple(ret_index, out_dist_sqr, result_set);
 }
