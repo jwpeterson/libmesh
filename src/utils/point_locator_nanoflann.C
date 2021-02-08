@@ -38,7 +38,8 @@ namespace libMesh
 PointLocatorNanoflann::PointLocatorNanoflann (const MeshBase & mesh,
                                               const PointLocatorBase * master) :
   PointLocatorBase (mesh, master),
-  _out_of_mesh_mode(false)
+  _out_of_mesh_mode(false),
+  _num_results(3)
 {
   this->init();
 }
@@ -109,15 +110,10 @@ PointLocatorNanoflann::operator() (const Point & p,
   for (int i=0; i<LIBMESH_DIM; ++i)
     query_pt[i] = p(i);
 
-  // The number of results we want to get back from Nanoflann.
-  // Hopefully there is only 1 "obvious" nearest node, but it is
-  // good to verify this.
-  const std::size_t num_results = 3;
-
   // To catch values returned by the search
-  std::array<std::size_t, num_results> ret_index;
-  std::array<Real, num_results> out_dist_sqr;
-  nanoflann::KNNResultSet<Real> result_set(num_results);
+  std::vector<std::size_t> ret_index(_num_results);
+  std::vector<Real> out_dist_sqr(_num_results);
+  nanoflann::KNNResultSet<Real> result_set(_num_results);
 
   // Initialize the result_set
   result_set.init(ret_index.data(), out_dist_sqr.data());
