@@ -137,7 +137,6 @@ PointLocatorNanoflann::operator() (const Point & p,
   // References to the tuple contents.
   // TODO: In C++17 we can use structured bindings to replace this.
   const auto & ret_index = std::get<0>(t);
-  const auto & out_dist_sqr = std::get<1>(t);
   const auto & result_set = std::get<2>(t);
 
   // Loop over the list of candidate centroids, returning the Elem associated with
@@ -149,6 +148,7 @@ PointLocatorNanoflann::operator() (const Point & p,
       unsigned int elem_id = ret_index[r];
 
       // Debugging: print the results
+      // const auto & out_dist_sqr = std::get<1>(t);
       // libMesh::out << "Centroid/Elem id = " << elem_id
       //              << ", dist^2 = " << out_dist_sqr[r]
       //              << std::endl;
@@ -206,7 +206,6 @@ PointLocatorNanoflann::operator() (const Point & p,
   // References to the tuple contents.
   // TODO: In C++17 we can use structured bindings to replace this.
   const auto & ret_index = std::get<0>(t);
-  const auto & out_dist_sqr = std::get<1>(t);
   const auto & result_set = std::get<2>(t);
 
   // Loop over the list of candidate centroids, adding each one which
@@ -217,6 +216,7 @@ PointLocatorNanoflann::operator() (const Point & p,
       unsigned int elem_id = ret_index[r];
 
       // Debugging: print the results
+      // const auto & out_dist_sqr = std::get<1>(t);
       // libMesh::out << "Centroid/Elem id = " << elem_id
       //              << ", dist^2 = " << out_dist_sqr[r]
       //              << std::endl;
