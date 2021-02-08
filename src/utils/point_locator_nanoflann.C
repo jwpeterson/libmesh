@@ -92,14 +92,9 @@ PointLocatorNanoflann::init ()
     }
 }
 
-const Elem *
-PointLocatorNanoflann::operator() (const Point & p,
-                                   const std::set<subdomain_id_type> * allowed_subdomains) const
+PointLocatorNanoflann::NanoflannResult
+PointLocatorNanoflann::kd_tree_find_neighbors(const Point & p) const
 {
-  libmesh_assert (this->_initialized);
-
-  LOG_SCOPE("operator()", "PointLocatorNanoflann");
-
   // We are searching for the Point(s) closest to Point p.
   //
   // TODO: The kd_tree's findNeighbors() routine needs a pointer to
@@ -120,6 +115,26 @@ PointLocatorNanoflann::operator() (const Point & p,
 
   // Do the search
   _kd_tree->findNeighbors(result_set, query_pt.data(), nanoflann::SearchParams(10));
+
+  return std::make_tuple(ret_index, out_dist_sqr, result_set);
+}
+
+const Elem *
+PointLocatorNanoflann::operator() (const Point & p,
+                                   const std::set<subdomain_id_type> * allowed_subdomains) const
+{
+  libmesh_assert (this->_initialized);
+
+  LOG_SCOPE("operator()", "PointLocatorNanoflann");
+
+  // Do the search
+  auto t = this->kd_tree_find_neighbors(p);
+
+  // References to the tuple contents.
+  // TODO: In C++17 we can use structured bindings to replace this.
+  const auto & ret_index = std::get<0>(t);
+  const auto & out_dist_sqr = std::get<1>(t);
+  const auto & result_set = std::get<2>(t);
 
   // Loop over the list of candidate centroids, returning the Elem associated with
   // the centroid to which the Point is both nearest, and contained by (to within the
