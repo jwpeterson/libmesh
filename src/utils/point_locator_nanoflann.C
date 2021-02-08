@@ -125,61 +125,51 @@ PointLocatorNanoflann::operator() (const Point & p,
   // Do the search
   _kd_tree->findNeighbors(result_set, query_pt.data(), nanoflann::SearchParams(10));
 
-  // Debugging: print the results
+  // Loop over the list of candidate centroids, returning the Elem associated with
+  // the centroid to which the Point is both nearest, and contained by (to within the
+  // _contains_point_tol).
   for (auto r : make_range(result_set.size()))
     {
       // For indexing into original data structures.
-      unsigned int i = ret_index[r];
+      unsigned int elem_id = ret_index[r];
 
-      libMesh::out << "Centroid/Elem id = " << i
+      // Debugging: print the results
+      libMesh::out << "Centroid/Elem id = " << elem_id
                    << ", dist^2 = " << out_dist_sqr[r]
                    << std::endl;
+
+      const Elem * candidate_elem = _mesh.elem_ptr(elem_id);
+
+      // Before we even check whether the candidate Elem actually
+      // contains the Point, we may need to check whether the
+      // candidate Elem is from an allowed subdomain.  If the
+      // candidate Elem is not from an allowed subdomain, we continue
+      // to the next one.
+      if (allowed_subdomains && !allowed_subdomains->count(candidate_elem->subdomain_id()))
+        continue;
+
+      // If we made it here, then the candidate Elem is from an
+      // allowed subdomain, so let's next check whether it contains
+      // the point.  We pass a custom tolerance to the
+      // contains_point() call only if the user has set one.
+      bool inside = _use_contains_point_tol ?
+        candidate_elem->contains_point(p, _contains_point_tol) :
+        candidate_elem->contains_point(p);
+
+      // If the point is inside an Elem from an allowed subdomain, we are done.
+      if (inside)
+        return candidate_elem;
     }
 
-  // We assume that the Point, if it is contained in _any_ element,
-  // will be contained in the one whose centroid it is closest to.
-  // If this assumption ever wrong?
-  const Elem * elem = _mesh.elem_ptr(ret_index[0]);
-
-  // Before we even check whether the Elem actually contains the
-  // Point, we should check whether the Elem is from an allowed
-  // subdomain.
-  if (allowed_subdomains)
-    {
-      bool allowed = allowed_subdomains->count(elem->subdomain_id());
-
-      // If the Elem with the nearest centroid is not from an allowed
-      // subdomain, then we return either nullptr (when
-      // out-of-mesh-mode is enabled) or throw an error.
-      if (!allowed)
-        {
-          if (_out_of_mesh_mode)
-            return nullptr;
-          else
-            libmesh_error_msg("The Elem closest to the searched-for Point is not in an "
-                              "allowed subdomain, and _out_of_mesh_mode was not enabled.");
-        }
-    }
-
-  // If we are using a tolerance pass it to the contains_point() call.
-  bool inside = _use_contains_point_tol ?
-    elem->contains_point(p, _contains_point_tol) :
-    elem->contains_point(p);
-
-  if (inside)
-    return elem;
-
-  else // outside
-    {
-      if (_out_of_mesh_mode)
-        return nullptr;
-      else
-        libmesh_error_msg("Point was not contained within the Elem (to within the required tolerance) "
-                          "whose centroid it was closest to, and _out_of_mesh_mode was not enabled.");
-    }
-
-  // We'll never get here, see above
-  return nullptr;
+  // If we made it here, then either all the candidate elements were
+  // from non-allowed subdomains, or the Point was not inside _any_
+  // candidate Elem, so choose a return value based on the
+  // _out_of_mesh_mode flag.
+  if (_out_of_mesh_mode)
+    return nullptr;
+  else
+    libmesh_error_msg("Point was not contained within the Elem (to within the required tolerance) "
+                      "whose centroid it was closest to, and _out_of_mesh_mode was not enabled.");
 }
 
 
