@@ -180,13 +180,14 @@ PointLocatorNanoflann::operator() (const Point & p,
 
   // If we made it here, then either all the candidate elements were
   // from non-allowed subdomains, or the Point was not inside _any_
-  // candidate Elem, so choose a return value based on the
-  // _out_of_mesh_mode flag.
-  if (_out_of_mesh_mode)
-    return nullptr;
-  else
+  // candidate Elem. Thus if we are not in _out_of_mesh_mode, throw
+  // an error.
+  if (!_out_of_mesh_mode)
     libmesh_error_msg("Point was not contained within the Elem (to within the required tolerance) "
                       "whose centroid it was closest to, and _out_of_mesh_mode was not enabled.");
+
+  // Otherwise return nullptr to indicate that no suitable element was found
+  return nullptr;
 }
 
 
