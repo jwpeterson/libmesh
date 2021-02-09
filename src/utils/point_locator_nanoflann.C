@@ -216,8 +216,8 @@ PointLocatorNanoflann::operator() (const Point & p,
   // candidate Elem. Thus if we are not in _out_of_mesh_mode, throw
   // an error.
   if (!_out_of_mesh_mode)
-    libmesh_error_msg("Point was not contained within the Elem (to within the required tolerance) "
-                      "whose centroid it was closest to, and _out_of_mesh_mode was not enabled.");
+    libmesh_error_msg("Point was not contained within the closest " << n_elems_checked <<
+                      " elems (by centroid distance), and _out_of_mesh_mode was not enabled.");
 
   // Otherwise return nullptr to indicate that no suitable element was found
   return nullptr;
