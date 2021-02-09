@@ -196,7 +196,7 @@ PointLocatorNanoflann::operator() (const Point & p,
           if (inside)
             {
               // Debugging:
-              libMesh::out << "Checked " << n_elems_checked << " nearby Elems before finding a containing Elem." << std::endl;
+              // libMesh::out << "Checked " << n_elems_checked << " nearby Elems before finding a containing Elem." << std::endl;
 
               return candidate_elem;
             }
