@@ -39,7 +39,7 @@ PointLocatorNanoflann::PointLocatorNanoflann (const MeshBase & mesh,
                                               const PointLocatorBase * master) :
   PointLocatorBase (mesh, master),
   _out_of_mesh_mode(false),
-  _num_results(3)
+  _num_results(200) // The default _target_bin_size for the PointLocatorTree is 200
 {
   this->init();
 }
