@@ -181,15 +181,18 @@ protected:
   typedef nanoflann::KDTreeSingleIndexAdaptor<adapter_t, PointLocatorNanoflann, LIBMESH_DIM> kd_tree_t;
   std::unique_ptr<kd_tree_t> _kd_tree;
 
-  /**
-   * Helper function that wraps the call to the KDTree's findNeighbors() routine.
-   */
   typedef
   std::tuple<std::vector<std::size_t>,
              std::vector<Real>,
              nanoflann::KNNResultSet<Real>> NanoflannResult;
 
-  NanoflannResult kd_tree_find_neighbors(const Point & p) const;
+  /**
+   * Helper function that wraps the call to the KDTree's findNeighbors() routine.
+   * Must be passed the Point to search for and the number of results to return.
+   * \returns A NanoflannResult object (see above) with the results.
+   */
+  NanoflannResult kd_tree_find_neighbors(const Point & p,
+                                         std::size_t num_results) const;
 };
 
 } // namespace libMesh

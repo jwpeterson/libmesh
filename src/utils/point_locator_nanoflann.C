@@ -93,7 +93,8 @@ PointLocatorNanoflann::init ()
 }
 
 PointLocatorNanoflann::NanoflannResult
-PointLocatorNanoflann::kd_tree_find_neighbors(const Point & p) const
+PointLocatorNanoflann::kd_tree_find_neighbors(const Point & p,
+                                              std::size_t num_results) const
 {
   // We are searching for the Point(s) closest to Point p.
   //
@@ -106,9 +107,9 @@ PointLocatorNanoflann::kd_tree_find_neighbors(const Point & p) const
     query_pt[i] = p(i);
 
   // To catch values returned by the search
-  std::vector<std::size_t> ret_index(_num_results);
-  std::vector<Real> out_dist_sqr(_num_results);
-  nanoflann::KNNResultSet<Real> result_set(_num_results);
+  std::vector<std::size_t> ret_index(num_results);
+  std::vector<Real> out_dist_sqr(num_results);
+  nanoflann::KNNResultSet<Real> result_set(num_results);
 
   // Initialize the result_set
   result_set.init(ret_index.data(), out_dist_sqr.data());
@@ -132,7 +133,7 @@ PointLocatorNanoflann::operator() (const Point & p,
   LOG_SCOPE("operator()", "PointLocatorNanoflann");
 
   // Do the search
-  auto t = this->kd_tree_find_neighbors(p);
+  auto t = this->kd_tree_find_neighbors(p, _num_results);
 
   // References to the tuple contents.
   // TODO: In C++17 we can use structured bindings to replace this.
@@ -219,7 +220,7 @@ PointLocatorNanoflann::operator() (const Point & p,
   LOG_SCOPE("operator() returning set", "PointLocatorNanoflann");
 
   // Do the search
-  auto t = this->kd_tree_find_neighbors(p);
+  auto t = this->kd_tree_find_neighbors(p, _num_results);
 
   // References to the tuple contents.
   // TODO: In C++17 we can use structured bindings to replace this.
