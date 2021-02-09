@@ -133,70 +133,83 @@ PointLocatorNanoflann::operator() (const Point & p,
 
   LOG_SCOPE("operator()", "PointLocatorNanoflann");
 
-  // Do the search
-  auto t = this->kd_tree_find_neighbors(p, _initial_num_results);
-
-  // References to the tuple contents.
-  // TODO: In C++17 we can use structured bindings to replace this.
-  const auto & ret_index = std::get<0>(t);
-  const auto & result_set = std::get<2>(t);
+  std::size_t last_num_results = 0;
+  std::size_t current_num_results = _initial_num_results;
 
   // Keep track of the number of elements checked in detail
   unsigned int n_elems_checked = 0;
 
-  // Loop over the list of candidate centroids, returning the Elem associated with
-  // the centroid to which the Point is both nearest, and contained by (to within the
-  // _contains_point_tol).
-  for (auto r : make_range(result_set.size()))
+  while (current_num_results < _max_num_results)
     {
-      // For indexing into original data structures.
-      unsigned int elem_id = ret_index[r];
+      // Do the search
+      auto t = this->kd_tree_find_neighbors(p, current_num_results);
 
-      // Debugging: print the results
-      // const auto & out_dist_sqr = std::get<1>(t);
-      // libMesh::out << "Centroid/Elem id = " << elem_id
-      //              << ", dist^2 = " << out_dist_sqr[r]
-      //              << std::endl;
+      // References to the tuple contents.
+      // TODO: In C++17 we can use structured bindings to replace this.
+      const auto & ret_index = std::get<0>(t);
+      const auto & result_set = std::get<2>(t);
 
-      const Elem * candidate_elem = _mesh.elem_ptr(elem_id);
-
-      // Before we even check whether the candidate Elem actually
-      // contains the Point, we may need to check whether the
-      // candidate Elem is from an allowed subdomain.  If the
-      // candidate Elem is not from an allowed subdomain, we continue
-      // to the next one.
-      if (allowed_subdomains && !allowed_subdomains->count(candidate_elem->subdomain_id()))
+      // Linear search over the list of candidate centroids starting from
+      // the index of the previous while loop, since we don't need to
+      // search those same centroids again.  Either returns from this
+      // function the Elem containing the searched for Point, or leaves
+      // this while loop.
+      for (std::size_t r = last_num_results; r < result_set.size(); ++r)
         {
-          // Debugging
-          // libMesh::out << "Elem " << elem_id << " was not from an allowed subdomain, continuing search." << std::endl;
-          continue;
-        }
+          // For indexing into original data structures.
+          unsigned int elem_id = ret_index[r];
 
-      // If we made it here, then the candidate Elem is from an
-      // allowed subdomain, so let's next check whether it contains
-      // the point. If the user set a custom tolerance, then we
-      // actually check close_to_point() rather than contains_point(),
-      // since this latter function warns about using non-default
-      // tolerances, but otherwise does the same test.
-      bool inside = _use_contains_point_tol ?
-        candidate_elem->close_to_point(p, _contains_point_tol) :
-        candidate_elem->contains_point(p);
+          // Debugging: print the results
+          // const auto & out_dist_sqr = std::get<1>(t);
+          // libMesh::out << "Centroid/Elem id = " << elem_id
+          //              << ", dist^2 = " << out_dist_sqr[r]
+          //              << std::endl;
 
-      n_elems_checked++;
+          const Elem * candidate_elem = _mesh.elem_ptr(elem_id);
 
-      // If the point is inside an Elem from an allowed subdomain, we are done.
-      if (inside)
-        {
+          // Before we even check whether the candidate Elem actually
+          // contains the Point, we may need to check whether the
+          // candidate Elem is from an allowed subdomain.  If the
+          // candidate Elem is not from an allowed subdomain, we continue
+          // to the next one.
+          if (allowed_subdomains && !allowed_subdomains->count(candidate_elem->subdomain_id()))
+            {
+              // Debugging
+              // libMesh::out << "Elem " << elem_id << " was not from an allowed subdomain, continuing search." << std::endl;
+              continue;
+            }
+
+          // If we made it here, then the candidate Elem is from an
+          // allowed subdomain, so let's next check whether it contains
+          // the point. If the user set a custom tolerance, then we
+          // actually check close_to_point() rather than contains_point(),
+          // since this latter function warns about using non-default
+          // tolerances, but otherwise does the same test.
+          bool inside = _use_contains_point_tol ?
+            candidate_elem->close_to_point(p, _contains_point_tol) :
+            candidate_elem->contains_point(p);
+
+          // Increment the number of elements checked
+          n_elems_checked++;
+
+          // If the point is inside an Elem from an allowed subdomain, we are done.
+          if (inside)
+            {
+              // Debugging:
+              libMesh::out << "Checked " << n_elems_checked << " nearby Elems before finding a containing Elem." << std::endl;
+
+              return candidate_elem;
+            }
+
           // Debugging:
-          libMesh::out << "Checked " << n_elems_checked << " nearby Elems before finding a containing Elem." << std::endl;
+          // libMesh::out << "Elem " << elem_id << " did not contain/was not close enough to Point " << p << std::endl;
+          // candidate_elem->print_info();
+        } // end for(r)
 
-          return candidate_elem;
-        }
-
-      // Debugging:
-      // libMesh::out << "Elem " << elem_id << " did not contain/was not close enough to Point " << p << std::endl;
-      // candidate_elem->print_info();
-    }
+      // Try the search again, requesting twice as many results as previously.
+      last_num_results = current_num_results;
+      current_num_results *= 2;
+    } // end while
 
   // If we made it here, then either all the candidate elements were
   // from non-allowed subdomains, or the Point was not inside _any_
