@@ -139,6 +139,9 @@ PointLocatorNanoflann::operator() (const Point & p,
   const auto & ret_index = std::get<0>(t);
   const auto & result_set = std::get<2>(t);
 
+  // Keep track of the number of elements checked in detail
+  unsigned int n_elems_checked = 0;
+
   // Loop over the list of candidate centroids, returning the Elem associated with
   // the centroid to which the Point is both nearest, and contained by (to within the
   // _contains_point_tol).
@@ -148,10 +151,10 @@ PointLocatorNanoflann::operator() (const Point & p,
       unsigned int elem_id = ret_index[r];
 
       // Debugging: print the results
-      const auto & out_dist_sqr = std::get<1>(t);
-      libMesh::out << "Centroid/Elem id = " << elem_id
-                   << ", dist^2 = " << out_dist_sqr[r]
-                   << std::endl;
+      // const auto & out_dist_sqr = std::get<1>(t);
+      // libMesh::out << "Centroid/Elem id = " << elem_id
+      //              << ", dist^2 = " << out_dist_sqr[r]
+      //              << std::endl;
 
       const Elem * candidate_elem = _mesh.elem_ptr(elem_id);
 
@@ -162,7 +165,8 @@ PointLocatorNanoflann::operator() (const Point & p,
       // to the next one.
       if (allowed_subdomains && !allowed_subdomains->count(candidate_elem->subdomain_id()))
         {
-          libMesh::out << "Elem " << elem_id << " was not from an allowed subdomain, continuing search." << std::endl;
+          // Debugging
+          // libMesh::out << "Elem " << elem_id << " was not from an allowed subdomain, continuing search." << std::endl;
           continue;
         }
 
@@ -176,13 +180,20 @@ PointLocatorNanoflann::operator() (const Point & p,
         candidate_elem->close_to_point(p, _contains_point_tol) :
         candidate_elem->contains_point(p);
 
+      n_elems_checked++;
+
       // If the point is inside an Elem from an allowed subdomain, we are done.
       if (inside)
-        return candidate_elem;
+        {
+          // Debugging:
+          libMesh::out << "Checked " << n_elems_checked << " nearby Elems before finding a containing Elem." << std::endl;
+
+          return candidate_elem;
+        }
 
       // Debugging:
-      libMesh::out << "Elem " << elem_id << " did not contain/was not close enough to Point " << p << std::endl;
-      candidate_elem->print_info();
+      // libMesh::out << "Elem " << elem_id << " did not contain/was not close enough to Point " << p << std::endl;
+      // candidate_elem->print_info();
     }
 
   // If we made it here, then either all the candidate elements were
