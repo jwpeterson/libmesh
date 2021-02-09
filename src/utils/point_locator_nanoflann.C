@@ -39,7 +39,8 @@ PointLocatorNanoflann::PointLocatorNanoflann (const MeshBase & mesh,
                                               const PointLocatorBase * master) :
   PointLocatorBase (mesh, master),
   _out_of_mesh_mode(false),
-  _num_results(200) // The default _target_bin_size for the PointLocatorTree is 200
+  _initial_num_results(30),
+  _max_num_results(1000)
 {
   this->init();
 }
@@ -133,7 +134,7 @@ PointLocatorNanoflann::operator() (const Point & p,
   LOG_SCOPE("operator()", "PointLocatorNanoflann");
 
   // Do the search
-  auto t = this->kd_tree_find_neighbors(p, _num_results);
+  auto t = this->kd_tree_find_neighbors(p, _initial_num_results);
 
   // References to the tuple contents.
   // TODO: In C++17 we can use structured bindings to replace this.
@@ -220,7 +221,7 @@ PointLocatorNanoflann::operator() (const Point & p,
   LOG_SCOPE("operator() returning set", "PointLocatorNanoflann");
 
   // Do the search
-  auto t = this->kd_tree_find_neighbors(p, _num_results);
+  auto t = this->kd_tree_find_neighbors(p, _initial_num_results);
 
   // References to the tuple contents.
   // TODO: In C++17 we can use structured bindings to replace this.

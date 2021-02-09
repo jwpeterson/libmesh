@@ -165,14 +165,19 @@ protected:
   std::vector<Point> _centroids;
 
   /**
-   * Defaults to 3. This is the number of results returned by Nanoflann
-   * whenever there is a tree search. The search results are returned
-   * in order of distance to the searched-for Point, so if there are
-   * "many" elements equally distant from the searched-for Point and
-   * the user wishes to apply some other criterion to decide between
-   * them, they can increase this quantity.
+   * Defaults to 30. This is the number of results initially returned by Nanoflann
+   * when operator() is called. If a containing Elem is not found with the first
+   * _initial_num_results, the KD-Tree search is repeated with twice as many
+   * results requested, until _max_num_results is reached.
    */
-  std::size_t _num_results;
+  std::size_t _initial_num_results;
+
+  /**
+   * Defaults to 1000. We will continue to request more and more
+   * results from KD-Tree searches until we either reach this number,
+   * or find a containg Elem.
+   */
+  std::size_t _max_num_results;
 
   // kd_tree will be initialized during init() and then automatically
   // cleaned up by the destructor. We always create a LIBMESH_DIM
