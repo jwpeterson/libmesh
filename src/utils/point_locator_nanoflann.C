@@ -148,10 +148,10 @@ PointLocatorNanoflann::operator() (const Point & p,
       unsigned int elem_id = ret_index[r];
 
       // Debugging: print the results
-      // const auto & out_dist_sqr = std::get<1>(t);
-      // libMesh::out << "Centroid/Elem id = " << elem_id
-      //              << ", dist^2 = " << out_dist_sqr[r]
-      //              << std::endl;
+      const auto & out_dist_sqr = std::get<1>(t);
+      libMesh::out << "Centroid/Elem id = " << elem_id
+                   << ", dist^2 = " << out_dist_sqr[r]
+                   << std::endl;
 
       const Elem * candidate_elem = _mesh.elem_ptr(elem_id);
 
@@ -161,7 +161,10 @@ PointLocatorNanoflann::operator() (const Point & p,
       // candidate Elem is not from an allowed subdomain, we continue
       // to the next one.
       if (allowed_subdomains && !allowed_subdomains->count(candidate_elem->subdomain_id()))
-        continue;
+        {
+          libMesh::out << "Elem " << elem_id << " was not from an allowed subdomain, continuing search." << std::endl;
+          continue;
+        }
 
       // If we made it here, then the candidate Elem is from an
       // allowed subdomain, so let's next check whether it contains
@@ -176,6 +179,10 @@ PointLocatorNanoflann::operator() (const Point & p,
       // If the point is inside an Elem from an allowed subdomain, we are done.
       if (inside)
         return candidate_elem;
+
+      // Debugging:
+      libMesh::out << "Elem " << elem_id << " did not contain/was not close enough to Point " << p << std::endl;
+      candidate_elem->print_info();
     }
 
   // If we made it here, then either all the candidate elements were
