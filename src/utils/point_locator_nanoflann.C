@@ -289,6 +289,39 @@ PointLocatorNanoflann::disable_out_of_mesh_mode ()
   _out_of_mesh_mode = false;
 }
 
+
+
+std::size_t
+PointLocatorNanoflann::get_initial_num_results() const
+{
+  return _initial_num_results;
+}
+
+
+
+void
+PointLocatorNanoflann::set_initial_num_results(std::size_t val)
+{
+  // Must request at least 1 result
+  _initial_num_results = std::max(static_cast<std::size_t>(1), val);
+}
+
+std::size_t
+PointLocatorNanoflann::get_max_num_results() const
+{
+  return _max_num_results;
+}
+
+
+
+void
+PointLocatorNanoflann::set_max_num_results(std::size_t val)
+{
+  // Must be >= _initial_num_results
+  _max_num_results = std::max(_initial_num_results, val);
+}
+
+
 //
 // Required Nanoflann APIs
 //

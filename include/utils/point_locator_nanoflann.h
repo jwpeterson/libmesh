@@ -112,6 +112,46 @@ public:
    */
   virtual void disable_out_of_mesh_mode () override;
 
+  /**
+   * Set/get the "initial" number of results returned from each
+   * Nanoflann search.  If a containing Elem (to within
+   * _contains_point_tol) is not found after linear searching the
+   * first _initial_num_results Elems returned by Nanoflann, then we
+   * begin increasing this number until either a containing Elem is
+   * found, or _max_num_results are searched.
+   *
+   * Remarks:
+   * 1.) Although we do a linear search through the Nanoflann results,
+   * the Nanoflann results are always sorted by distance to the
+   * searched-for Point, so it's likely that the containing Elem will
+   * be found at the beginning of the linear search rather than the
+   * end. For nicely shaped elements, the containing Elem is often the
+   * first or second one found in the Nanoflann results.
+   *
+   * 2.) I'm not sure about the relative cost of requesting more
+   * results from the Nanoflann search than one actually needs, but
+   * presumably reducing _initial_num_results will result in better
+   * performance for your particular application up to a point. If, on
+   * the other hand, _initial_num_results is too small, you will waste
+   * time repeating Nanoflann searches with the same Point (again,
+   * there might be some caching within Nanoflann itself that makes
+   * repeated searches faster, I'm not sure).
+   */
+  std::size_t get_initial_num_results() const;
+  void set_initial_num_results(std::size_t val);
+
+  /**
+   * Get/set the max number of results returned by the Nanoflann
+   * search before giving up. Currently, the number of results
+   * requested is doubled after each failed search until
+   * _max_num_results is exceeded. Therefore, it should be both
+   * reasonably robust and efficient to use a large value for
+   * _max_num_results, with a hard maximum of the number of elements
+   * in the Mesh.
+   */
+  std::size_t get_max_num_results() const;
+  void set_max_num_results(std::size_t val);
+
   //
   // Required Nanoflann typedefs and APIs
   //
