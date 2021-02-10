@@ -40,8 +40,8 @@ PointLocatorNanoflann::PointLocatorNanoflann (const MeshBase & mesh,
                                               const PointLocatorBase * master) :
   PointLocatorBase (mesh, master),
   _out_of_mesh_mode(false),
-  _initial_num_results(8),
-  _max_num_results(1000)
+  _initial_num_results(16),
+  _max_num_results(512)
 {
   this->init();
 }
