@@ -203,13 +203,13 @@ protected:
   bool _out_of_mesh_mode;
 
   /**
-   * A list of Mesh centroids which is created when init() is
-   * called. These are the points used in the KD-Tree. We use a
-   * std::map since the KD-Tree is created from local Mesh elements,
-   * and this element numbering may not start from 0 and/or be
-   * contiguous.
+   * Lists of Mesh Elem ids and centroids which is created when init()
+   * is called. These are the points used in the KD-Tree. We keep two
+   * separate vectors since the local, active Elems are not numbered
+   * contiguously in general.
    */
-  std::unordered_map<dof_id_type, Point> _centroids;
+  std::vector<dof_id_type> _ids;
+  std::vector<Point> _centroids;
 
   /**
    * Defaults to 30. This is the number of results initially returned by Nanoflann
