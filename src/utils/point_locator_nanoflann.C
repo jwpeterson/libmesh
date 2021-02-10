@@ -28,6 +28,7 @@
 #include "libmesh/mesh_base.h"
 #include "libmesh/mesh_tools.h"
 #include "libmesh/int_range.h" // make_range
+#include "libmesh/utility.h" // libmesh_map_find
 
 // C++ includes
 #include <array>
@@ -68,19 +69,11 @@ PointLocatorNanoflann::init ()
   // TODO: for the moment we ignore whether the "_master" flag is set or not.
   if (!_initialized)
     {
-      // Fill in the _centroids array with the active element
-      // centroids.
-      //
-      // TODO: Currently we assume replicated Mesh, but one way to
-      // parallelize the Nanoflann PointLocator would be to create
-      // separate KD-Trees for each partition, do the search locally,
-      // and then gather the results. Since the KD-Tree seems to be
-      // pretty fast and light-weight, we'll have to profile to see
-      // whether this optimization is necessary...
+      // Fill in the _centroids data structure with active, local
+      // element centroids.
       _centroids.clear();
-      _centroids.reserve(_mesh.n_elem());
-      for (const auto & elem : _mesh.active_element_ptr_range())
-        _centroids.push_back(elem->centroid());
+      for (const auto & elem : _mesh.active_local_element_ptr_range())
+        _centroids.emplace(elem->id(), elem->centroid());
 
       // Construct the KD-Tree
       _kd_tree = libmesh_make_unique<kd_tree_t>
@@ -368,7 +361,7 @@ PointLocatorNanoflann::kdtree_distance(const coord_t * p1,
     point1(i) = p1[i];
 
   // Compute Euclidean distance, squared
-  return (point1 - _centroids[idx_p2]).norm_sq();
+  return (point1 - libmesh_map_find(_centroids, idx_p2)).norm_sq();
 }
 
 
@@ -379,7 +372,7 @@ PointLocatorNanoflann::kdtree_get_pt(const std::size_t idx, int dim) const
   libmesh_assert_less (idx, _centroids.size());
   libmesh_assert_less (dim, LIBMESH_DIM);
 
-  return _centroids[idx](dim);
+  return libmesh_map_find(_centroids, idx)(dim);
 }
 
 } // namespace libMesh

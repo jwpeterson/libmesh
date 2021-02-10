@@ -27,11 +27,15 @@
 
 // libmesh includes
 #include "libmesh/point_locator_base.h"
+#include "libmesh/point.h"
+
+// contrib includes
 #include "libmesh/nanoflann.hpp"
 
 // C++ includes
 #include <vector>
 #include <memory>
+#include <unordered_map>
 
 namespace libMesh
 {
@@ -200,9 +204,12 @@ protected:
 
   /**
    * A list of Mesh centroids which is created when init() is
-   * called. These are the points used in the KD-Tree.
+   * called. These are the points used in the KD-Tree. We use a
+   * std::map since the KD-Tree is created from local Mesh elements,
+   * and this element numbering may not start from 0 and/or be
+   * contiguous.
    */
-  std::vector<Point> _centroids;
+  std::unordered_map<dof_id_type, Point> _centroids;
 
   /**
    * Defaults to 30. This is the number of results initially returned by Nanoflann
