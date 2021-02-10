@@ -186,18 +186,25 @@ protected:
   typedef nanoflann::KDTreeSingleIndexAdaptor<adapter_t, PointLocatorNanoflann, LIBMESH_DIM> kd_tree_t;
   std::unique_ptr<kd_tree_t> _kd_tree;
 
-  typedef
-  std::tuple<std::vector<std::size_t>,
-             std::vector<Real>,
-             nanoflann::KNNResultSet<Real>> NanoflannResult;
+  /**
+   * Helper function that wraps the call to the KDTree's
+   * findNeighbors() routine.  Must be passed the Point to search for
+   * and the number of results to return. Stores the results of the
+   * search in the _ret_index and _out_dist_sqr class members and
+   * returns a KNNResultSet, which has pointers to the index and
+   * distance data.
+   */
+  nanoflann::KNNResultSet<Real>
+  kd_tree_find_neighbors(const Point & p,
+                         std::size_t num_results) const;
 
   /**
-   * Helper function that wraps the call to the KDTree's findNeighbors() routine.
-   * Must be passed the Point to search for and the number of results to return.
-   * \returns A NanoflannResult object (see above) with the results.
+   * The operator() functions on PointLocator-derived classes are
+   * const, so to avoid re-allocating these result data structures every
+   * time operator() is called, they have to be mutable.
    */
-  NanoflannResult kd_tree_find_neighbors(const Point & p,
-                                         std::size_t num_results) const;
+  mutable std::vector<std::size_t> _ret_index;
+  mutable std::vector<Real> _out_dist_sqr;
 };
 
 } // namespace libMesh

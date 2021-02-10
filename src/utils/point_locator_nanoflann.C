@@ -93,7 +93,7 @@ PointLocatorNanoflann::init ()
     }
 }
 
-PointLocatorNanoflann::NanoflannResult
+nanoflann::KNNResultSet<Real>
 PointLocatorNanoflann::kd_tree_find_neighbors(const Point & p,
                                               std::size_t num_results) const
 {
@@ -107,13 +107,16 @@ PointLocatorNanoflann::kd_tree_find_neighbors(const Point & p,
   for (int i=0; i<LIBMESH_DIM; ++i)
     query_pt[i] = p(i);
 
-  // To catch values returned by the search
-  std::vector<std::size_t> ret_index(num_results);
-  std::vector<Real> out_dist_sqr(num_results);
+  // Allocate storage for the indices and distances
+  _ret_index.resize(num_results);
+  _out_dist_sqr.resize(num_results);
+
+  // nanoflann::KNNResultSet cannot be resized/reused easily, I think
+  // it is just meant to be re-created for each search.
   nanoflann::KNNResultSet<Real> result_set(num_results);
 
   // Initialize the result_set
-  result_set.init(ret_index.data(), out_dist_sqr.data());
+  result_set.init(_ret_index.data(), _out_dist_sqr.data());
 
   // Do the search
   // We leave all the SearchParams ctor args on their defaults:
@@ -122,7 +125,7 @@ PointLocatorNanoflann::kd_tree_find_neighbors(const Point & p,
   // bool sorted == true
   _kd_tree->findNeighbors(result_set, query_pt.data(), nanoflann::SearchParams());
 
-  return std::make_tuple(ret_index, out_dist_sqr, result_set);
+  return result_set;
 }
 
 const Elem *
@@ -142,12 +145,7 @@ PointLocatorNanoflann::operator() (const Point & p,
   while (current_num_results < _max_num_results)
     {
       // Do the search
-      auto t = this->kd_tree_find_neighbors(p, current_num_results);
-
-      // References to the tuple contents.
-      // TODO: In C++17 we can use structured bindings to replace this.
-      const auto & ret_index = std::get<0>(t);
-      const auto & result_set = std::get<2>(t);
+      auto result_set = this->kd_tree_find_neighbors(p, current_num_results);
 
       // Linear search over the list of candidate centroids starting from
       // the index of the previous while loop, since we don't need to
@@ -157,12 +155,11 @@ PointLocatorNanoflann::operator() (const Point & p,
       for (std::size_t r = last_num_results; r < result_set.size(); ++r)
         {
           // For indexing into original data structures.
-          unsigned int elem_id = ret_index[r];
+          unsigned int elem_id = _ret_index[r];
 
           // Debugging: print the results
-          // const auto & out_dist_sqr = std::get<1>(t);
           // libMesh::out << "Centroid/Elem id = " << elem_id
-          //              << ", dist^2 = " << out_dist_sqr[r]
+          //              << ", dist^2 = " << _out_dist_sqr[r]
           //              << std::endl;
 
           const Elem * candidate_elem = _mesh.elem_ptr(elem_id);
@@ -234,19 +231,14 @@ PointLocatorNanoflann::operator() (const Point & p,
   LOG_SCOPE("operator() returning set", "PointLocatorNanoflann");
 
   // Do the search
-  auto t = this->kd_tree_find_neighbors(p, _initial_num_results);
-
-  // References to the tuple contents.
-  // TODO: In C++17 we can use structured bindings to replace this.
-  const auto & ret_index = std::get<0>(t);
-  const auto & result_set = std::get<2>(t);
+  auto result_set = this->kd_tree_find_neighbors(p, _initial_num_results);
 
   // Loop over the list of candidate centroids, adding each one which
   // passes the test to the candidate_elements set.
   for (auto r : make_range(result_set.size()))
     {
       // For indexing into original data structures.
-      unsigned int elem_id = ret_index[r];
+      unsigned int elem_id = _ret_index[r];
 
       // Debugging: print the results
       // const auto & out_dist_sqr = std::get<1>(t);
