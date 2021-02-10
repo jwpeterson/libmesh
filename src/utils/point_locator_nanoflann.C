@@ -67,6 +67,8 @@ PointLocatorNanoflann::clear ()
 void
 PointLocatorNanoflann::init ()
 {
+  LOG_SCOPE("init()", "PointLocatorNanoflann");
+
   // TODO: for the moment we ignore whether the "_master" flag is set or not.
   if (!_initialized)
     {
