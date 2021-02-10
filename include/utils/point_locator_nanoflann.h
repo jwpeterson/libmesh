@@ -48,7 +48,7 @@ class Elem;
  * work.
  *
  * \author John W. Peterson
- * \date 2020
+ * \date 2021
  */
 class PointLocatorNanoflann : public PointLocatorBase
 {
