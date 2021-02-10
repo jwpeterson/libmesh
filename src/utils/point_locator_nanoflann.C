@@ -230,47 +230,66 @@ PointLocatorNanoflann::operator() (const Point & p,
 
   LOG_SCOPE("operator() returning set", "PointLocatorNanoflann");
 
-  // Do the search
-  auto result_set = this->kd_tree_find_neighbors(p, _initial_num_results);
+  std::size_t last_num_results = 0;
+  std::size_t current_num_results = _initial_num_results;
 
-  // Loop over the list of candidate centroids, adding each one which
-  // passes the test to the candidate_elements set.
-  for (auto r : make_range(result_set.size()))
+  // Keep track of the number of elements checked in detail
+  unsigned int n_elems_checked = 0;
+
+  while (current_num_results < _max_num_results)
     {
-      // For indexing into original data structures.
-      unsigned int elem_id = _ret_index[r];
+      // Do the KD-Tree search
+      auto result_set = this->kd_tree_find_neighbors(p, current_num_results);
 
-      // Debugging: print the results
-      // const auto & out_dist_sqr = std::get<1>(t);
-      // libMesh::out << "Centroid/Elem id = " << elem_id
-      //              << ", dist^2 = " << out_dist_sqr[r]
-      //              << std::endl;
+      // Linear search over the list of candidate centroids starting from
+      // the index of the previous while loop, since we don't need to
+      // search those same centroids again.
+      for (std::size_t r = last_num_results; r < result_set.size(); ++r)
+        {
+          // For indexing into original data structures.
+          unsigned int elem_id = _ret_index[r];
 
-      const Elem * candidate_elem = _mesh.elem_ptr(elem_id);
+          const Elem * candidate_elem = _mesh.elem_ptr(elem_id);
 
-      // Before we even check whether the candidate Elem actually
-      // contains the Point, we may need to check whether the
-      // candidate Elem is from an allowed subdomain.  If the
-      // candidate Elem is not from an allowed subdomain, we continue
-      // to the next one.
-      if (allowed_subdomains && !allowed_subdomains->count(candidate_elem->subdomain_id()))
-        continue;
+          // Before we even check whether the candidate Elem actually
+          // contains the Point, we may need to check whether the
+          // candidate Elem is from an allowed subdomain.  If the
+          // candidate Elem is not from an allowed subdomain, we continue
+          // to the next one.
+          if (allowed_subdomains && !allowed_subdomains->count(candidate_elem->subdomain_id()))
+            continue;
 
-      // If we made it here, then the candidate Elem is from an
-      // allowed subdomain, so let's next check whether it contains
-      // the point. If the user set a custom tolerance, then we
-      // actually check close_to_point() rather than contains_point(),
-      // since this latter function warns about using non-default
-      // tolerances, but otherwise does the same test.
-      bool inside = _use_contains_point_tol ?
-        candidate_elem->close_to_point(p, _contains_point_tol) :
-        candidate_elem->contains_point(p);
+          // If we made it here, then the candidate Elem is from an
+          // allowed subdomain, so let's next check whether it contains
+          // the point. If the user set a custom tolerance, then we
+          // actually check close_to_point() rather than contains_point(),
+          // since this latter function warns about using non-default
+          // tolerances, but otherwise does the same test.
+          bool inside = _use_contains_point_tol ?
+            candidate_elem->close_to_point(p, _contains_point_tol) :
+            candidate_elem->contains_point(p);
 
-      // If the point is inside an Elem from an allowed subdomain, add
-      // it to the list.
-      if (inside)
-        candidate_elements.insert(candidate_elem);
-    }
+          // Increment the number of elements checked
+          n_elems_checked++;
+
+          // If the point is contained in/close to an Elem from an
+          // allowed subdomain, add it to the list.
+          if (inside)
+            candidate_elements.insert(candidate_elem);
+        } // end for(r)
+
+      // Possibly repeat the search, requesting twice as many results as previously.
+      last_num_results = current_num_results;
+      current_num_results *= 2;
+
+      // If the candidate_elements set is non-empty, stop searching now.
+      if (!candidate_elements.empty())
+        break; // out of while loop
+    } // end while
+
+  // Debugging: for performance reasons, it may be useful to print the
+  // number of Elems actually checked during the search.
+  // libMesh::out << "Checked " << n_elems_checked << " nearby Elems before finding a containing Elem." << std::endl;
 }
 
 
