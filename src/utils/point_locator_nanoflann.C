@@ -181,7 +181,7 @@ PointLocatorNanoflann::operator() (const Point & p,
   LOG_SCOPE("operator()", "PointLocatorNanoflann");
 
   // This function must be called by all procs
-  libmesh_parallel_only(_mesh.comm());
+  // libmesh_parallel_only(_mesh.comm());
 
   std::size_t last_num_results = 0;
   std::size_t current_num_results = _initial_num_results;
@@ -408,20 +408,25 @@ PointLocatorNanoflann::operator() (const Point & p,
         } // end for(r)
     } // if (point_in_local_bbox)
 
-  // Communicate with other procs to see if anyone found the Point in
-  // their fast initial tree search.  We don't want to spend time
-  // exhaustively searching on processors when the Elem is already
-  // found elsewhere.
-  bool found_elem_bool = found_elem;
-  _mesh.comm().max(found_elem_bool);
+//  // Communicate with other procs to see if anyone found the Point in
+//  // their fast initial tree search.  We don't want to spend time
+//  // exhaustively searching on processors when the Elem is already
+//  // found elsewhere.
+//  bool found_elem_bool = found_elem;
+//  _mesh.comm().max(found_elem_bool);
+//
+//  // If at least one processor found the Elem, return now on all
+//  // procs. Some procs will return nullptr, it is up to the caller to
+//  // figure out what to do with the information at that point.
+//  // Otherwise, all processors conduct a more exhaustive radius
+//  // search, where the radius is based on the size of the Elems
+//  // encountered thus far.
+//  if (found_elem_bool)
+//    return found_elem;
 
-  // If at least one processor found the Elem, return now on all
-  // procs. Some procs will return nullptr, it is up to the caller to
-  // figure out what to do with the information at that point.
-  // Otherwise, all processors conduct a more exhaustive radius
-  // search, where the radius is based on the size of the Elems
-  // encountered thus far.
-  if (found_elem_bool)
+  // If we found the Elem, go ahead and return it now. We don't
+  // communicate with the other procs for this.
+  if (found_elem)
     return found_elem;
 
   // If we made it here without returning, try a more exhaustive
