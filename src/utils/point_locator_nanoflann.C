@@ -88,21 +88,17 @@ PointLocatorNanoflann::init ()
       // elements in the KD-Tree, instead of just local ones, since
       // that should result in fewer "failed" searches, which
       // currently are quite expensive for the Nanoflann PointLocator.
-      auto n_active_elem = _mesh.n_active_elem();
-      _ids.reserve(n_active_elem);
-      _centroids.reserve(n_active_elem);
+      auto n_active_local_elem = _mesh.n_active_local_elem();
+      _ids.reserve(n_active_local_elem);
+      _centroids.reserve(n_active_local_elem);
 
-      for (const auto & elem : _mesh.active_element_ptr_range())
+      for (const auto & elem : _mesh.active_local_element_ptr_range())
         {
           _ids.push_back(elem->id());
           _centroids.push_back(elem->centroid());
 
-          // Only keep track of local elements' hmax.
-          //
-          // TODO: if we switch to building local, active KD-Trees, we
-          // can drop this if-statement.
-          if (elem->processor_id() == _mesh.comm().rank())
-              _hmax = std::max(elem->hmax(), _hmax);
+          // While we are iterating, also keep track of hmax.
+          _hmax = std::max(elem->hmax(), _hmax);
         }
 
       // Debugging:
