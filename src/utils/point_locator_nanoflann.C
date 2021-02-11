@@ -80,12 +80,18 @@ PointLocatorNanoflann::init ()
 
       // We can either reserve exactly the right amount of space or
       // let push_back() take care of it, not sure what would be
-      // faster actually.
-      auto n_active_local_elem = _mesh.n_active_local_elem();
-      _ids.reserve(n_active_local_elem);
-      _centroids.reserve(n_active_local_elem);
+      // faster actually, since it takes some time to count the number
+      // of active, local, etc. elements.
+      //
+      // Note: my current idea is that we will include all "active"
+      // elements in the KD-Tree, instead of just local ones, since
+      // that should result in fewer "failed" searches, which
+      // currently are quite expensive for the Nanoflann PointLocator.
+      auto n_active_elem = _mesh.n_active_elem();
+      _ids.reserve(n_active_elem);
+      _centroids.reserve(n_active_elem);
 
-      for (const auto & elem : _mesh.active_local_element_ptr_range())
+      for (const auto & elem : _mesh.active_element_ptr_range())
         {
           _ids.push_back(elem->id());
           _centroids.push_back(elem->centroid());
