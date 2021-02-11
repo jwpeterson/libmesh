@@ -28,6 +28,7 @@
 // libmesh includes
 #include "libmesh/point_locator_base.h"
 #include "libmesh/point.h"
+#include "libmesh/bounding_box.h"
 
 // contrib includes
 #include "libmesh/nanoflann.hpp"
@@ -225,6 +226,12 @@ protected:
    * or find a containg Elem.
    */
   std::size_t _max_num_results;
+
+  /**
+   * We can use a local BoundingBox check to quickly rule out
+   * exhaustive KD-Tree searches.
+   */
+  BoundingBox _local_bbox;
 
   // kd_tree will be initialized during init() and then automatically
   // cleaned up by the destructor. We always create a LIBMESH_DIM

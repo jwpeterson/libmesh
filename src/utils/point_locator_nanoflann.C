@@ -29,6 +29,7 @@
 #include "libmesh/mesh_tools.h"
 #include "libmesh/int_range.h" // make_range
 #include "libmesh/utility.h" // libmesh_map_find
+#include "libmesh/mesh_tools.h" // create_local_bounding_box
 
 // C++ includes
 #include <array>
@@ -95,6 +96,9 @@ PointLocatorNanoflann::init ()
         (LIBMESH_DIM, *this, nanoflann::KDTreeSingleIndexAdaptorParams(/*max leaf=*/10));
 
       _kd_tree->buildIndex();
+
+      // A BoundingBox for the local elements
+      _local_bbox = MeshTools::create_local_bounding_box (_mesh);
 
       // We are initialized now
       this->_initialized = true;
