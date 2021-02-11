@@ -41,8 +41,8 @@ PointLocatorNanoflann::PointLocatorNanoflann (const MeshBase & mesh,
                                               const PointLocatorBase * master) :
   PointLocatorBase (mesh, master),
   _out_of_mesh_mode(false),
-  _initial_num_results(512),
-  _max_num_results(513)
+  _initial_num_results(5),
+  _max_num_results(512)
 {
   this->init();
 }
@@ -164,7 +164,7 @@ PointLocatorNanoflann::operator() (const Point & p,
   if (!_local_bbox.contains_point(p))
     goto done;
 
-  while (current_num_results < _max_num_results)
+  while (current_num_results <= _max_num_results)
     {
       // Do the search
       auto result_set = this->kd_tree_find_neighbors(p, current_num_results);
@@ -227,9 +227,14 @@ PointLocatorNanoflann::operator() (const Point & p,
           // candidate_elem->print_info();
         } // end for(r)
 
-      // Try the search again, requesting twice as many results as previously.
+      // Store the current number of results
       last_num_results = current_num_results;
-      current_num_results *= 2;
+
+      // Try the search again, requesting twice as many results as previously.
+      // current_num_results *= 2;
+
+      // Try the search again, requesting the max number of results.
+      current_num_results = _max_num_results;
     } // end while
 
  done:
