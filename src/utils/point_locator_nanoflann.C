@@ -331,6 +331,10 @@ PointLocatorNanoflann::operator() (const Point & p,
   {
   auto result_set = this->kd_tree_find_neighbors(p, _initial_num_results);
 
+  // We'll keep track of the largest "nearby" element's hmax in case
+  // we need it later for a radiusSearch()
+  Real largest_nearby_hmax = 0.;
+
   for (std::size_t r = last_num_results; r < result_set.size(); ++r)
     {
       // Translate the Nanoflann index, which is from [0..n_centroids),
@@ -344,6 +348,9 @@ PointLocatorNanoflann::operator() (const Point & p,
       //              << std::endl;
 
       const Elem * candidate_elem = _mesh.elem_ptr(elem_id);
+
+      largest_nearby_hmax = std::max(candidate_elem->hmax(),
+                                     largest_nearby_hmax);
 
       // Before we even check whether the candidate Elem actually
       // contains the Point, we may need to check whether the
@@ -385,11 +392,9 @@ PointLocatorNanoflann::operator() (const Point & p,
     } // end for(r)
 
   // If we made it here without returning, try a more exhaustive
-  // radiusSearch() with radius equal to the closest Elem's
-  // hmax/2. This gives us a reasonable estimate of the local element
-  // size in this region of the mesh.
-  Real closest_elem_hmax = _mesh.elem_ptr(_ids[_ret_index[0]])->hmax();
-  this->kd_tree_radius_search(p, closest_elem_hmax/2);
+  // radiusSearch().
+  // Real closest_elem_hmax = _mesh.elem_ptr(_ids[_ret_index[0]])->hmax();
+  this->kd_tree_radius_search(p, largest_nearby_hmax/2);
 
   for (const auto & pr : _ret_matches)
     {
