@@ -267,7 +267,7 @@ protected:
    * distance data.
    */
   void
-  kd_tree_radius_search(const Point & p) const;
+  kd_tree_radius_search(const Point & p, Real search_radius) const;
 
   /**
    * The operator() functions on PointLocator-derived classes are

@@ -158,18 +158,21 @@ PointLocatorNanoflann::kd_tree_find_neighbors(const Point & p,
 }
 
 void
-PointLocatorNanoflann::kd_tree_radius_search(const Point & p) const
+PointLocatorNanoflann::kd_tree_radius_search(const Point & p, Real search_radius) const
 {
   // Construct the search Point
   std::array<Real, LIBMESH_DIM> query_pt;
   for (int i=0; i<LIBMESH_DIM; ++i)
     query_pt[i] = p(i);
 
-  // This type of search returns all KD-Tree Points within a given search readius.
-  // The output is stored in the "_ret_matches" data structure.
+  // This type of search returns all KD-Tree Points within a given
+  // search radius.  The output is stored in the "_ret_matches" data
+  // structure. The search radius input to this function is not
+  // squared, but Nanoflann is expecting squared distances, so we
+  // square the input value.
 
   // std::size_t n_matches =
-  _kd_tree->radiusSearch(query_pt.data(), _hmax/2, _ret_matches, nanoflann::SearchParams());
+  _kd_tree->radiusSearch(query_pt.data(), search_radius * search_radius, _ret_matches, nanoflann::SearchParams());
 }
 
 
@@ -267,7 +270,7 @@ PointLocatorNanoflann::operator() (const Point & p,
 
 
   // radiusSearch()
-  this->kd_tree_radius_search(p);
+  this->kd_tree_radius_search(p, _hmax/2);
 
   // Debugging:
   // std::cout << "Testing " << _ret_matches.size() << " elements within search radius." << std::endl;
