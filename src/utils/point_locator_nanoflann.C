@@ -399,12 +399,15 @@ PointLocatorNanoflann::operator() (const Point & p,
 
   // Some constant times the hmax of all "nearby" elements.
   // hmax/2, hmax = failed for my "challenging" test case
-  Real search_radius = 10*largest_nearby_hmax;
+
+  // Let's try the _smaller_ of the global hmax() for the whole Mesh,
+  // or 2x the largest nearby hmax.
+  Real search_radius = std::min(_hmax, 2*largest_nearby_hmax);
 
   // Debugging:
-  libMesh::out << "Executing radiusSearch() with radius (not squared) = "
-               << search_radius
-               << std::endl;
+  // libMesh::out << "Executing radiusSearch() with radius (not squared) = "
+  //              << search_radius
+  //              << std::endl;
 
   this->kd_tree_radius_search(p, search_radius);
 
