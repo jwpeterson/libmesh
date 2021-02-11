@@ -154,6 +154,10 @@ PointLocatorNanoflann::operator() (const Point & p,
   // Keep track of the number of elements checked in detail
   unsigned int n_elems_checked = 0;
 
+  // Quick return if the Point is not in the BoundingBox of the local elements
+  if (!_local_bbox.contains_point(p))
+    goto done;
+
   while (current_num_results < _max_num_results)
     {
       // Do the search
@@ -222,15 +226,18 @@ PointLocatorNanoflann::operator() (const Point & p,
       current_num_results *= 2;
     } // end while
 
-  // If we made it here, then either all the candidate elements were
-  // from non-allowed subdomains, or the Point was not inside _any_
-  // candidate Elem. Thus if we are not in _out_of_mesh_mode, throw
-  // an error.
+ done:
+  // If we made it here, then at least one of the following happened:
+  // .) The search Point was not in the BoundingBox of local Elems.
+  // .) All the _max_num_results candidate elements were from non-allowed subdomains.
+  // .) The Point was not inside _any_ of the _max_num_results candidate Elems.
+  // Thus, if we are not in _out_of_mesh_mode, throw an error,
+  // otherwise return nullptr to indicate that no suitable element was
+  // found.
   if (!_out_of_mesh_mode)
     libmesh_error_msg("Point was not contained within the closest " << n_elems_checked <<
                       " elems (by centroid distance), and _out_of_mesh_mode was not enabled.");
 
-  // Otherwise return nullptr to indicate that no suitable element was found
   return nullptr;
 }
 
