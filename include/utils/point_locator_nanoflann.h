@@ -259,12 +259,30 @@ protected:
                          std::size_t num_results) const;
 
   /**
+   * Helper function that wraps the call to the KDTree's
+   * findNeighbors() routine.  Must be passed the Point to search for
+   * and the number of results to return. Stores the results of the
+   * search in the _ret_index and _out_dist_sqr class members and
+   * returns a KNNResultSet, which has pointers to the index and
+   * distance data.
+   */
+  void
+  kd_tree_radius_search(const Point & p) const;
+
+  /**
    * The operator() functions on PointLocator-derived classes are
    * const, so to avoid re-allocating these result data structures every
    * time operator() is called, they have to be mutable.
    */
   mutable std::vector<std::size_t> _ret_index;
   mutable std::vector<Real> _out_dist_sqr;
+
+  /**
+   * Data structure filled in by the kd_tree_radius_search() function.
+   * For best performance, one should reserve memory in this vector
+   * before doing the search.
+   */
+  mutable std::vector<std::pair<std::size_t, Real>> _ret_matches;
 };
 
 } // namespace libMesh
