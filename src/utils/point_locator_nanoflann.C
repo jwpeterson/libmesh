@@ -180,6 +180,9 @@ PointLocatorNanoflann::operator() (const Point & p,
 
   LOG_SCOPE("operator()", "PointLocatorNanoflann");
 
+  // This function must be called by all procs
+  libmesh_parallel_only(_mesh.comm());
+
   std::size_t last_num_results = 0;
   std::size_t current_num_results = _initial_num_results;
 
@@ -187,8 +190,11 @@ PointLocatorNanoflann::operator() (const Point & p,
   unsigned int n_elems_checked = 0;
 
   // Quick return if the Point is not in the BoundingBox of the local elements
-  if (!_local_bbox.contains_point(p))
-    goto done;
+  // Note: we can't do this if there is a parallel communication in operator().
+  // Also, if there is a parallel communication, then this function must be
+  // marked parallel_only()
+  // if (!_local_bbox.contains_point(p))
+  //   goto done;
 
   // Do findNeighbors() search with expanding result set
 //  while (current_num_results <= _max_num_results)
@@ -331,6 +337,9 @@ PointLocatorNanoflann::operator() (const Point & p,
   // we need it later for a radiusSearch()
   Real largest_nearby_hmax = 0.;
 
+  // If a containing Elem is found locally, we will set this pointer.
+  const Elem * found_elem = nullptr;
+
   for (std::size_t r = last_num_results; r < result_set.size(); ++r)
     {
       // Translate the Nanoflann index, which is from [0..n_centroids),
@@ -379,13 +388,32 @@ PointLocatorNanoflann::operator() (const Point & p,
           // Debugging:
           // libMesh::out << "Checked " << n_elems_checked << " nearby Elems before finding a containing Elem." << std::endl;
 
-          return candidate_elem;
+          //return candidate_elem;
+
+          found_elem = candidate_elem;
+          break;
         }
 
       // Debugging:
       // libMesh::out << "Elem " << elem_id << " did not contain/was not close enough to Point " << p << std::endl;
       // candidate_elem->print_info();
     } // end for(r)
+
+  // Communicate with other procs to see if anyone found the Point in
+  // their fast initial tree search.  We don't want to spend time
+  // exhaustively searching on processors when the Elem is already
+  // found elsewhere.
+  bool found_elem_bool = found_elem;
+  _mesh.comm().max(found_elem_bool);
+
+  // If at least one processor found the Elem, return now on all
+  // procs. Some procs will return nullptr, it is up to the caller to
+  // figure out what to do with the information at that point.
+  // Otherwise, all processors conduct a more exhaustive radius
+  // search, where the radius is based on the size of the Elems
+  // encountered thus far.
+  if (found_elem_bool)
+    return found_elem;
 
   // If we made it here without returning, try a more exhaustive
   // radiusSearch().
@@ -460,7 +488,7 @@ PointLocatorNanoflann::operator() (const Point & p,
 
   } // end scope for hybrid search approach
 
- done:
+  // done:
   // If we made it here, then at least one of the following happened:
   // .) The search Point was not in the BoundingBox of local Elems.
   // .) All the _max_num_results candidate elements were from non-allowed subdomains.
