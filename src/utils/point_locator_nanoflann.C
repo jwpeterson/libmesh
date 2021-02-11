@@ -399,12 +399,12 @@ PointLocatorNanoflann::operator() (const Point & p,
 
   // Some constant times the hmax of all "nearby" elements.
   // Using .5, 1, and 2 * local hmax = failed for my "challenging" test case
-  // 10 passed but was too large
+  // 6, 10 passed
 
   // Let's try the _smaller_ of:
   // .) The global hmax() for the whole Mesh and
   // .) Some contant times the largest nearby hmax
-  Real search_radius = std::min(_hmax, 6*largest_nearby_hmax);
+  Real search_radius = std::min(_hmax, 4*largest_nearby_hmax);
 
   // Debugging:
   // libMesh::out << "Executing radiusSearch() with radius (not squared) = "
