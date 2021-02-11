@@ -31,6 +31,9 @@
 #include "libmesh/utility.h" // libmesh_map_find
 #include "libmesh/mesh_tools.h" // create_local_bounding_box
 
+// TIMPI includes
+#include "timpi/parallel_implementation.h"
+
 // C++ includes
 #include <array>
 
@@ -181,7 +184,7 @@ PointLocatorNanoflann::operator() (const Point & p,
   LOG_SCOPE("operator()", "PointLocatorNanoflann");
 
   // This function must be called by all procs
-  // libmesh_parallel_only(_mesh.comm());
+  libmesh_parallel_only(_mesh.comm());
 
   std::size_t last_num_results = 0;
   std::size_t current_num_results = _initial_num_results;
@@ -344,9 +347,16 @@ PointLocatorNanoflann::operator() (const Point & p,
   // we need it later for a radiusSearch()
   Real largest_nearby_hmax = 0.;
 
+  // We will keep track of the smallest (squared) distance on all
+  // procs and only radius search on the closest one.
+  Real distance_to_closest_point = std::numeric_limits<Real>::max();
+
   if (point_in_local_bbox)
     {
       auto result_set = this->kd_tree_find_neighbors(p, _initial_num_results);
+
+      // Store the distance to the closest point
+      distance_to_closest_point = _out_dist_sqr[0];
 
       for (std::size_t r = last_num_results; r < result_set.size(); ++r)
         {
@@ -408,30 +418,35 @@ PointLocatorNanoflann::operator() (const Point & p,
         } // end for(r)
     } // if (point_in_local_bbox)
 
-//  // Communicate with other procs to see if anyone found the Point in
-//  // their fast initial tree search.  We don't want to spend time
-//  // exhaustively searching on processors when the Elem is already
-//  // found elsewhere.
-//  bool found_elem_bool = found_elem;
-//  _mesh.comm().max(found_elem_bool);
-//
-//  // If at least one processor found the Elem, return now on all
-//  // procs. Some procs will return nullptr, it is up to the caller to
-//  // figure out what to do with the information at that point.
-//  // Otherwise, all processors conduct a more exhaustive radius
-//  // search, where the radius is based on the size of the Elems
-//  // encountered thus far.
-//  if (found_elem_bool)
+  // Communicate with other procs to see if anyone found the Point in
+  // their fast initial tree search.  We don't want to spend time
+  // exhaustively searching on processors when the Elem is already
+  // found elsewhere.
+  bool found_elem_bool = found_elem;
+  _mesh.comm().max(found_elem_bool);
+
+  // If at least one processor found the Elem, return now on all
+  // procs. Some procs will return nullptr, it is up to the caller to
+  // figure out what to do with the information at that point.
+  // Otherwise, all processors conduct a more exhaustive radius
+  // search, where the radius is based on the size of the Elems
+  // encountered thus far.
+  if (found_elem_bool)
+    return found_elem;
+
+//  // If we found the Elem, go ahead and return it now. We don't
+//  // communicate with the other procs for this.
+//  if (found_elem)
 //    return found_elem;
 
-  // If we found the Elem, go ahead and return it now. We don't
-  // communicate with the other procs for this.
-  if (found_elem)
-    return found_elem;
+  // If we made it here, try an exhaustive search, but only on the
+  // proc which was closest in the initial search.
+  unsigned int minid = 0;
+  _mesh.comm().minloc(distance_to_closest_point, minid);
 
   // If we made it here without returning, try a more exhaustive
   // radiusSearch(), but only if the Point is actually in our local bbox.
-  if (point_in_local_bbox)
+  if (point_in_local_bbox && _mesh.comm().rank() == minid)
     {
       // hmax of closest Elem
       // Real search_radius = _mesh.elem_ptr(_ids[_ret_index[0]])->hmax();
