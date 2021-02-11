@@ -337,14 +337,14 @@ PointLocatorNanoflann::operator() (const Point & p,
   // exhaustive radiusSearch() based on the closest Elem's hmax() if
   // that fails.
 
-    // If a containing Elem is found locally, we will set this pointer.
-    const Elem * found_elem = nullptr;
+  // If a containing Elem is found locally, we will set this pointer.
+  const Elem * found_elem = nullptr;
 
-    // We'll keep track of the largest "nearby" element's hmax in case
-    // we need it later for a radiusSearch()
-    Real largest_nearby_hmax = 0.;
+  // We'll keep track of the largest "nearby" element's hmax in case
+  // we need it later for a radiusSearch()
+  Real largest_nearby_hmax = 0.;
 
-    if (point_in_local_bbox)
+  if (point_in_local_bbox)
     {
       auto result_set = this->kd_tree_find_neighbors(p, _initial_num_results);
 
@@ -427,76 +427,76 @@ PointLocatorNanoflann::operator() (const Point & p,
   // If we made it here without returning, try a more exhaustive
   // radiusSearch(), but only if the Point is actually in our local bbox.
   if (point_in_local_bbox)
-  {
-  // hmax of closest Elem
-  // Real search_radius = _mesh.elem_ptr(_ids[_ret_index[0]])->hmax();
-
-  // Some constant times the hmax of all "nearby" elements.
-  // Using .5, 1, and 2 * local hmax = failed for my "challenging" test case
-  // 4, 6, 10 passed
-
-  // Let's try the _smaller_ of:
-  // .) The global hmax() for the whole Mesh and
-  // .) Some contant times the largest nearby hmax
-  Real search_radius = std::min(_hmax, 3*largest_nearby_hmax);
-
-  // Debugging:
-  // libMesh::out << "Executing radiusSearch() with radius (not squared) = "
-  //              << search_radius
-  //              << std::endl;
-
-  this->kd_tree_radius_search(p, search_radius);
-
-  for (const auto & pr : _ret_matches)
     {
-      // Translate the Nanoflann index, which is from [0..n_centroids),
-      // into the corresponding Elem id from the mesh.
-      auto nanoflann_index = pr.first;
-      auto elem_id = _ids[nanoflann_index];
+      // hmax of closest Elem
+      // Real search_radius = _mesh.elem_ptr(_ids[_ret_index[0]])->hmax();
 
-      // Debugging: print the results
-      // libMesh::out << "Centroid/Elem id = " << elem_id
-      //              << ", dist^2 = " << pr.second
+      // Some constant times the hmax of all "nearby" elements.
+      // Using .5, 1, and 2 * local hmax = failed for my "challenging" test case
+      // 4, 6, 10 passed
+
+      // Let's try the _smaller_ of:
+      // .) The global hmax() for the whole Mesh and
+      // .) Some contant times the largest nearby hmax
+      Real search_radius = std::min(_hmax, 3*largest_nearby_hmax);
+
+      // Debugging:
+      // libMesh::out << "Executing radiusSearch() with radius (not squared) = "
+      //              << search_radius
       //              << std::endl;
 
-      const Elem * candidate_elem = _mesh.elem_ptr(elem_id);
+      this->kd_tree_radius_search(p, search_radius);
 
-      // Before we even check whether the candidate Elem actually
-      // contains the Point, we may need to check whether the
-      // candidate Elem is from an allowed subdomain.  If the
-      // candidate Elem is not from an allowed subdomain, we continue
-      // to the next one.
-      if (allowed_subdomains && !allowed_subdomains->count(candidate_elem->subdomain_id()))
+      for (const auto & pr : _ret_matches)
         {
-          // Debugging
-          // libMesh::out << "Elem " << elem_id << " was not from an allowed subdomain, continuing search." << std::endl;
-          continue;
-        }
+          // Translate the Nanoflann index, which is from [0..n_centroids),
+          // into the corresponding Elem id from the mesh.
+          auto nanoflann_index = pr.first;
+          auto elem_id = _ids[nanoflann_index];
 
-      // If we made it here, then the candidate Elem is from an
-      // allowed subdomain, so let's next check whether it contains
-      // the point. If the user set a custom tolerance, then we
-      // actually check close_to_point() rather than contains_point(),
-      // since this latter function warns about using non-default
-      // tolerances, but otherwise does the same test.
-      bool inside = _use_contains_point_tol ?
-        candidate_elem->close_to_point(p, _contains_point_tol) :
-        candidate_elem->contains_point(p);
+          // Debugging: print the results
+          // libMesh::out << "Centroid/Elem id = " << elem_id
+          //              << ", dist^2 = " << pr.second
+          //              << std::endl;
 
-      // Increment the number of elements checked
-      n_elems_checked++;
+          const Elem * candidate_elem = _mesh.elem_ptr(elem_id);
 
-      // If the point is inside an Elem from an allowed subdomain, we are done.
-      if (inside)
-        {
-          // Debugging:
-          // libMesh::out << "Checked " << n_elems_checked << " nearby Elems before finding a containing Elem." << std::endl;
+          // Before we even check whether the candidate Elem actually
+          // contains the Point, we may need to check whether the
+          // candidate Elem is from an allowed subdomain.  If the
+          // candidate Elem is not from an allowed subdomain, we continue
+          // to the next one.
+          if (allowed_subdomains && !allowed_subdomains->count(candidate_elem->subdomain_id()))
+            {
+              // Debugging
+              // libMesh::out << "Elem " << elem_id << " was not from an allowed subdomain, continuing search." << std::endl;
+              continue;
+            }
 
-          found_elem = candidate_elem;
-          break;
-        }
-    } // end for(r)
-  } // end if (point_in_local_bbox)
+          // If we made it here, then the candidate Elem is from an
+          // allowed subdomain, so let's next check whether it contains
+          // the point. If the user set a custom tolerance, then we
+          // actually check close_to_point() rather than contains_point(),
+          // since this latter function warns about using non-default
+          // tolerances, but otherwise does the same test.
+          bool inside = _use_contains_point_tol ?
+            candidate_elem->close_to_point(p, _contains_point_tol) :
+            candidate_elem->contains_point(p);
+
+          // Increment the number of elements checked
+          n_elems_checked++;
+
+          // If the point is inside an Elem from an allowed subdomain, we are done.
+          if (inside)
+            {
+              // Debugging:
+              // libMesh::out << "Checked " << n_elems_checked << " nearby Elems before finding a containing Elem." << std::endl;
+
+              found_elem = candidate_elem;
+              break;
+            }
+        } // end for(r)
+    } // end if (point_in_local_bbox)
 
   // done:
   // If we made it here, then at least one of the following happened:
