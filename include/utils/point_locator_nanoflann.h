@@ -233,6 +233,12 @@ protected:
    */
   BoundingBox _local_bbox;
 
+  /**
+   * Store the max element size on (the local part of) the Mesh. This
+   * will be used in a Nanoflann radiusSearch() call.
+   */
+  Real _hmax;
+
   // kd_tree will be initialized during init() and then automatically
   // cleaned up by the destructor. We always create a LIBMESH_DIM
   // dimensional Nanoflann object.

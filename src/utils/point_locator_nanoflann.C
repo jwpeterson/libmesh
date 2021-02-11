@@ -42,7 +42,8 @@ PointLocatorNanoflann::PointLocatorNanoflann (const MeshBase & mesh,
   PointLocatorBase (mesh, master),
   _out_of_mesh_mode(false),
   _initial_num_results(16),
-  _max_num_results(512)
+  _max_num_results(512),
+  _hmax(0.)
 {
   this->init();
 }
@@ -95,7 +96,17 @@ PointLocatorNanoflann::init ()
         {
           _ids.push_back(elem->id());
           _centroids.push_back(elem->centroid());
+
+          // Only keep track of local elements' hmax.
+          //
+          // TODO: if we switch to building local, active KD-Trees, we
+          // can drop this if-statement.
+          if (elem->processor_id() == _mesh.comm().rank())
+              _hmax = std::max(elem->hmax(), _hmax);
         }
+
+      // Debugging:
+      libMesh::out << "Local Elem hmax() = " << _hmax << std::endl;
 
       // Construct the KD-Tree
       _kd_tree = libmesh_make_unique<kd_tree_t>
