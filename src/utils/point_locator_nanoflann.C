@@ -441,12 +441,12 @@ PointLocatorNanoflann::operator() (const Point & p,
 
   // If we made it here, try an exhaustive search, but only on the
   // proc which was closest in the initial search.
-  unsigned int minid = 0;
-  _mesh.comm().minloc(distance_to_closest_point, minid);
+  // unsigned int minid = 0;
+  // _mesh.comm().minloc(distance_to_closest_point, minid);
 
   // If we made it here without returning, try a more exhaustive
   // radiusSearch(), but only if the Point is actually in our local bbox.
-  if (point_in_local_bbox && _mesh.comm().rank() == minid)
+  if (point_in_local_bbox) // && _mesh.comm().rank() == minid
     {
       // hmax of closest Elem
       // Real search_radius = _mesh.elem_ptr(_ids[_ret_index[0]])->hmax();
