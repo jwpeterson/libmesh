@@ -77,6 +77,18 @@ PointLocatorNanoflann::init ()
   // TODO: for the moment we ignore whether the "_master" flag is set or not.
   if (!_initialized)
     {
+      // If _master == nullptr, then we _are_ the master, and thus
+      // responsible for initializing.
+      bool we_are_master = (_master == nullptr);
+
+      // If we are not the master, then we should directly use the
+      // master's data structures, not initialize again. Currently, we
+      // don't do this.
+      if (!we_are_master)
+        libMesh::out << "FIXME: We are not the master, thus we should not initialize "
+                     << "our data structures. Instead, we should use the master's data structures."
+                     << std::endl;
+
       // Fill in the _centroids data structure with active, local
       // element centroids.
       _ids.clear();
