@@ -204,13 +204,14 @@ protected:
   bool _out_of_mesh_mode;
 
   /**
-   * Lists of Mesh Elem ids and centroids which is created when init()
-   * is called. These are the points used in the KD-Tree. We keep two
-   * separate vectors since the local, active Elems are not numbered
-   * contiguously in general.
+   * Lists of Points and ids which make up the "point cloud" that is
+   * to be searched via Nanoflann. The point cloud can be comprised of
+   * Elem centroids or mesh Nodes, depending on the type of tree
+   * created. We keep two separate vectors since the Points in the
+   * cloud may not be numbered contiguously in general.
    */
   std::vector<dof_id_type> _ids;
-  std::vector<Point> _centroids;
+  std::vector<Point> _point_cloud;
 
   /**
    * Defaults to 30. This is the number of results initially returned by Nanoflann

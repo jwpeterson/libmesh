@@ -63,7 +63,7 @@ PointLocatorNanoflann::clear ()
   this->_initialized = false;
   this->_out_of_mesh_mode = false;
   _ids.clear();
-  _centroids.clear();
+  _point_cloud.clear();
   _kd_tree.reset();
 }
 
@@ -89,10 +89,10 @@ PointLocatorNanoflann::init ()
                      << "our data structures. Instead, we should use the master's data structures."
                      << std::endl;
 
-      // Fill in the _centroids data structure with active, local
-      // element centroids.
+      // Fill in the _point_cloud data structure with either active,
+      // local element centroids and local mesh nodes.
       _ids.clear();
-      _centroids.clear();
+      _point_cloud.clear();
 
       // We can either reserve exactly the right amount of space or
       // let push_back() take care of it, not sure what would be
@@ -105,12 +105,12 @@ PointLocatorNanoflann::init ()
       // currently are quite expensive for the Nanoflann PointLocator.
       auto n_active_local_elem = _mesh.n_active_local_elem();
       _ids.reserve(n_active_local_elem);
-      _centroids.reserve(n_active_local_elem);
+      _point_cloud.reserve(n_active_local_elem);
 
       for (const auto & elem : _mesh.active_local_element_ptr_range())
         {
           _ids.push_back(elem->id());
-          _centroids.push_back(elem->centroid());
+          _point_cloud.push_back(elem->centroid());
 
           // While we are iterating, also keep track of hmax.
           _hmax = std::max(elem->hmax(), _hmax);
@@ -230,7 +230,7 @@ PointLocatorNanoflann::operator() (const Point & p,
 //      // this while loop.
 //      for (std::size_t r = last_num_results; r < result_set.size(); ++r)
 //        {
-//          // Translate the Nanoflann index, which is from [0..n_centroids),
+//          // Translate the Nanoflann index, which is from [0..n_points),
 //          // into the corresponding Elem id from the mesh.
 //          auto nanoflann_index = _ret_index[r];
 //          auto elem_id = _ids[nanoflann_index];
@@ -300,7 +300,7 @@ PointLocatorNanoflann::operator() (const Point & p,
 //
 //  for (const auto & pr : _ret_matches)
 //    {
-//      // Translate the Nanoflann index, which is from [0..n_centroids),
+//      // Translate the Nanoflann index, which is from [0..n_points),
 //      // into the corresponding Elem id from the mesh.
 //      auto nanoflann_index = pr.first;
 //      auto elem_id = _ids[nanoflann_index];
@@ -372,7 +372,7 @@ PointLocatorNanoflann::operator() (const Point & p,
 
       for (std::size_t r = last_num_results; r < result_set.size(); ++r)
         {
-          // Translate the Nanoflann index, which is from [0..n_centroids),
+          // Translate the Nanoflann index, which is from [0..n_points),
           // into the corresponding Elem id from the mesh.
           auto nanoflann_index = _ret_index[r];
           auto elem_id = _ids[nanoflann_index];
@@ -481,7 +481,7 @@ PointLocatorNanoflann::operator() (const Point & p,
 
       for (const auto & pr : _ret_matches)
         {
-          // Translate the Nanoflann index, which is from [0..n_centroids),
+          // Translate the Nanoflann index, which is from [0..n_points),
           // into the corresponding Elem id from the mesh.
           auto nanoflann_index = pr.first;
           auto elem_id = _ids[nanoflann_index];
@@ -571,7 +571,7 @@ PointLocatorNanoflann::operator() (const Point & p,
       // search those same centroids again.
       for (std::size_t r = last_num_results; r < result_set.size(); ++r)
         {
-          // Translate the Nanoflann index, which is from [0..n_centroids),
+          // Translate the Nanoflann index, which is from [0..n_points),
           // into the corresponding Elem id from the mesh.
           auto nanoflann_index = _ret_index[r];
           auto elem_id = _ids[nanoflann_index];
@@ -674,7 +674,7 @@ PointLocatorNanoflann::set_max_num_results(std::size_t val)
 
 std::size_t PointLocatorNanoflann::kdtree_get_point_count() const
 {
-  return _centroids.size();
+  return _point_cloud.size();
 }
 
 
@@ -695,7 +695,7 @@ PointLocatorNanoflann::kdtree_distance(const coord_t * p1,
     point1(i) = p1[i];
 
   // Compute Euclidean distance, squared
-  return (point1 - _centroids[idx_p2]).norm_sq();
+  return (point1 - _point_cloud[idx_p2]).norm_sq();
 }
 
 
@@ -703,10 +703,10 @@ PointLocatorNanoflann::kdtree_distance(const coord_t * p1,
 PointLocatorNanoflann::coord_t
 PointLocatorNanoflann::kdtree_get_pt(const std::size_t idx, int dim) const
 {
-  libmesh_assert_less (idx, _centroids.size());
+  libmesh_assert_less (idx, _point_cloud.size());
   libmesh_assert_less (dim, LIBMESH_DIM);
 
-  return _centroids[idx](dim);
+  return _point_cloud[idx](dim);
 }
 
 } // namespace libMesh
