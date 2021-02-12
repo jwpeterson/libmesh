@@ -212,6 +212,7 @@ protected:
    */
   std::vector<dof_id_type> _ids;
   std::vector<Point> _point_cloud;
+  std::unordered_map<dof_id_type, std::vector<const Elem *>> _nodes_to_elem_map;
 
   /**
    * Defaults to 30. This is the number of results initially returned by Nanoflann
