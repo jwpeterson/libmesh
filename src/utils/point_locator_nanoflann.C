@@ -115,45 +115,6 @@ PointLocatorNanoflann::init ()
 
           // First, create a BoundingBox for the local elements
           _local_bbox = std::make_shared<BoundingBox>(MeshTools::create_local_bounding_box(_mesh));
-
-          // Next, inflate by the relative _contains_point_tol (if
-          // used) This will be used to rule out cases where we can
-          // completely skip doing the Nanoflann search. This approach
-          // is based on the TreeNode::bounds_point() check which was
-          // used by the original PointLocator.
-          //
-          // Note: using the same relative tolerance as is used for
-          // close_to_point() checks for the much larger processor
-          // bounding box makes the bounding box check for ruling out
-          // processors pretty conservative, but this is OK since
-          // the penalty for searching a non-containing processor
-          // using Nanoflann is not large provided that _num_results
-          // remains small.
-          //
-          // It would be nice if we could do this BoundingBox
-          // inflation during the call to init(), but that does not
-          // work since the user has not yet set the
-          // contains_point_tol at the time when the PointLocator is
-          // constructed.
-          // if (_use_contains_point_tol)
-          //   {
-          //     Point & min = _local_bbox->min();
-          //     Point & max = _local_bbox->max();
-          //
-          //     // Compute absolute tolerance based on the bbox diagonal
-          //     const Real abstol = (max - min).norm() * _contains_point_tol;
-          //
-          //     // Inflate
-          //     for (int i=0; i<LIBMESH_DIM; ++i)
-          //       {
-          //         min(i) -= abstol;
-          //         max(i) += abstol;
-          //       }
-          //   }
-          // else
-          //   {
-          //     libMesh::err << "_use_contains_point_tol is not set during call to init()" << std::endl;
-          //   }
         }
       else // we are not master
         {
