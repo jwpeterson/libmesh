@@ -186,7 +186,8 @@ PointLocatorNanoflann::operator() (const Point & p,
 
   // We are not going to do any searching on this processor if the
   // Point doesn't fall in our processor bounding box!
-  bool point_in_local_bbox = _local_bbox->contains_point(p);
+  // bool point_in_local_bbox = _local_bbox->contains_point(p);
+  bool point_in_local_bbox = true;
 
   // If a containing Elem is found locally, we will set this pointer.
   const Elem * found_elem = nullptr;
