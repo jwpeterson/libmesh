@@ -64,16 +64,24 @@ PointLocatorNanoflann::clear ()
 
   bool we_are_master = (_master == nullptr);
 
-  if (_ids)
+  // TODO: we should check that we have either _all_ pointers set or none of them set.
+  bool pointers_set = _ids && _point_cloud;
+
+  if (pointers_set)
     {
-      // Clear the vector if we are master, otherwise just reduce the ref count
+      // Actually free the memory if we are master, otherwise just reduce the ref count
       if (we_are_master)
-        _ids->clear();
+        {
+          _ids->clear();
+          _point_cloud->clear();
+        }
       else
-        _ids.reset();
+        {
+          _ids.reset();
+          _point_cloud.reset();
+        }
     }
 
-  _point_cloud.clear();
   _kd_tree.reset();
 }
 
@@ -91,21 +99,12 @@ PointLocatorNanoflann::init ()
       // responsible for initializing.
       bool we_are_master = (_master == nullptr);
 
-      // If we are not the master, then we should directly use the
-      // master's data structures, not initialize again. Currently, we
-      // don't do this.
-      if (!we_are_master)
-        libMesh::out << "FIXME: We are not the master, thus we should not initialize "
-                     << "our data structures. Instead, we should use the master's data structures."
-                     << std::endl;
-
       // If we are the master PointLocator, fill in the _point_cloud
       // data structure with active, local element centroids.
       if (we_are_master)
         {
           _ids = std::make_shared<std::vector<dof_id_type>>();
-
-          _point_cloud.clear();
+          _point_cloud = std::make_shared<std::vector<Point>>();
 
           // Make the KD-Tree out of mesh element centroids.
 
@@ -115,12 +114,12 @@ PointLocatorNanoflann::init ()
           // of active+local elements.
           auto n_active_local_elem = _mesh.n_active_local_elem();
           _ids->reserve(n_active_local_elem);
-          _point_cloud.reserve(n_active_local_elem);
+          _point_cloud->reserve(n_active_local_elem);
 
           for (const auto & elem : _mesh.active_local_element_ptr_range())
             {
               _ids->push_back(elem->id());
-              _point_cloud.push_back(elem->centroid());
+              _point_cloud->push_back(elem->centroid());
             }
 
           // Construct the KD-Tree
@@ -141,6 +140,7 @@ PointLocatorNanoflann::init ()
 
           // Point our data structures at the master's
           _ids = my_master->_ids;
+          _point_cloud = my_master->_point_cloud;
         }
 
       // We are initialized now
@@ -379,7 +379,7 @@ PointLocatorNanoflann::set_num_results(std::size_t val)
 
 std::size_t PointLocatorNanoflann::kdtree_get_point_count() const
 {
-  return _point_cloud.size();
+  return _point_cloud->size();
 }
 
 
@@ -400,7 +400,7 @@ PointLocatorNanoflann::kdtree_distance(const coord_t * p1,
     point1(i) = p1[i];
 
   // Compute Euclidean distance, squared
-  return (point1 - _point_cloud[idx_p2]).norm_sq();
+  return (point1 - (*_point_cloud)[idx_p2]).norm_sq();
 }
 
 
@@ -408,10 +408,10 @@ PointLocatorNanoflann::kdtree_distance(const coord_t * p1,
 PointLocatorNanoflann::coord_t
 PointLocatorNanoflann::kdtree_get_pt(const std::size_t idx, int dim) const
 {
-  libmesh_assert_less (idx, _point_cloud.size());
+  libmesh_assert_less (idx, _point_cloud->size());
   libmesh_assert_less (dim, LIBMESH_DIM);
 
-  return _point_cloud[idx](dim);
+  return (*_point_cloud)[idx](dim);
 }
 
 } // namespace libMesh

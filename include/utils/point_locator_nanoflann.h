@@ -201,7 +201,7 @@ protected:
    * PointLocator, they need to point at the master's vectors instead.
    */
   std::shared_ptr<std::vector<dof_id_type>> _ids;
-  std::vector<Point> _point_cloud;
+  std::shared_ptr<std::vector<Point>> _point_cloud;
 
   /**
    * The number of results returned by Nanoflann when operator() is
