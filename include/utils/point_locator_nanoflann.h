@@ -241,13 +241,6 @@ protected:
    */
   mutable std::vector<std::size_t> _ret_index;
   mutable std::vector<Real> _out_dist_sqr;
-
-  /**
-   * Data structure filled in by the kd_tree_radius_search() function.
-   * For best performance, one should reserve memory in this vector
-   * before doing the search.
-   */
-  mutable std::vector<std::pair<std::size_t, Real>> _ret_matches;
 };
 
 } // namespace libMesh
