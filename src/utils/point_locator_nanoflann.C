@@ -129,25 +129,31 @@ PointLocatorNanoflann::init ()
           // the penalty for searching a non-containing processor
           // using Nanoflann is not large provided that _num_results
           // remains small.
-          if (_use_contains_point_tol)
-            {
-              Point & min = _local_bbox->min();
-              Point & max = _local_bbox->max();
-
-              // Compute absolute tolerance based on the bbox diagonal
-              const Real abstol = (max - min).norm() * _contains_point_tol;
-
-              // Inflate
-              for (int i=0; i<LIBMESH_DIM; ++i)
-                {
-                  min(i) -= abstol;
-                  max(i) += abstol;
-                }
-            }
-          else
-            {
-              libMesh::err << "_use_contains_point_tol is not set during call to init()" << std::endl;
-            }
+          //
+          // It would be nice if we could do this BoundingBox
+          // inflation during the call to init(), but that does not
+          // work since the user has not yet set the
+          // contains_point_tol at the time when the PointLocator is
+          // constructed.
+          // if (_use_contains_point_tol)
+          //   {
+          //     Point & min = _local_bbox->min();
+          //     Point & max = _local_bbox->max();
+          //
+          //     // Compute absolute tolerance based on the bbox diagonal
+          //     const Real abstol = (max - min).norm() * _contains_point_tol;
+          //
+          //     // Inflate
+          //     for (int i=0; i<LIBMESH_DIM; ++i)
+          //       {
+          //         min(i) -= abstol;
+          //         max(i) += abstol;
+          //       }
+          //   }
+          // else
+          //   {
+          //     libMesh::err << "_use_contains_point_tol is not set during call to init()" << std::endl;
+          //   }
         }
       else // we are not master
         {
@@ -219,7 +225,33 @@ PointLocatorNanoflann::operator() (const Point & p,
 
   // We are not going to do any searching on this processor if the
   // Point doesn't fall in our (inflated) processor bounding box!
-  bool point_in_local_bbox = _local_bbox->contains_point(p);
+  // bool point_in_local_bbox = _local_bbox->contains_point(p);
+
+  // If we are using a custom contains_point() tolerance, then we do a
+  // BoundingBox intersection check with a tiny BoundingBox centered
+  // on the search Point, otherwise we just do a simple
+  // contains_point() check.
+  bool point_in_local_bbox = true;
+  if (!_use_contains_point_tol)
+    point_in_local_bbox = _local_bbox->contains_point(p);
+  else
+    {
+      Point min_copy = _local_bbox->min();
+      Point max_copy = _local_bbox->max();
+
+      // Compute absolute tolerance based on the bbox diagonal
+      const Real abstol = (max_copy - min_copy).norm() * _contains_point_tol;
+
+      // Inflate
+      for (int i=0; i<LIBMESH_DIM; ++i)
+        {
+          min_copy(i) -= abstol;
+          max_copy(i) += abstol;
+        }
+
+      BoundingBox p_bbox(min_copy, max_copy);
+      point_in_local_bbox = _local_bbox->intersects(p_bbox);
+    }
 
   // If a containing Elem is found locally, we will set this pointer.
   const Elem * found_elem = nullptr;
