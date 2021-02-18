@@ -191,6 +191,12 @@ protected:
   bool _out_of_mesh_mode;
 
   /**
+   * The number of results returned by Nanoflann when operator() is
+   * called.
+   */
+  std::size_t _num_results;
+
+  /**
    * Lists of Points and ids which make up the "point cloud" that is
    * to be searched via Nanoflann. The point cloud can be comprised of
    * Elem centroids or mesh Nodes, depending on the type of tree
@@ -204,16 +210,10 @@ protected:
   std::shared_ptr<std::vector<Point>> _point_cloud;
 
   /**
-   * The number of results returned by Nanoflann when operator() is
-   * called.
-   */
-  std::size_t _num_results;
-
-  /**
    * We can use a local BoundingBox check to quickly rule out
    * exhaustive KD-Tree searches.
    */
-  BoundingBox _local_bbox;
+  std::shared_ptr<BoundingBox> _local_bbox;
 
   // kd_tree will be initialized during init() and then automatically
   // cleaned up by the destructor. We always create a LIBMESH_DIM

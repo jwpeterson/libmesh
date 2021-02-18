@@ -64,8 +64,10 @@ PointLocatorNanoflann::clear ()
 
   bool we_are_master = (_master == nullptr);
 
-  // TODO: we should check that we have either _all_ pointers set or none of them set.
-  bool pointers_set = _ids && _point_cloud;
+  // TODO: we should check that we have either _all_ the data pointers
+  // set or _none_ of them set. We don't currently support having some
+  // set and some not set.
+  bool pointers_set = _ids && _point_cloud && _local_bbox;
 
   if (pointers_set)
     {
@@ -74,11 +76,13 @@ PointLocatorNanoflann::clear ()
         {
           _ids->clear();
           _point_cloud->clear();
+          _local_bbox->invalidate();
         }
       else
         {
           _ids.reset();
           _point_cloud.reset();
+          _local_bbox.reset();
         }
     }
 
@@ -129,7 +133,7 @@ PointLocatorNanoflann::init ()
           _kd_tree->buildIndex();
 
           // A BoundingBox for the local elements
-          _local_bbox = MeshTools::create_local_bounding_box (_mesh);
+          _local_bbox = std::make_shared<BoundingBox>(MeshTools::create_local_bounding_box(_mesh));
         }
       else // we are not master
         {
@@ -141,6 +145,7 @@ PointLocatorNanoflann::init ()
           // Point our data structures at the master's
           _ids = my_master->_ids;
           _point_cloud = my_master->_point_cloud;
+          _local_bbox = my_master->_local_bbox;
         }
 
       // We are initialized now
@@ -199,7 +204,7 @@ PointLocatorNanoflann::operator() (const Point & p,
 
   // We are not going to do any searching on this processor if the
   // Point doesn't fall in our processor bounding box!
-  bool point_in_local_bbox = _local_bbox.contains_point(p);
+  bool point_in_local_bbox = _local_bbox->contains_point(p);
 
   // If a containing Elem is found locally, we will set this pointer.
   const Elem * found_elem = nullptr;
