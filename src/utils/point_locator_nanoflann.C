@@ -61,7 +61,18 @@ PointLocatorNanoflann::clear ()
 {
   this->_initialized = false;
   this->_out_of_mesh_mode = false;
-  _ids.clear();
+
+  bool we_are_master = (_master == nullptr);
+
+  if (_ids)
+    {
+      // Clear the vector if we are master, otherwise just reduce the ref count
+      if (we_are_master)
+        _ids->clear();
+      else
+        _ids.reset();
+    }
+
   _point_cloud.clear();
   _kd_tree.reset();
 }
@@ -88,35 +99,49 @@ PointLocatorNanoflann::init ()
                      << "our data structures. Instead, we should use the master's data structures."
                      << std::endl;
 
-      // Fill in the _point_cloud data structure with either active,
-      // local element centroids and local mesh nodes.
-      _ids.clear();
-      _point_cloud.clear();
-
-      // Make the KD-Tree out of mesh element centroids.
-
-      // We can either reserve exactly the right amount of space or
-      // let push_back() take care of it, not sure what would be
-      // faster actually, since it takes some time to count the number
-      // of active+local elements.
-      auto n_active_local_elem = _mesh.n_active_local_elem();
-      _ids.reserve(n_active_local_elem);
-      _point_cloud.reserve(n_active_local_elem);
-
-      for (const auto & elem : _mesh.active_local_element_ptr_range())
+      // If we are the master PointLocator, fill in the _point_cloud
+      // data structure with active, local element centroids.
+      if (we_are_master)
         {
-          _ids.push_back(elem->id());
-          _point_cloud.push_back(elem->centroid());
+          _ids = std::make_shared<std::vector<dof_id_type>>();
+
+          _point_cloud.clear();
+
+          // Make the KD-Tree out of mesh element centroids.
+
+          // We can either reserve exactly the right amount of space or
+          // let push_back() take care of it, not sure what would be
+          // faster actually, since it takes some time to count the number
+          // of active+local elements.
+          auto n_active_local_elem = _mesh.n_active_local_elem();
+          _ids->reserve(n_active_local_elem);
+          _point_cloud.reserve(n_active_local_elem);
+
+          for (const auto & elem : _mesh.active_local_element_ptr_range())
+            {
+              _ids->push_back(elem->id());
+              _point_cloud.push_back(elem->centroid());
+            }
+
+          // Construct the KD-Tree
+          _kd_tree = libmesh_make_unique<kd_tree_t>
+            (LIBMESH_DIM, *this, nanoflann::KDTreeSingleIndexAdaptorParams(/*max leaf=*/10));
+
+          _kd_tree->buildIndex();
+
+          // A BoundingBox for the local elements
+          _local_bbox = MeshTools::create_local_bounding_box (_mesh);
         }
+      else // we are not master
+        {
+          // Cast the _master to the appropriate type, and point to
+          // its data arrays.
+          const auto my_master =
+            cast_ptr<const PointLocatorNanoflann *>(this->_master);
 
-      // Construct the KD-Tree
-      _kd_tree = libmesh_make_unique<kd_tree_t>
-        (LIBMESH_DIM, *this, nanoflann::KDTreeSingleIndexAdaptorParams(/*max leaf=*/10));
-
-      _kd_tree->buildIndex();
-
-      // A BoundingBox for the local elements
-      _local_bbox = MeshTools::create_local_bounding_box (_mesh);
+          // Point our data structures at the master's
+          _ids = my_master->_ids;
+        }
 
       // We are initialized now
       this->_initialized = true;
@@ -195,7 +220,7 @@ PointLocatorNanoflann::operator() (const Point & p,
           // Translate the Nanoflann index, which is from [0..n_points),
           // into the corresponding Elem id from the mesh.
           auto nanoflann_index = _ret_index[r];
-          auto elem_id = _ids[nanoflann_index];
+          auto elem_id = (*_ids)[nanoflann_index];
 
           // Debugging: print the results
           // libMesh::out << "Centroid/Elem id = " << elem_id
@@ -279,7 +304,7 @@ PointLocatorNanoflann::operator() (const Point & p,
       // Translate the Nanoflann index, which is from [0..n_points),
       // into the corresponding Elem id from the mesh.
       auto nanoflann_index = _ret_index[r];
-      auto elem_id = _ids[nanoflann_index];
+      auto elem_id = (*_ids)[nanoflann_index];
 
       const Elem * candidate_elem = _mesh.elem_ptr(elem_id);
 

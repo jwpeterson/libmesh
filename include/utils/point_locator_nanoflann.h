@@ -196,8 +196,11 @@ protected:
    * Elem centroids or mesh Nodes, depending on the type of tree
    * created. We keep two separate vectors since the Points in the
    * cloud may not be numbered contiguously in general.
+   *
+   * These are shared_ptrs to vectors since, if we are not the "master"
+   * PointLocator, they need to point at the master's vectors instead.
    */
-  std::vector<dof_id_type> _ids;
+  std::shared_ptr<std::vector<dof_id_type>> _ids;
   std::vector<Point> _point_cloud;
 
   /**
