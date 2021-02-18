@@ -144,6 +144,10 @@ PointLocatorNanoflann::init ()
                   max(i) += abstol;
                 }
             }
+          else
+            {
+              libMesh::err << "_use_contains_point_tol is not set during call to init()" << std::endl;
+            }
         }
       else // we are not master
         {
@@ -239,7 +243,7 @@ PointLocatorNanoflann::operator() (const Point & p,
           auto elem_id = (*_ids)[nanoflann_index];
 
           // Debugging: print the results
-          // libMesh::out << "Centroid/Elem id = " << elem_id
+          // libMesh::err << "Centroid/Elem id = " << elem_id
           //              << ", dist^2 = " << _out_dist_sqr[r]
           //              << std::endl;
 
@@ -253,7 +257,7 @@ PointLocatorNanoflann::operator() (const Point & p,
           if (allowed_subdomains && !allowed_subdomains->count(candidate_elem->subdomain_id()))
             {
               // Debugging
-              // libMesh::out << "Elem " << elem_id << " was not from an allowed subdomain, continuing search." << std::endl;
+              // libMesh::err << "Elem " << elem_id << " was not from an allowed subdomain, continuing search." << std::endl;
               continue;
             }
 
@@ -274,7 +278,7 @@ PointLocatorNanoflann::operator() (const Point & p,
           if (inside)
             {
               // Debugging: report the number of Elems checked
-              libMesh::out << "Checked " << n_elems_checked << " nearby Elems before finding a containing Elem." << std::endl;
+              libMesh::err << "Checked " << n_elems_checked << " nearby Elems before finding a containing Elem." << std::endl;
 
               found_elem = candidate_elem;
               break;
@@ -364,7 +368,7 @@ PointLocatorNanoflann::operator() (const Point & p,
 
   // Debugging: for performance reasons, it may be useful to print the
   // number of Elems actually checked during the search.
-  // libMesh::out << "Checked " << n_elems_checked << " nearby Elems before finding a containing Elem." << std::endl;
+  // libMesh::err << "Checked " << n_elems_checked << " nearby Elems before finding a containing Elem." << std::endl;
 }
 
 
