@@ -62,30 +62,11 @@ PointLocatorNanoflann::clear ()
   this->_initialized = false;
   this->_out_of_mesh_mode = false;
 
-  bool we_are_master = (_master == nullptr);
-
-  // TODO: we should check that we have either _all_ the data pointers
-  // set or _none_ of them set. We don't currently support having some
-  // set and some not set.
-  bool pointers_set = _ids && _point_cloud && _local_bbox;
-
-  if (pointers_set)
-    {
-      // Actually free the memory if we are master, otherwise just reduce the ref count
-      if (we_are_master)
-        {
-          _ids->clear();
-          _point_cloud->clear();
-          _local_bbox->invalidate();
-        }
-      else
-        {
-          _ids.reset();
-          _point_cloud.reset();
-          _local_bbox.reset();
-        }
-    }
-
+  // reset() actually frees the memory if we are master, otherwise it
+  // just reduces the ref. count.
+  _ids.reset();
+  _point_cloud.reset();
+  _local_bbox.reset();
   _kd_tree.reset();
 }
 
@@ -127,7 +108,7 @@ PointLocatorNanoflann::init ()
             }
 
           // Construct the KD-Tree
-          _kd_tree = libmesh_make_unique<kd_tree_t>
+          _kd_tree = std::make_shared<kd_tree_t>
             (LIBMESH_DIM, *this, nanoflann::KDTreeSingleIndexAdaptorParams(/*max leaf=*/10));
 
           _kd_tree->buildIndex();
@@ -146,6 +127,7 @@ PointLocatorNanoflann::init ()
           _ids = my_master->_ids;
           _point_cloud = my_master->_point_cloud;
           _local_bbox = my_master->_local_bbox;
+          _kd_tree = my_master->_kd_tree;
         }
 
       // We are initialized now

@@ -220,7 +220,15 @@ protected:
   // dimensional Nanoflann object.
   typedef nanoflann::L2_Simple_Adaptor<Real, PointLocatorNanoflann> adapter_t;
   typedef nanoflann::KDTreeSingleIndexAdaptor<adapter_t, PointLocatorNanoflann, LIBMESH_DIM> kd_tree_t;
-  std::unique_ptr<kd_tree_t> _kd_tree;
+  std::shared_ptr<kd_tree_t> _kd_tree;
+
+  /**
+   * The operator() functions on PointLocator-derived classes are
+   * const, so to avoid re-allocating these result data structures every
+   * time operator() is called, they have to be mutable.
+   */
+  mutable std::vector<std::size_t> _ret_index;
+  mutable std::vector<Real> _out_dist_sqr;
 
   /**
    * Helper function that wraps the call to the KDTree's
@@ -233,14 +241,6 @@ protected:
   nanoflann::KNNResultSet<Real>
   kd_tree_find_neighbors(const Point & p,
                          std::size_t num_results) const;
-
-  /**
-   * The operator() functions on PointLocator-derived classes are
-   * const, so to avoid re-allocating these result data structures every
-   * time operator() is called, they have to be mutable.
-   */
-  mutable std::vector<std::size_t> _ret_index;
-  mutable std::vector<Real> _out_dist_sqr;
 };
 
 } // namespace libMesh
