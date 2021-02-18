@@ -241,6 +241,14 @@ protected:
   nanoflann::KNNResultSet<Real>
   kd_tree_find_neighbors(const Point & p,
                          std::size_t num_results) const;
+
+  /**
+   * Before performing a KD-Tree search, check if it is even possible
+   * for the Point to be found on this processor.  Note: if a custom
+   * contains_point() tolerance is used, this does an "inflated" bbox
+   * intersection check, otherwise it just does a contains_point() check.
+   */
+  bool search_local_bbox(const Point & p) const;
 };
 
 } // namespace libMesh
