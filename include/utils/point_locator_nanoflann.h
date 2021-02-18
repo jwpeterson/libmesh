@@ -118,12 +118,12 @@ public:
   virtual void disable_out_of_mesh_mode () override;
 
   /**
-   * Set/get the "initial" number of results returned from each
-   * Nanoflann search.  If a containing Elem (to within
+   * Set/get the number of results returned by each Nanoflann
+   * findNeighbors() search.  If a containing Elem (to within
    * _contains_point_tol) is not found after linear searching the
-   * first _initial_num_results Elems returned by Nanoflann, then we
-   * begin increasing this number until either a containing Elem is
-   * found, or _max_num_results are searched.
+   * first _num_results Elems returned by Nanoflann, then we
+   * give up and return nullptr (or throw an error if not in
+   * out-of-mesh-mode).
    *
    * Remarks:
    * 1.) Although we do a linear search through the Nanoflann results,
@@ -135,27 +135,14 @@ public:
    *
    * 2.) I'm not sure about the relative cost of requesting more
    * results from the Nanoflann search than one actually needs, but
-   * presumably reducing _initial_num_results will result in better
+   * presumably reducing _num_results will result in better
    * performance for your particular application up to a point. If, on
-   * the other hand, _initial_num_results is too small, you will waste
-   * time repeating Nanoflann searches with the same Point (again,
-   * there might be some caching within Nanoflann itself that makes
-   * repeated searches faster, I'm not sure).
+   * the other hand, _num_results is too small, then you risk
+   * having a false negative result, so take this into account when
+   * choosing the parameter for a particular application.
    */
-  std::size_t get_initial_num_results() const;
-  void set_initial_num_results(std::size_t val);
-
-  /**
-   * Get/set the max number of results returned by the Nanoflann
-   * search before giving up. Currently, the number of results
-   * requested is doubled after each failed search until
-   * _max_num_results is exceeded. Therefore, it should be both
-   * reasonably robust and efficient to use a large value for
-   * _max_num_results, with a hard maximum of the number of elements
-   * in the Mesh.
-   */
-  std::size_t get_max_num_results() const;
-  void set_max_num_results(std::size_t val);
+  std::size_t get_num_results() const;
+  void set_num_results(std::size_t val);
 
   //
   // Required Nanoflann typedefs and APIs
@@ -212,34 +199,18 @@ protected:
    */
   std::vector<dof_id_type> _ids;
   std::vector<Point> _point_cloud;
-  std::unordered_map<dof_id_type, std::vector<const Elem *>> _nodes_to_elem_map;
 
   /**
-   * Defaults to 30. This is the number of results initially returned by Nanoflann
-   * when operator() is called. If a containing Elem is not found with the first
-   * _initial_num_results, the KD-Tree search is repeated with twice as many
-   * results requested, until _max_num_results is reached.
+   * The number of results returned by Nanoflann when operator() is
+   * called.
    */
-  std::size_t _initial_num_results;
-
-  /**
-   * Defaults to 1000. We will continue to request more and more
-   * results from KD-Tree searches until we either reach this number,
-   * or find a containg Elem.
-   */
-  std::size_t _max_num_results;
+  std::size_t _num_results;
 
   /**
    * We can use a local BoundingBox check to quickly rule out
    * exhaustive KD-Tree searches.
    */
   BoundingBox _local_bbox;
-
-  /**
-   * Store the max element size on (the local part of) the Mesh. This
-   * will be used in a Nanoflann radiusSearch() call.
-   */
-  Real _hmax;
 
   // kd_tree will be initialized during init() and then automatically
   // cleaned up by the destructor. We always create a LIBMESH_DIM
@@ -259,17 +230,6 @@ protected:
   nanoflann::KNNResultSet<Real>
   kd_tree_find_neighbors(const Point & p,
                          std::size_t num_results) const;
-
-  /**
-   * Helper function that wraps the call to the KDTree's
-   * findNeighbors() routine.  Must be passed the Point to search for
-   * and the number of results to return. Stores the results of the
-   * search in the _ret_index and _out_dist_sqr class members and
-   * returns a KNNResultSet, which has pointers to the index and
-   * distance data.
-   */
-  void
-  kd_tree_radius_search(const Point & p, Real search_radius) const;
 
   /**
    * The operator() functions on PointLocator-derived classes are
