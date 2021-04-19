@@ -277,9 +277,28 @@ PointLocatorNanoflann::operator() (const Point & p,
           // about the indrect-sorted list here.
           if (n_elems_checked > 430)
             {
-              libMesh::out << "List of closest centroids for Point p = " << p << std::endl;
-              for (auto c : make_range(result_set.size()))
-                libMesh::out << (*_point_cloud)[_ret_index[c]] << std::endl;
+              // libMesh::out << "List of closest centroids for Point p = " << p << std::endl;
+              // for (auto c : make_range(result_set.size()))
+              //   libMesh::out << (*_point_cloud)[_ret_index[c]] << std::endl;
+
+              // Consistency check: Is the _point_cloud still
+              // consistent with the current Mesh?
+              libMesh::out << "Performing internal consistency check of PointLocator data..." << std::endl;
+              unsigned int ctr = 0;
+              for (const auto & elem : _mesh.active_element_ptr_range())
+                {
+                  // Does the Mesh's elem id still match ours?
+                  // (It may not actually matter if the Mesh has been renumbered...)
+                  libmesh_error_msg_if((*_elems)[ctr]->id() != elem->id(),
+                                       "Elem numbering has changed in Nanoflann PointLocator");
+
+
+                  libmesh_error_msg_if(elem->centroid() != (*_point_cloud)[ctr],
+                                       "Current Elem position does not match stored mesh positions in Nanoflann PointLocator");
+
+                  // Go to next entry in our arrays
+                  ctr++;
+                }
             }
 
           found_elem = candidate_elem;
