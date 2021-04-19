@@ -269,7 +269,18 @@ PointLocatorNanoflann::operator() (const Point & p,
       if (inside)
         {
           // Debugging: report the number of Elems checked
-          libMesh::err << "Checked " << n_elems_checked << " nearby Elems before finding a containing Elem." << std::endl;
+          // libMesh::err << "Checked " << n_elems_checked << " nearby Elems before finding a containing Elem." << std::endl;
+
+          // If we ended up searching nearly all of _num_results, then
+          // print the list of Elem centroids and the searched for
+          // Point in a format that can be used for debugging. Don't worry
+          // about the indrect-sorted list here.
+          if (n_elems_checked > 430)
+            {
+              libMesh::out << "List of closest centroids for Point p = " << p << std::endl;
+              for (auto c : make_range(result_set.size()))
+                libMesh::out << (*_point_cloud)[_ret_index[c]] << std::endl;
+            }
 
           found_elem = candidate_elem;
           break;
