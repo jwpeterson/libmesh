@@ -294,7 +294,7 @@ PointLocatorNanoflann::operator() (const Point & p,
           const Elem * candidate_elem = (*_elems)[nanoflann_index];
 
           libMesh::err << "Centroid/Elem id = " << candidate_elem->id()
-                       << ", dist = " << std::sqrt(_out_dist_sqr[nanoflann_index])
+                       << ", dist = " << std::sqrt(_out_dist_sqr[_b[r]])
                        << std::endl;
         } // end for(r)
 
