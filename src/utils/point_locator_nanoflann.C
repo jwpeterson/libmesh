@@ -271,36 +271,6 @@ PointLocatorNanoflann::operator() (const Point & p,
           // Debugging: report the number of Elems checked
           // libMesh::err << "Checked " << n_elems_checked << " nearby Elems before finding a containing Elem." << std::endl;
 
-          // If we ended up searching nearly all of _num_results, then
-          // print the list of Elem centroids and the searched for
-          // Point in a format that can be used for debugging. Don't worry
-          // about the indrect-sorted list here.
-          if (n_elems_checked > 430)
-            {
-              // libMesh::out << "List of closest centroids for Point p = " << p << std::endl;
-              // for (auto c : make_range(result_set.size()))
-              //   libMesh::out << (*_point_cloud)[_ret_index[c]] << std::endl;
-
-              // Consistency check: Is the _point_cloud still
-              // consistent with the current Mesh?
-              libMesh::out << "Performing internal consistency check of PointLocator data..." << std::endl;
-              unsigned int ctr = 0;
-              for (const auto & elem : _mesh.active_element_ptr_range())
-                {
-                  // Does the Mesh's elem id still match ours?
-                  // (It may not actually matter if the Mesh has been renumbered...)
-                  libmesh_error_msg_if((*_elems)[ctr]->id() != elem->id(),
-                                       "Elem numbering has changed in Nanoflann PointLocator");
-
-
-                  libmesh_error_msg_if(elem->centroid() != (*_point_cloud)[ctr],
-                                       "Current Elem position does not match stored mesh positions in Nanoflann PointLocator");
-
-                  // Go to next entry in our arrays
-                  ctr++;
-                }
-            }
-
           found_elem = candidate_elem;
           break;
         }
@@ -314,8 +284,24 @@ PointLocatorNanoflann::operator() (const Point & p,
   // otherwise return nullptr to indicate that no suitable element was
   // found.
   if (!_out_of_mesh_mode && !found_elem)
-    libmesh_error_msg("Point " << p << " was not contained within the closest " << n_elems_checked <<
-                      " elems (by centroid distance), and _out_of_mesh_mode was not enabled.");
+    {
+      // Debugging: we are about to throw an error, but before we do,
+      // print information about the closest elements (by centroid
+      // distance) that the Point was not found in.
+      for (auto r : make_range(result_set.size()))
+        {
+          auto nanoflann_index = _ret_index[_b[r]];
+          const Elem * candidate_elem = (*_elems)[nanoflann_index];
+
+          libMesh::err << "Centroid/Elem id = " << candidate_elem->id()
+                       << ", dist = " << std::sqrt(_out_dist_sqr[nanoflann_index])
+                       << std::endl;
+        } // end for(r)
+
+
+      libmesh_error_msg("Point " << p << " was not contained within the closest " << n_elems_checked <<
+                        " elems (by centroid distance), and _out_of_mesh_mode was not enabled.");
+    }
 
   return found_elem;
 }
