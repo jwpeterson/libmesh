@@ -102,8 +102,8 @@ public:
   /**
    * Accessor for associated system.
    */
-  const System & get_system() const
-  { return _system; }
+  const System & get_system() const { return _system; }
+  System & get_system() { return _system; }
 
   /**
    * Accessor for element solution.
