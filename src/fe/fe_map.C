@@ -2029,7 +2029,7 @@ Point FEMap::inverse_map (const unsigned int dim,
       const Point check = map (dim, elem, p);
       const Point diff  = physical_point - check;
 
-      if (diff.norm() > tolerance)
+      if (diff.norm() > elem->hmax() * tolerance)
         {
           libmesh_here();
           libMesh::err << "WARNING:  diff is " << diff.norm() << "\n"
