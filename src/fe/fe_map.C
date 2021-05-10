@@ -2032,13 +2032,11 @@ Point FEMap::inverse_map (const unsigned int dim,
       if (diff.norm() > tolerance)
         {
           libmesh_here();
-          libMesh::err << "WARNING:  diff is "
-                       << diff.norm()
-                       << std::endl
-                       << " point="
-                       << physical_point;
-          libMesh::err << " local=" << check;
-          libMesh::err << " lref= " << p;
+          libMesh::err << "WARNING:  diff is " << diff.norm() << "\n"
+                       << " physical point=" << physical_point << "\n"
+                       << " mapped point=" << check << "\n"
+                       << " reference space point= " << p
+                       << std::endl;
 
           elem->print_info(libMesh::err);
         }
