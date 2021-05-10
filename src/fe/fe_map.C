@@ -2025,11 +2025,13 @@ Point FEMap::inverse_map (const unsigned int dim,
     {
       // Make sure the point \p p on the reference element actually
       // does map to the point \p physical_point within a tolerance.
-
       const Point check = map (dim, elem, p);
       const Point diff  = physical_point - check;
 
-      if (diff.norm() > elem->hmax() * tolerance)
+      // Note: we ostensibly converged the Newton _step_ size to
+      // O(tolerance) in the loop above.  What should we then expect
+      // the error in the forward mapping to be?
+      if (diff.norm() > std::sqrt(tolerance))
         {
           libmesh_here();
           libMesh::err << "WARNING:  diff is " << diff.norm() << "\n"
