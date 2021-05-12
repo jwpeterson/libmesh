@@ -2046,7 +2046,7 @@ Point FEMap::inverse_map (const unsigned int dim,
       // Make sure the point \p p on the reference element actually
       // is
 
-      if (!FEAbstract::on_reference_element(p, elem->type(), 2*tolerance))
+      if (!FEAbstract::on_reference_element(p, elem->type(), std::sqrt(tolerance)))
         {
           libmesh_here();
           libMesh::err << "WARNING:  inverse_map of physical point "
