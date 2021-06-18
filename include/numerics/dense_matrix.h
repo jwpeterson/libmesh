@@ -896,8 +896,11 @@ void DenseMatrix<T>::resize(const unsigned int new_m,
   this->_m = new_m;
   this->_n = new_n;
 
-  // zero and set decomposition_type to NONE
-  this->zero();
+  // avoid calling virtual function
+  // this->zero();
+
+  _decomposition_type = NONE;
+  std::fill (_val.begin(), _val.end(), static_cast<T>(0));
 }
 
 
