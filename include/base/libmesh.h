@@ -124,6 +124,14 @@ public:
 
   Parallel::Communicator & comm() { return *_comm; }
 
+  /**
+   * This hopefully works around an issue where calling MPI_Abort on runs
+   * where the "--keep-cout --redirect-output log" command line options are
+   * used causes a segfault. If it works, we'll want to call this as part
+   * of the libmesh_error() macros.
+   */
+  void reset_streams();
+
 private:
   Parallel::Communicator * _comm;
 

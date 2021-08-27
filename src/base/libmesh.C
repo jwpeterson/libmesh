@@ -664,6 +664,26 @@ LibMeshInit::LibMeshInit (int argc, const char * const * argv,
 }
 
 
+void LibMeshInit::reset_streams()
+{
+  if (libMesh::on_command_line ("--redirect-stdout") ||
+      libMesh::on_command_line ("--redirect-output"))
+    {
+      // If stdout/stderr were redirected to files, reset them now.
+      libMesh::out.rdbuf (out_buf);
+      libMesh::err.rdbuf (err_buf);
+    }
+
+  // If we built our own output streams, we want to clean them up.
+  if (libMesh::on_command_line ("--separate-libmeshout"))
+    {
+      delete libMesh::out.get();
+      delete libMesh::err.get();
+
+      libMesh::out.reset(std::cout);
+      libMesh::err.reset(std::cerr);
+    }
+}
 
 LibMeshInit::~LibMeshInit()
 {
@@ -724,27 +744,11 @@ LibMeshInit::~LibMeshInit()
   //  that go out of scope after the following return)
   //std::cout.rdbuf(std::cerr.rdbuf());
 
-
   // Set the initialized() flag to false
   libMeshPrivateData::_is_initialized = false;
 
-  if (libMesh::on_command_line ("--redirect-stdout") ||
-      libMesh::on_command_line ("--redirect-output"))
-    {
-      // If stdout/stderr were redirected to files, reset them now.
-      libMesh::out.rdbuf (out_buf);
-      libMesh::err.rdbuf (err_buf);
-    }
-
-  // If we built our own output streams, we want to clean them up.
-  if (libMesh::on_command_line ("--separate-libmeshout"))
-    {
-      delete libMesh::out.get();
-      delete libMesh::err.get();
-
-      libMesh::out.reset(std::cout);
-      libMesh::err.reset(std::cerr);
-    }
+  // Reset the streams if they were previously redirected
+  reset_streams();
 
 #ifdef LIBMESH_ENABLE_EXCEPTIONS
   // Reset the old terminate handler; maybe the user code wants to
