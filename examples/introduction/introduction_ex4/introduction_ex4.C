@@ -310,6 +310,9 @@ int main (int argc, char ** argv)
     }
 #endif // #ifdef LIBMESH_HAVE_EXODUS_API
 
+  // Test calling MPI_Abort manually
+  MPI_Abort(init.comm().get(), /*return code=*/1);
+
   // All done.
   return 0;
 }
