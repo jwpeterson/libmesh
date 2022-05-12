@@ -723,7 +723,67 @@ void ExodusII_IO_Helper::read_and_store_header_info()
 }
 
 
+/**
+ * RAII class that automatically handles the dynamic memory allocation
+ * and cleanup when reading QA records.
+ */
+class QARecord
+{
+public:
 
+  typedef char * inner_array_t[4];
+
+  /**
+   * Constructor. Allocates memory that must be freed by the
+   * destructor.
+   */
+  QARecord(int num_records) :
+    _num_records(num_records),
+    _qa_record(new inner_array_t[_num_records])
+  {
+    // How to dynamically allocate an array of fixed-size char * arrays in C++.
+    // http://stackoverflow.com/questions/8529359/creating-a-dynamic-sized-array-of-fixed-sized-int-arrays-in-c
+    for (int i=0; i<_num_records; i++)
+      for (int j=0; j<4; j++)
+        _qa_record[i][j] = new char[MAX_STR_LENGTH+1];
+  }
+
+  /**
+   * Print contents
+   */
+  void print() const
+  {
+    for (int i=0; i<_num_records; i++)
+      {
+        libMesh::out << "QA Record: " << i << std::endl;
+        for (int j=0; j<4; j++)
+          libMesh::out << _qa_record[i][j] << std::endl;
+      }
+  }
+
+  /**
+   * Destructor
+   */
+  ~QARecord()
+  {
+    // Clean up dynamically-allocated memory
+    for (int i=0; i<_num_records; i++)
+      for (int j=0; j<4; j++)
+        delete [] _qa_record[i][j];
+
+    delete [] _qa_record;
+  }
+
+  // Accessor
+  inner_array_t * get_qa_record()
+  {
+    return _qa_record;
+  }
+
+private:
+  int _num_records;
+  inner_array_t * _qa_record;
+};
 
 void ExodusII_IO_Helper::read_qa_records()
 {
@@ -739,36 +799,14 @@ void ExodusII_IO_Helper::read_qa_records()
 
   if (num_qa_rec > 0)
     {
-      // How to dynamically allocate an array of fixed-size char * arrays in C++.
-      // http://stackoverflow.com/questions/8529359/creating-a-dynamic-sized-array-of-fixed-sized-int-arrays-in-c
-      typedef char * inner_array_t[4];
-      inner_array_t * qa_record = new inner_array_t[num_qa_rec];
+      QARecord qa(num_qa_rec);
 
-      for (int i=0; i<num_qa_rec; i++)
-        for (int j=0; j<4; j++)
-          qa_record[i][j] = new char[MAX_STR_LENGTH+1];
-
-      ex_err = exII::ex_get_qa (ex_id, qa_record);
+      ex_err = exII::ex_get_qa (ex_id, qa.get_qa_record());
       EX_CHECK_ERR(ex_err, "Error reading the QA records.");
 
       // Print the QA records
       if (verbose)
-        {
-          for (int i=0; i<num_qa_rec; i++)
-            {
-              libMesh::out << "QA Record: " << i << std::endl;
-              for (int j=0; j<4; j++)
-                libMesh::out << qa_record[i][j] << std::endl;
-            }
-        }
-
-
-      // Clean up dynamically-allocated memory
-      for (int i=0; i<num_qa_rec; i++)
-        for (int j=0; j<4; j++)
-          delete [] qa_record[i][j];
-
-      delete [] qa_record;
+        qa.print();
     }
 }
 
