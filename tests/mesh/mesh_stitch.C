@@ -46,6 +46,12 @@ public:
   {
     BoundaryInfo & boundary_info = mesh.get_boundary_info();
     const auto & mesh_boundary_ids = boundary_info.get_boundary_ids();
+
+    // Debugging
+    libMesh::out << "mesh_boundary_ids =" << std::endl;
+    for (const auto & id : mesh_boundary_ids)
+      std::cout << id << std::endl;
+
     for (auto rit = mesh_boundary_ids.rbegin(); rit != mesh_boundary_ids.rend(); ++rit)
     {
       boundary_info.sideset_name(*rit + boundary_id_offset) =
@@ -86,6 +92,8 @@ public:
     const auto & nbi = bi.get_node_boundary_ids();
     CPPUNIT_ASSERT_EQUAL(expected_size, nbi.size());
 
+    // We expect that the "zero_right" and "one_left" boundaries have
+    // disappeared after being stitched together.
     std::set<std::string> expected_names = {{"zero_left",
                                              "zero_top",
                                              "zero_front",
@@ -99,6 +107,12 @@ public:
     std::set<std::string> ss_names;
     for (const auto & pr : bi.get_sideset_name_map())
       ss_names.insert(pr.second);
+
+    // Debugging
+    libMesh::out << "ss_names =" << std::endl;
+    for (const auto & name : ss_names)
+      std::cout << name << std::endl;
+
     CPPUNIT_ASSERT(ss_names == expected_names);
 
     std::set<std::string> ns_names;
