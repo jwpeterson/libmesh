@@ -2182,15 +2182,6 @@ Elem::Elem(const unsigned int nn,
 inline
 Elem::~Elem()
 {
-  // Deleting my parent/neighbor/nodes storage isn't necessary since it's
-  // handled by the subclass
-
-  // if (_nodes != nullptr)
-  //   delete [] _nodes;
-  // _nodes = nullptr;
-
-  // delete [] _elemlinks;
-
 #ifdef LIBMESH_ENABLE_AMR
 
   // Delete my children's storage
