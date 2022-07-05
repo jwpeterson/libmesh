@@ -112,21 +112,17 @@ public:
   /**
    * Elems are responsible for allocating and deleting their children
    * during refinement, so they cannot be (default) copied or
-   * assigned. We therefore explicitly delete these operations.  Note
-   * that because _children is a C-style array, an Elem cannot even be
-   * safely default move-constructed (we would have to maintain a
-   * custom move constructor that explicitly sets _children to nullptr
-   * to do this safely).
+   * assigned. We therefore explicitly delete these operations.
    */
-  Elem (Elem &&) = delete;
+  Elem (Elem &&) = default;
   Elem (const Elem &) = delete;
   Elem & operator= (const Elem &) = delete;
-  Elem & operator= (Elem &&) = delete;
+  Elem & operator= (Elem &&) = default;
 
   /**
-   * Destructor.  Frees all the memory associated with the element.
+   * Destructor.
    */
-  virtual ~Elem();
+  virtual ~Elem() = default;
 
   /**
    * \returns The \p Point associated with local \p Node \p i.
@@ -2004,7 +2000,7 @@ protected:
   /**
    * Pointers to this element's children.
    */
-  Elem ** _children;
+  std::vector<std::unique_ptr<Elem>> _children;
 #endif
 
   /**
@@ -2090,8 +2086,10 @@ public:
 inline
 SimpleRange<Elem::ChildRefIter> Elem::child_ref_range()
 {
-  libmesh_assert(_children);
-  return {_children, _children + this->n_children()};
+  libmesh_assert(!_children.empty());
+  // return {_children, _children + this->n_children()};
+  // return {nullptr, nullptr}; // FIXME
+  return {_children.begin(), _children.end()}; // FIXME: make this work
 }
 
 
@@ -2099,7 +2097,9 @@ inline
 SimpleRange<Elem::ConstChildRefIter> Elem::child_ref_range() const
 {
   libmesh_assert(_children);
-  return {_children, _children + this->n_children()};
+  // return {_children, _children + this->n_children()};
+  // return {nullptr, nullptr}; // FIXME
+  return {_children.begin(), _children.end()}; // FIXME: make this work
 }
 #endif // LIBMESH_ENABLE_AMR
 
@@ -2127,9 +2127,6 @@ Elem::Elem(const unsigned int nn,
            Node ** nodelinkdata) :
   _nodes(nodelinkdata),
   _elemlinks(elemlinkdata),
-#ifdef LIBMESH_ENABLE_AMR
-  _children(nullptr),
-#endif
   _sbd_id(0),
 #ifdef LIBMESH_ENABLE_AMR
   _rflag(Elem::DO_NOTHING),
@@ -2174,21 +2171,6 @@ Elem::Elem(const unsigned int nn,
 #ifdef LIBMESH_ENABLE_AMR
   if (this->parent())
     this->set_p_level(this->parent()->p_level());
-#endif
-}
-
-
-
-inline
-Elem::~Elem()
-{
-#ifdef LIBMESH_ENABLE_AMR
-
-  // Delete my children's storage
-  if (_children != nullptr)
-    delete [] _children;
-  _children = nullptr;
-
 #endif
 }
 
@@ -2737,7 +2719,7 @@ inline
 bool Elem::has_children() const
 {
 #ifdef LIBMESH_ENABLE_AMR
-  if (_children == nullptr)
+  if (_children.empty())
     return false;
   else
     return true;
@@ -2751,7 +2733,7 @@ inline
 bool Elem::has_ancestor_children() const
 {
 #ifdef LIBMESH_ENABLE_AMR
-  if (_children == nullptr)
+  if (_children.empty())
     return false;
   else
     for (auto & c : child_ref_range())
@@ -2911,28 +2893,28 @@ void Elem::set_mapping_data(const unsigned char data)
 inline
 const Elem * Elem::raw_child_ptr (unsigned int i) const
 {
-  if (!_children)
+  if (_children.empty())
     return nullptr;
 
-  return _children[i];
+  return _children[i].get();
 }
 
 inline
 const Elem * Elem::child_ptr (unsigned int i) const
 {
-  libmesh_assert(_children);
+  libmesh_assert(!_children.empty());
   libmesh_assert(_children[i]);
 
-  return _children[i];
+  return _children[i].get();
 }
 
 inline
 Elem * Elem::child_ptr (unsigned int i)
 {
-  libmesh_assert(_children);
+  libmesh_assert(!_children.empty());
   libmesh_assert(_children[i]);
 
-  return _children[i];
+  return _children[i].get();
 }
 
 
@@ -2941,7 +2923,8 @@ void Elem::set_child (unsigned int c, Elem * elem)
 {
   libmesh_assert (this->has_children());
 
-  _children[c] = elem;
+  // We are now responsible for deleting this child
+  _children[c].reset(elem);
 }
 
 
