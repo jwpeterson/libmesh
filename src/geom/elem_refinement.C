@@ -92,9 +92,9 @@ void Elem::refine (MeshRefinement & mesh_refinement)
   const unsigned int nc = this->n_children();
 
   // Create my children if necessary
-  if (!_children)
+  if (_children.empty())
     {
-      _children = new Elem *[nc];
+      _children.resize(nc);
 
       unsigned int parent_p_level = this->p_level();
       const unsigned int nei = this->n_extra_integers();
