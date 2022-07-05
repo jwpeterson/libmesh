@@ -1579,7 +1579,7 @@ void Elem::add_child (Elem * elem)
 
   for (unsigned int c = 0; c != nc; c++)
     {
-      if (this->_children[c].get() == nullptr || this->_children[c].get() == remote_elem)
+      if (this->_children[c] == nullptr || this->_children[c] == remote_elem)
         {
           libmesh_assert_equal_to (this, elem->parent());
           this->set_child(c, elem);
@@ -1597,7 +1597,7 @@ void Elem::add_child (Elem * elem, unsigned int c)
   if (!this->has_children())
     _children.resize(this->n_children()); // each initialized to nullptr
 
-  libmesh_assert (this->_children[c].get() == nullptr || this->child_ptr(c) == remote_elem);
+  libmesh_assert (this->_children[c] == nullptr || this->child_ptr(c) == remote_elem);
   libmesh_assert (elem == remote_elem || this == elem->parent());
 
   this->set_child(c, elem);

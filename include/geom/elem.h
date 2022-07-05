@@ -2000,7 +2000,7 @@ protected:
   /**
    * Pointers to this element's children.
    */
-  std::vector<std::unique_ptr<Elem>> _children;
+  std::vector<Elem*> _children;
 #endif
 
   /**
@@ -2072,11 +2072,11 @@ class Elem::ChildRefIter
 {
 public:
 
-  ChildRefIter (std::vector<std::unique_ptr<Elem>>::iterator it) : _it(it)
+  ChildRefIter (std::vector<Elem *>::iterator it) : _it(it)
   {}
 
-  // Dereference operator. Note: first dereference gives back a reference to
-  // unique_ptr<Elem>, then we dereference that to get an Elem reference.
+  // Dereference operator. Note: first dereference gives back Elem*,
+  // then we dereference that to get an Elem reference.
   Elem & operator* () const { return **_it; }
 
   // Pre-increment
@@ -2106,7 +2106,7 @@ public:
   }
 
 private:
-  std::vector<std::unique_ptr<Elem>>::iterator _it;
+  std::vector<Elem *>::iterator _it;
 };
 
 
@@ -2115,11 +2115,11 @@ class Elem::ConstChildRefIter
 {
 public:
 
-  ConstChildRefIter (std::vector<std::unique_ptr<Elem>>::const_iterator it) : _it(it)
+  ConstChildRefIter (std::vector<Elem *>::const_iterator it) : _it(it)
   {}
 
-  // Dereference operator. Note: first dereference gives back a reference to
-  // unique_ptr<Elem>, then we dereference that to get an Elem reference.
+  // Dereference operator. Note: first dereference gives back Elem*,
+  // then we dereference that to get an Elem reference.
   const Elem & operator* () const { return **_it; }
 
   // Pre-increment
@@ -2149,7 +2149,7 @@ public:
   }
 
 private:
-  std::vector<std::unique_ptr<Elem>>::const_iterator _it;
+  std::vector<Elem *>::const_iterator _it;
 };
 
 
@@ -2963,7 +2963,7 @@ const Elem * Elem::raw_child_ptr (unsigned int i) const
   if (_children.empty())
     return nullptr;
 
-  return _children[i].get();
+  return _children[i];
 }
 
 inline
@@ -2972,7 +2972,7 @@ const Elem * Elem::child_ptr (unsigned int i) const
   libmesh_assert(!_children.empty());
   libmesh_assert(_children[i]);
 
-  return _children[i].get();
+  return _children[i];
 }
 
 inline
@@ -2981,7 +2981,7 @@ Elem * Elem::child_ptr (unsigned int i)
   libmesh_assert(!_children.empty());
   libmesh_assert(_children[i]);
 
-  return _children[i].get();
+  return _children[i];
 }
 
 
@@ -2990,8 +2990,7 @@ void Elem::set_child (unsigned int c, Elem * elem)
 {
   libmesh_assert (this->has_children());
 
-  // We are now responsible for deleting this child
-  _children[c].reset(elem);
+  _children[c] = elem;
 }
 
 
