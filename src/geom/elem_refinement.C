@@ -165,10 +165,6 @@ void Elem::coarsen()
   libmesh_assert_equal_to (this->refinement_flag(), Elem::COARSEN_INACTIVE);
   libmesh_assert (!this->active());
 
-  // We no longer delete children until MeshRefinement::contract()
-  // delete [] _children;
-  // _children = nullptr;
-
   unsigned int parent_p_level = 0;
 
   const unsigned int n_n = this->n_nodes();
@@ -233,8 +229,7 @@ void Elem::contract()
   libmesh_assert (this->active());
 
   // Active contracted elements no longer can have children
-  delete [] _children;
-  _children = nullptr;
+  _children.clear();
 
   if (this->refinement_flag() == Elem::JUST_COARSENED)
     this->set_refinement_flag(Elem::DO_NOTHING);
