@@ -2067,29 +2067,98 @@ public:
 
 
 #ifdef LIBMESH_ENABLE_AMR
-class
-Elem::ChildRefIter : public PointerToPointerIter<Elem>
+
+class Elem::ChildRefIter
 {
 public:
-  ChildRefIter (Elem * const * childpp) : PointerToPointerIter<Elem>(childpp) {}
+
+  ChildRefIter (std::vector<std::unique_ptr<Elem>>::iterator it) : _it(it)
+  {}
+
+  // Dereference operator. Note: first dereference gives back a reference to
+  // unique_ptr<Elem>, then we dereference that to get an Elem reference.
+  Elem & operator* () const { return **_it; }
+
+  // Pre-increment
+  const ChildRefIter & operator++ ()
+  {
+    ++_it;
+    return *this;
+  }
+
+  // Post-increment
+  ChildRefIter operator++ (int)
+  {
+    ChildRefIter returnval(*this);
+    ++_it;
+    return returnval;
+  }
+
+  // Comparison operators
+  bool operator== (const ChildRefIter & j) const
+  {
+    return ( _it == j._it );
+  }
+
+  bool operator!= (const ChildRefIter & j) const
+  {
+    return !(*this == j);
+  }
+
+private:
+  std::vector<std::unique_ptr<Elem>>::iterator _it;
 };
 
 
-class
-Elem::ConstChildRefIter : public PointerToPointerIter<const Elem>
+
+class Elem::ConstChildRefIter
 {
 public:
-  ConstChildRefIter (const Elem * const * childpp) : PointerToPointerIter<const Elem>(childpp) {}
+
+  ConstChildRefIter (std::vector<std::unique_ptr<Elem>>::const_iterator it) : _it(it)
+  {}
+
+  // Dereference operator. Note: first dereference gives back a reference to
+  // unique_ptr<Elem>, then we dereference that to get an Elem reference.
+  const Elem & operator* () const { return **_it; }
+
+  // Pre-increment
+  const ConstChildRefIter & operator++ ()
+  {
+    ++_it;
+    return *this;
+  }
+
+  // Post-increment
+  ConstChildRefIter operator++ (int)
+  {
+    ConstChildRefIter returnval(*this);
+    ++_it;
+    return returnval;
+  }
+
+  // Comparison operators
+  bool operator== (const ConstChildRefIter & j) const
+  {
+    return ( _it == j._it );
+  }
+
+  bool operator!= (const ConstChildRefIter & j) const
+  {
+    return !(*this == j);
+  }
+
+private:
+  std::vector<std::unique_ptr<Elem>>::const_iterator _it;
 };
+
 
 
 inline
 SimpleRange<Elem::ChildRefIter> Elem::child_ref_range()
 {
   libmesh_assert(!_children.empty());
-  // return {_children, _children + this->n_children()};
-  // return {nullptr, nullptr}; // FIXME
-  return {_children.begin(), _children.end()}; // FIXME: make this work
+  return {_children.begin(), _children.end()};
 }
 
 
@@ -2097,9 +2166,7 @@ inline
 SimpleRange<Elem::ConstChildRefIter> Elem::child_ref_range() const
 {
   libmesh_assert(_children);
-  // return {_children, _children + this->n_children()};
-  // return {nullptr, nullptr}; // FIXME
-  return {_children.begin(), _children.end()}; // FIXME: make this work
+  return {_children.begin(), _children.end()};
 }
 #endif // LIBMESH_ENABLE_AMR
 
