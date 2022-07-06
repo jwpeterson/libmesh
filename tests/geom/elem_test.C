@@ -116,10 +116,13 @@ public:
 
         _mesh->prepare_for_use();
       }
-    else
+    else // !test_elem->infinite()
 #endif
 #endif
       {
+        // For non-infinite Elem types, we just call build cube to
+        // create an N**dim uniform grid which is arbitrarily offset
+        // from the origin.
         const unsigned int dim = test_elem->dim();
         const unsigned int use_y = dim > 1;
         const unsigned int use_z = dim > 2;
