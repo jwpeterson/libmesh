@@ -1574,8 +1574,13 @@ void Elem::add_child (Elem * elem)
 {
   const unsigned int nc = this->n_children();
 
-  if (_children.empty())
-    _children.resize(nc); // initialized to nullptr
+  if (!_children)
+    {
+      _children = std::make_unique<Elem *[]>(nc) ;
+
+      for (unsigned int c = 0; c != nc; c++)
+        this->set_child(c, nullptr);
+    }
 
   for (unsigned int c = 0; c != nc; c++)
     {
@@ -1595,7 +1600,13 @@ void Elem::add_child (Elem * elem)
 void Elem::add_child (Elem * elem, unsigned int c)
 {
   if (!this->has_children())
-    _children.resize(this->n_children()); // each initialized to nullptr
+    {
+      const unsigned int nc = this->n_children();
+      _children = std::make_unique<Elem *[]>(nc);
+
+      for (unsigned int i = 0; i != nc; i++)
+        this->set_child(i, nullptr);
+    }
 
   libmesh_assert (this->_children[c] == nullptr || this->child_ptr(c) == remote_elem);
   libmesh_assert (elem == remote_elem || this == elem->parent());

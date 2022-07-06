@@ -1998,9 +1998,13 @@ protected:
 
 #ifdef LIBMESH_ENABLE_AMR
   /**
-   * Pointers to this element's children.
+   * unique_ptr to array of this element's children.
+   *
+   * A Mesh ultimately owns the child Elems so we are not responsible
+   * for deleting them, but we are responsible for cleaning up the
+   * array allocated to hold those Elems, hence the unique_ptr.
    */
-  std::vector<Elem*> _children;
+  std::unique_ptr<Elem *[]> _children;
 #endif
 
   /**
@@ -2071,42 +2075,7 @@ public:
 class Elem::ChildRefIter
 {
 public:
-
-  ChildRefIter (std::vector<Elem *>::iterator it) : _it(it)
-  {}
-
-  // Dereference operator. Note: first dereference gives back Elem*,
-  // then we dereference that to get an Elem reference.
-  Elem & operator* () const { return **_it; }
-
-  // Pre-increment
-  const ChildRefIter & operator++ ()
-  {
-    ++_it;
-    return *this;
-  }
-
-  // Post-increment
-  ChildRefIter operator++ (int)
-  {
-    ChildRefIter returnval(*this);
-    ++_it;
-    return returnval;
-  }
-
-  // Comparison operators
-  bool operator== (const ChildRefIter & j) const
-  {
-    return ( _it == j._it );
-  }
-
-  bool operator!= (const ChildRefIter & j) const
-  {
-    return !(*this == j);
-  }
-
-private:
-  std::vector<Elem *>::iterator _it;
+  ChildRefIter (Elem * const * childpp) : PointerToPointerIter<Elem>(childpp) {}
 };
 
 
@@ -2114,42 +2083,7 @@ private:
 class Elem::ConstChildRefIter
 {
 public:
-
-  ConstChildRefIter (std::vector<Elem *>::const_iterator it) : _it(it)
-  {}
-
-  // Dereference operator. Note: first dereference gives back Elem*,
-  // then we dereference that to get an Elem reference.
-  const Elem & operator* () const { return **_it; }
-
-  // Pre-increment
-  const ConstChildRefIter & operator++ ()
-  {
-    ++_it;
-    return *this;
-  }
-
-  // Post-increment
-  ConstChildRefIter operator++ (int)
-  {
-    ConstChildRefIter returnval(*this);
-    ++_it;
-    return returnval;
-  }
-
-  // Comparison operators
-  bool operator== (const ConstChildRefIter & j) const
-  {
-    return ( _it == j._it );
-  }
-
-  bool operator!= (const ConstChildRefIter & j) const
-  {
-    return !(*this == j);
-  }
-
-private:
-  std::vector<Elem *>::const_iterator _it;
+  ConstChildRefIter (const Elem * const * childpp) : PointerToPointerIter<const Elem>(childpp) {}
 };
 
 
@@ -2157,8 +2091,8 @@ private:
 inline
 SimpleRange<Elem::ChildRefIter> Elem::child_ref_range()
 {
-  libmesh_assert(!_children.empty());
-  return {_children.begin(), _children.end()};
+  libmesh_assert(_children);
+  return {_children, _children + this->n_children()};
 }
 
 
@@ -2166,7 +2100,7 @@ inline
 SimpleRange<Elem::ConstChildRefIter> Elem::child_ref_range() const
 {
   libmesh_assert(_children);
-  return {_children.begin(), _children.end()};
+  return {_children, _children + this->n_children()};
 }
 #endif // LIBMESH_ENABLE_AMR
 
@@ -2786,7 +2720,7 @@ inline
 bool Elem::has_children() const
 {
 #ifdef LIBMESH_ENABLE_AMR
-  if (_children.empty())
+  if (!_children)
     return false;
   else
     return true;
@@ -2800,7 +2734,7 @@ inline
 bool Elem::has_ancestor_children() const
 {
 #ifdef LIBMESH_ENABLE_AMR
-  if (_children.empty())
+  if (!_children)
     return false;
   else
     for (auto & c : child_ref_range())
@@ -2960,7 +2894,7 @@ void Elem::set_mapping_data(const unsigned char data)
 inline
 const Elem * Elem::raw_child_ptr (unsigned int i) const
 {
-  if (_children.empty())
+  if (!_children)
     return nullptr;
 
   return _children[i];
@@ -2969,7 +2903,7 @@ const Elem * Elem::raw_child_ptr (unsigned int i) const
 inline
 const Elem * Elem::child_ptr (unsigned int i) const
 {
-  libmesh_assert(!_children.empty());
+  libmesh_assert(_children);
   libmesh_assert(_children[i]);
 
   return _children[i];
@@ -2978,7 +2912,7 @@ const Elem * Elem::child_ptr (unsigned int i) const
 inline
 Elem * Elem::child_ptr (unsigned int i)
 {
-  libmesh_assert(!_children.empty());
+  libmesh_assert(_children);
   libmesh_assert(_children[i]);
 
   return _children[i];
