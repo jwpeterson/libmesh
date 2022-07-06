@@ -49,10 +49,15 @@ public:
         Node ** nodelinkdata) :
     Elem(nn, ns, p, elemlinkdata, nodelinkdata) {}
 
-  Face (Face &&) = delete;
+  // Move construction/assignment
+  Face (Face &&) = default;
+  Face & operator= (Face &&) = default;
+
+  // Copy construction/assignment
   Face (const Face &) = delete;
   Face & operator= (const Face &) = delete;
-  Face & operator= (Face &&) = delete;
+
+  // Destructor
   virtual ~Face() = default;
 
   /**
