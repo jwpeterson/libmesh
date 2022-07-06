@@ -1,14 +1,18 @@
+// unit test includes
 #include "test_comm.h"
+#include "libmesh_cppunit.h"
 
+// libmesh includes
 #include <libmesh/elem.h>
 #include <libmesh/enum_elem_type.h>
 #include <libmesh/mesh.h>
 #include <libmesh/mesh_generation.h>
 #include <libmesh/elem_side_builder.h>
+#include <libmesh/face_tri3.h>
 
-#include "libmesh_cppunit.h"
-
+// C++ includes
 #include <memory>
+#include <array>
 
 using namespace libMesh;
 
@@ -319,6 +323,38 @@ public:
           CPPUNIT_ASSERT_EQUAL(side->node_ref(n), const_cached_side.node_ref(n));
       }
   }
+
+  void test_elem_move()
+  {
+    LOG_UNIT_TEST;
+
+    // This is a test of the defaulted Elem move constructor and move
+    // assignment operator, and does not use _mesh, since it is probably
+    // not wise to steal elements already owned by a Mesh...
+
+    // We are also working with a concrete Tri3 object (rather than a
+    // base class pointer) just to demonstrate that we can call the
+    // move constructor/move assignment operators, although this would
+    // not be done much in "normal" usage.
+    Tri3 tri3;
+    std::array<Node, Tri3::num_nodes> nodes = {{
+        Node(0.,0.,0.,/*id=*/0),
+        Node(1.,0.,0.,/*id=*/1),
+        Node(0.,1.,0.,/*id=*/2)
+      }};
+
+    // Assign "dummy" nodes to Elem, make test slightly more realistic
+    // by having the Elem have some identifiable information.
+    for (unsigned int i=0; i<Tri3::num_nodes; ++i)
+      tri3.set_node(i) = &nodes[i];
+
+    // Call move constructor
+    Tri3 tri3_stolen(std::move(tri3));
+
+    // We are now responsible for cleaning up this resource
+    // std::unique_ptr<Elem> elem_up = Elem::build(elem_type);
+    // Elem * elem = elem_up.release();
+  }
 };
 
 #define ELEMTEST                                \
@@ -328,7 +364,8 @@ public:
   CPPUNIT_TEST( test_contains_point_node );     \
   CPPUNIT_TEST( test_center_node_on_side );     \
   CPPUNIT_TEST( test_side_type );               \
-  CPPUNIT_TEST( test_elem_side_builder );
+  CPPUNIT_TEST( test_elem_side_builder );       \
+  CPPUNIT_TEST( test_elem_move );
 
 #define INSTANTIATE_ELEMTEST(elemtype)                          \
   class ElemTest_##elemtype : public ElemTest<elemtype> {       \
