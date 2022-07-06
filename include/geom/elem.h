@@ -2071,16 +2071,16 @@ public:
 
 
 #ifdef LIBMESH_ENABLE_AMR
-
-class Elem::ChildRefIter
+class
+Elem::ChildRefIter : public PointerToPointerIter<Elem>
 {
 public:
   ChildRefIter (Elem * const * childpp) : PointerToPointerIter<Elem>(childpp) {}
 };
 
 
-
-class Elem::ConstChildRefIter
+class
+Elem::ConstChildRefIter : public PointerToPointerIter<const Elem>
 {
 public:
   ConstChildRefIter (const Elem * const * childpp) : PointerToPointerIter<const Elem>(childpp) {}
@@ -2092,7 +2092,7 @@ inline
 SimpleRange<Elem::ChildRefIter> Elem::child_ref_range()
 {
   libmesh_assert(_children);
-  return {_children, _children + this->n_children()};
+  return {_children.get(), _children.get() + this->n_children()};
 }
 
 
@@ -2100,7 +2100,7 @@ inline
 SimpleRange<Elem::ConstChildRefIter> Elem::child_ref_range() const
 {
   libmesh_assert(_children);
-  return {_children, _children + this->n_children()};
+  return {_children.get(), _children.get() + this->n_children()};
 }
 #endif // LIBMESH_ENABLE_AMR
 
