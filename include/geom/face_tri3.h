@@ -69,10 +69,15 @@ public:
   Tri3 (Elem * p=nullptr) :
     Tri(Tri3::n_nodes(), p, _nodelinks_data) {}
 
-  Tri3 (Tri3 &&) = delete;
+  // Move construction/assignment
+  Tri3 (Tri3 &&) = default;
+  Tri3 & operator= (Tri3 &&) = default;
+
+  // Copy construction/assignment
   Tri3 (const Tri3 &) = delete;
   Tri3 & operator= (const Tri3 &) = delete;
-  Tri3 & operator= (Tri3 &&) = delete;
+
+  // Destructor
   virtual ~Tri3() = default;
 
   /**

@@ -62,10 +62,15 @@ public:
       this->set_interior_parent(nullptr);
   }
 
-  Tri (Tri &&) = delete;
+  // Move construction/assignment
+  Tri (Tri &&) = default;
+  Tri & operator= (Tri &&) = default;
+
+  // Copy construction/assignment
   Tri (const Tri &) = delete;
   Tri & operator= (const Tri &) = delete;
-  Tri & operator= (Tri &&) = delete;
+
+  // Destructor
   virtual ~Tri() = default;
 
   /**
