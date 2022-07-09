@@ -68,6 +68,12 @@ protected:
 public:
 
   /**
+   * Move construction/assignment.
+   */
+  DofObject (DofObject &&) = default;
+  DofObject & operator= (DofObject &&) = default;
+
+  /**
    * Destructor.
    */
   ~DofObject () = default;

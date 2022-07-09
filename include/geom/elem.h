@@ -118,10 +118,14 @@ public:
    * construction and assignment operators, so that prevents us from
    * copying Elems as well.
    */
-  Elem (Elem &&) = delete;
   Elem (const Elem &) = delete;
   Elem & operator= (const Elem &) = delete;
-  Elem & operator= (Elem &&) = delete;
+
+  /**
+   * Move construction/assignment.
+   */
+  Elem (Elem &&) = default;
+  Elem & operator= (Elem &&) = default;
 
   /**
    * Destructor.
