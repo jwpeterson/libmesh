@@ -351,9 +351,19 @@ public:
     // Call move constructor
     Tri3 tri3_stolen(std::move(tri3));
 
-    // We are now responsible for cleaning up this resource
-    // std::unique_ptr<Elem> elem_up = Elem::build(elem_type);
-    // Elem * elem = elem_up.release();
+    // Assert that stealing object has the expected points now.
+    CPPUNIT_ASSERT(tri3_stolen.point(0) == Point(0.,0.,0.));
+    CPPUNIT_ASSERT(tri3_stolen.point(1) == Point(1.,0.,0.));
+    CPPUNIT_ASSERT(tri3_stolen.point(2) == Point(0.,1.,0.));
+
+    // Test move assignment
+    Tri3 tri3_assigned;
+    tri3_assigned = std::move(tri3_stolen);
+
+    // Assert that stealing object has the expected points now.
+    CPPUNIT_ASSERT(tri3_assigned.point(0) == Point(0.,0.,0.));
+    CPPUNIT_ASSERT(tri3_assigned.point(1) == Point(1.,0.,0.));
+    CPPUNIT_ASSERT(tri3_assigned.point(2) == Point(0.,1.,0.));
   }
 };
 
