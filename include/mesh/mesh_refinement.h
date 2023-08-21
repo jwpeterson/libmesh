@@ -690,7 +690,9 @@ private:
    * o---o---o---o---o---o---o
    * \endverbatim
    *
-   * by refining the indicated element
+   * by refining the indicated element. If the _allow_unrefined_patches
+   * flag (default false) is set to true, then this function simpy returns
+   * false (indicating that no changes were made).
    */
   bool eliminate_unrefined_patches ();
 
@@ -788,6 +790,8 @@ private:
 
   signed char _overrefined_boundary_limit;
   signed char _underrefined_boundary_limit;
+
+  bool _allow_unrefined_patches;
 
   /**
    * This option enforces the mismatch level prior to refinement by checking
