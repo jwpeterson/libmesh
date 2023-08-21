@@ -1621,12 +1621,8 @@ void MeshRefinement::_smooth_flags(bool refining, bool coarsening)
             !refining ||
             this->make_refinement_compatible();
 
-          // bool smoothing_satisfied =
-          //   !this->eliminate_unrefined_patches();// &&
-
-          // Debugging: skip calling eliminate_unrefined_patches() to
-          // see if it fixes an application issue I'm seeing.
-          bool smoothing_satisfied = true;
+          bool smoothing_satisfied =
+            !this->eliminate_unrefined_patches();// &&
 
           if (_edge_level_mismatch_limit)
             smoothing_satisfied = smoothing_satisfied &&
