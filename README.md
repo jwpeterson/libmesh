@@ -82,6 +82,7 @@ libMesh has no required dependencies other than a C++ compiler which
 fully supports the C++11 standard. To run on distributed memory
 platforms in parallel, you will also need MPI.
 
+
 ## Optional Packages
 We support a [large number](http://libmesh.github.io/externalsoftware.html) of
 optional packages. Some of these are distributed inside the `contrib` directory
