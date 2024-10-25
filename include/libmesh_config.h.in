@@ -33,7 +33,7 @@
 /* The fine user who built the package */
 #undef BUILD_USER
 
-/* SVN revision */
+/* Git revision */
 #undef BUILD_VERSION
 
 /* define if errno.h cannot be included in a namespace */
