@@ -60303,7 +60303,7 @@ printf "%s\n" "#define BUILD_DEVSTATUS \"${BUILD_DEVSTATUS}\"" >>confdefs.h
 printf "%s\n" "#define BUILD_DATE __DATE__ \" \" __TIME__" >>confdefs.h
 
 
-printf "%s\n" "#define BUILD_VERSION git" >>confdefs.h
+printf "%s\n" "#define BUILD_VERSION \"git\"" >>confdefs.h
 
 
 
