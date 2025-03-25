@@ -206,20 +206,28 @@ void Tet::choose_diagonal() const
   // Check for uninitialized diagonal selection
   if (this->_diagonal_selection==INVALID_DIAG)
     {
-      Real diag_01_23 = (this->point(0) + this->point(1) - this->point(2) - this->point(3)).norm_sq();
-      Real diag_02_13 = (this->point(0) - this->point(1) + this->point(2) - this->point(3)).norm_sq();
-      Real diag_03_12 = (this->point(0) - this->point(1) - this->point(2) + this->point(3)).norm_sq();
+      auto M = [&](const unsigned i, const unsigned j) -> Point
+               { return this->point(i) + this->point(j); };
 
-      this->_diagonal_selection=DIAG_02_13;
+      std::array<Point, 6> P = {M(0,2), M(0,3), M(0,1),
+                                M(1,3), M(1,2), M(2,3)};
 
-      if (diag_01_23 < diag_02_13 || diag_03_12 < diag_02_13)
-        {
-          if (diag_01_23 < diag_03_12)
-            this->_diagonal_selection=DIAG_01_23;
+      Real diag_02_13 = (P[0] - P[3]).norm_sq();
+      Real diag_03_12 = (P[1] - P[4]).norm_sq();
+      Real diag_01_23 = (P[2] - P[5]).norm_sq();
 
-          else
-            this->_diagonal_selection=DIAG_03_12;
-        }
+      std::array<Real, 3> D = {diag_02_13, diag_03_12, diag_01_23};
+
+      // If all diagonals are of ~equal length, we choose the one with
+      // the lexicographically smallest endpoint to break the tie
+      if (std::abs(D[0] - D[1]) < TOLERANCE * TOLERANCE &&
+          std::abs(D[0] - D[2]) < TOLERANCE * TOLERANCE)
+        this->_diagonal_selection =
+          Diagonal(std::distance(P.begin(), std::min_element(P.begin(), P.end())) % 3);
+      // Otherwise, we select the shortest diagonal
+      else
+        this->_diagonal_selection =
+          Diagonal(std::distance(D.begin(), std::min_element(D.begin(), D.end())));
     }
 }
 
