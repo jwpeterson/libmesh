@@ -50,6 +50,8 @@
 #include "libmesh/gnuplot_io.h"
 #include "libmesh/linear_implicit_system.h"
 #include "libmesh/equation_systems.h"
+#include "libmesh/mesh_refinement.h"
+#include "libmesh/mesh_modification.h"
 
 // Define the Finite Element object.
 #include "libmesh/fe.h"
@@ -194,7 +196,7 @@ int main (int argc, char ** argv)
                                          -halfwidth, halfwidth,
                                          -halfheight, halfheight,
                                          (dim==1)    ? EDGE2 :
-                                         ((dim == 2) ? QUAD4 : HEX8));
+                                         ((dim == 2) ? QUAD4 : TET10));
     }
 
   else
@@ -211,9 +213,12 @@ int main (int argc, char ** argv)
     }
 
 
+  MeshTools::Modification::permute_elements(mesh);
+  MeshRefinement mesh_refinement (mesh);
+  mesh_refinement.uniformly_refine(1);
+
   // Print information about the mesh to the screen.
   mesh.print_info();
-
 
   // Create an equation systems object.
   EquationSystems equation_systems (mesh);
