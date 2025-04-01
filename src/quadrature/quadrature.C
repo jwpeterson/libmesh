@@ -121,8 +121,8 @@ void QBase::init(const ElemType t,
   // element types where the desired quadrature depends on the
   // physical element, but we still want to be able to initialize
   // based on only a type for certain simple cases
-  if (t != EDGE2 && !simple_type_only)
-    libmesh_deprecated();
+//  if (t != EDGE2 && !simple_type_only)
+//    libmesh_deprecated();
 
   // check to see if we have already
   // done the work for this quadrature rule
