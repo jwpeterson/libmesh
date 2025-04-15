@@ -1839,6 +1839,15 @@ UnstructuredMesh::stitching_helper (const MeshBase * other_mesh,
 
         for (unsigned i=0; i<2; ++i)
           {
+            // Determine an h_min for mesh_array[i]. We previously
+            // used the first non-zero Elem::hmin() value encountered
+            // in the entire Mesh for this, while updating hmin as
+            // necessary while processing faces and edges on the
+            // actual boundary in question. This doesn't work well for
+            // the case where the boundary nodeset is comprised
+            // entirely (or almost entirely) of NodeElems, since
+            // NodeElems don't have sides or edges.
+
             // First we deal with node boundary IDs.
             // We only enter this loop if we have at least one
             // nodeset.
@@ -1873,7 +1882,8 @@ UnstructuredMesh::stitching_helper (const MeshBase * other_mesh,
 
                             // If, after searching all the active elements, we did not update
                             // h_min, give up and set h_min to 1 so that we don't repeat this
-                            // fruitless search
+                            // fruitless search. Note: this can happen if the mesh contains
+                            // only NodeElems, since in that case all Elems have h_min == 0.
                             if (!h_min_updated)
                               {
                                 h_min_updated = true;
@@ -1942,6 +1952,20 @@ UnstructuredMesh::stitching_helper (const MeshBase * other_mesh,
                             }
                         } // end for (edge_id)
                     } // end if (side == nullptr)
+
+                // Alternatively, is this a boundary NodeElem?
+                if (el->type() == NODEELEM)
+                  {
+                    mesh_array[i]->get_boundary_info().boundary_ids(el->node_ptr(0), bc_ids);
+                    if (std::find(bc_ids.begin(), bc_ids.end(), id_array[i]) != bc_ids.end())
+                      {
+                        libMesh::out << "Elem " << el->id() << " is a NodeElem on boundary " << id_array[i] << std::endl;
+                      }
+                    else
+                      {
+                        libMesh::out << "Elem " << el->id() << " is a NodeElem NOT on boundary " << id_array[i] << std::endl;
+                      }
+                  }
               } // end for (el)
           } // end for (i)
       } // end scope
