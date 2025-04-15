@@ -2076,6 +2076,10 @@ UnstructuredMesh::stitching_helper (const MeshBase * other_mesh,
             const auto & p = other_mesh->point(node_id);
             const Real query_pt[] = {p(0), p(1), p(2)};
             this_kd_tree.knnSearch(&query_pt[0], 1, &ret_index, &ret_dist_sqr);
+
+            // TODO: here we should use the user's specified tolerance
+            // and the previously determined value of h_min in the
+            // distance comparison, not just TOLERANCE^2.
             if (ret_dist_sqr < TOLERANCE*TOLERANCE)
             {
               node_to_node_map[this_mesh_nodes[ret_index].second] = node_id;
