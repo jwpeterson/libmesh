@@ -1989,6 +1989,9 @@ UnstructuredMesh::stitching_helper (const MeshBase * other_mesh,
 #endif
         }
 
+      // Debugging
+      std::cout << "use_binary_search = " << use_binary_search << std::endl;
+
       if (!this_boundary_node_ids.empty())
       {
         if (use_binary_search)
@@ -2059,6 +2062,9 @@ UnstructuredMesh::stitching_helper (const MeshBase * other_mesh,
                               "absolute distance check in the N^2 search algorithm.");
               h_min = 1.;
             }
+
+          // Debugging:
+          std::cout << "Using h_min = " << h_min << std::endl;
 
           // Otherwise, use a simple N^2 search to find the closest matching points. This can be helpful
           // in the case that we have tolerance issues which cause mismatch between the two surfaces
