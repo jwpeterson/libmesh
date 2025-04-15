@@ -2029,6 +2029,14 @@ UnstructuredMesh::stitching_helper (const MeshBase * other_mesh,
             }
           }
 
+          // Debugging: print more information if node_to_node_map and
+          // other_to_this_node_map have different sizes
+          if (node_to_node_map.size() != other_to_this_node_map.size())
+          {
+            libMesh::out << "node_to_node_map.size() = " << node_to_node_map.size() << std::endl;
+            libMesh::out << "other_to_this_node_map.size() = " << other_to_this_node_map.size() << std::endl;
+          }
+
           // If the two maps don't have the same size, it means one
           // node in this mesh is the nearest neighbor of several
           // nodes in other mesh. Since the stitching is ambiguous in
@@ -2037,7 +2045,7 @@ UnstructuredMesh::stitching_helper (const MeshBase * other_mesh,
                                "Error: Found multiple matching nodes in stitch_meshes");
 #endif
         }
-        else
+        else // !use_binary_search
         {
           // In the unlikely event that two meshes composed entirely of
           // NodeElems are being stitched together, we will not have
