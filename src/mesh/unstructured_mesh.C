@@ -1861,35 +1861,6 @@ UnstructuredMesh::stitching_helper (const MeshBase * other_mesh,
                       {
                         dof_id_type this_node_id = std::get<0>(t);
                         set_array[i]->insert( this_node_id );
-
-                        // We need to set h_min to some value. It's too expensive to
-                        // search for the element that actually contains this node,
-                        // since that would require a PointLocator. As a result, we
-                        // just use the first (non-NodeElem!) element in the mesh to
-                        // give us hmin if it's never been set before.
-                        if (!h_min_updated)
-                          {
-                            for (const auto & elem : mesh_array[i]->active_element_ptr_range())
-                              {
-                                Real current_h_min = elem->hmin();
-                                if (current_h_min > 0.)
-                                  {
-                                    h_min = current_h_min;
-                                    h_min_updated = true;
-                                    break;
-                                  }
-                              }
-
-                            // If, after searching all the active elements, we did not update
-                            // h_min, give up and set h_min to 1 so that we don't repeat this
-                            // fruitless search. Note: this can happen if the mesh contains
-                            // only NodeElems, since in that case all Elems have h_min == 0.
-                            if (!h_min_updated)
-                              {
-                                h_min_updated = true;
-                                h_min = 1.0;
-                              }
-                          }
                       }
                   }
               }
