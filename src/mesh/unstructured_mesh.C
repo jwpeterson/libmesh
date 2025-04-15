@@ -1839,14 +1839,14 @@ UnstructuredMesh::stitching_helper (const MeshBase * other_mesh,
 
         for (unsigned i=0; i<2; ++i)
           {
-            // Determine an h_min for mesh_array[i]. We previously
-            // used the first non-zero Elem::hmin() value encountered
-            // in the entire Mesh for this, while updating hmin as
-            // necessary while processing faces and edges on the
-            // actual boundary in question. This doesn't work well for
-            // the case where the boundary nodeset is comprised
-            // entirely (or almost entirely) of NodeElems, since
-            // NodeElems don't have sides or edges.
+            // Determine an h_min value. We previously used the first
+            // non-zero Elem::hmin() value encountered in the entire
+            // Mesh for this, while updating hmin as necessary during
+            // the processing of faces and edges on the actual
+            // boundary in question. This doesn't work well for the
+            // case where the boundary nodeset is comprised entirely
+            // (or almost entirely) of NodeElems, since NodeElems
+            // don't have sides or edges.
 
             // First we deal with node boundary IDs.
             // We only enter this loop if we have at least one
