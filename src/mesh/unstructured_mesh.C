@@ -1897,6 +1897,13 @@ UnstructuredMesh::stitching_helper (const MeshBase * other_mesh,
             // Container to catch boundary IDs passed back from BoundaryInfo.
             std::vector<boundary_id_type> bc_ids;
 
+            // Pointers to boundary NodeElems encountered while looping over the entire Mesh
+            // and checking side and edge boundary ids. The Nodes associated with NodeElems
+            // may be in a boundary nodeset, but not connected to any other Elems. In this
+            // case, we also consider the "minimum node separation distance" amongst all
+            // NodeElems when determining the relevant h_min value for this mesh.
+            std::vector<const Elem *> boundary_node_elems;
+
             for (auto & el : mesh_array[i]->element_ptr_range())
               {
                 // Now check whether elem has a face on the specified boundary
@@ -1959,14 +1966,34 @@ UnstructuredMesh::stitching_helper (const MeshBase * other_mesh,
                     mesh_array[i]->get_boundary_info().boundary_ids(el->node_ptr(0), bc_ids);
                     if (std::find(bc_ids.begin(), bc_ids.end(), id_array[i]) != bc_ids.end())
                       {
+                        boundary_node_elems.push_back(el);
+
+                        // Debugging:
                         libMesh::out << "Elem " << el->id() << " is a NodeElem on boundary " << id_array[i] << std::endl;
-                      }
-                    else
-                      {
-                        libMesh::out << "Elem " << el->id() << " is a NodeElem NOT on boundary " << id_array[i] << std::endl;
                       }
                   }
               } // end for (el)
+
+            // Compute the minimum node separation distance amongst
+            // all boundary NodeElem pairs.
+            {
+              const auto N = boundary_node_elems.size();
+              for (auto node_elem_i : make_range(N))
+                for (auto node_elem_j : make_range(node_elem_i+1, N))
+                  {
+                    Real node_sep =
+                      (boundary_node_elems[node_elem_i]->point(0) - boundary_node_elems[node_elem_j]->point(0)).norm();
+
+                    // We only want to consider non-coincident
+                    // boundary NodeElem pairs when determining the
+                    // minimum node separation distance.
+                    if (node_sep > 0.)
+                      {
+                        h_min = std::min(h_min, node_sep);
+                        h_min_updated = true;
+                      }
+                  } // end for (node_elem_j)
+            } // end minimum NodeElem separation scope
           } // end for (i)
       } // end scope
 
