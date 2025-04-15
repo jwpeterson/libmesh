@@ -1940,11 +1940,11 @@ UnstructuredMesh::stitching_helper (const MeshBase * other_mesh,
                                   h_min_updated = true;
                                 }
                             }
-                        }
-                    }
-              }
-          }
-      }
+                        } // end for (edge_id)
+                    } // end if (side == nullptr)
+              } // end for (el)
+          } // end for (i)
+      } // end scope
 
       if (verbose)
         {
