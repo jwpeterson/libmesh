@@ -2015,7 +2015,7 @@ UnstructuredMesh::stitching_helper (const MeshBase * other_mesh,
             }
           else
             {
-              libMesh::out << "No elements on specified surfaces." << std::endl;
+              libMesh::out << "No minimum edge length determined on specified surfaces." << std::endl;
             }
         }
 
