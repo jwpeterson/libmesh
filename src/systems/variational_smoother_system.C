@@ -105,8 +105,7 @@ void VariationalSmootherSystem::compute_element_reference_volume()
   // Must pre-request JxW before reinit() for efficiency in
   // --enable-deprecated builds, and to avoid errors in
   // --disable-deprecated builds.
-  const auto & fe_map = femcontext.get_element_fe(0)->get_fe_map();
-  const auto & JxW = fe_map.get_JxW();
+  const auto & JxW = femcontext.get_element_fe(0)->get_JxW();
 
   for (const auto * elem : mesh.active_local_element_ptr_range())
   {
@@ -142,12 +141,18 @@ void VariationalSmootherSystem::init_context(DiffContext & context)
   for (const auto & dim : elem_dims)
     {
       c.get_element_fe( 0, my_fe, dim );
+      my_fe->get_JxW();
+
       auto & fe_map = my_fe->get_fe_map();
 
       fe_map.get_dxyzdxi();
       fe_map.get_dxyzdeta();
       fe_map.get_dxyzdzeta();
       fe_map.get_JxW();
+
+      // Explicitly request "nothing" to be computed on the side FEs
+      c.get_side_fe(0, my_fe, dim);
+      my_fe->get_nothing();
     }
 
   FEMSystem::init_context(context);
