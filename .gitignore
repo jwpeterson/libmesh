@@ -86,6 +86,7 @@ include/libmesh_config.h
 include/libmesh_config.h.tmp
 include/stamp-h1
 
+build-aux/compile.orig
 autom4te.cache/
 config.cache
 
