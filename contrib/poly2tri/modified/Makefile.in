@@ -161,7 +161,7 @@ am__aclocal_m4_deps =  \
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(nobase_include_HEADERS) \
-	$(am__DIST_COMMON)
+	$(noinst_HEADERS) $(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/include/libmesh_config.h.tmp
 CONFIG_CLEAN_FILES =
@@ -412,7 +412,8 @@ am__uninstall_files_from_dir = { \
        $(am__cd) "$$dir" && echo $$files | $(am__xargs_n) 40 $(am__rm_f); }; \
   }
 am__installdirs = "$(DESTDIR)$(includedir)" "$(DESTDIR)$(includedir)"
-HEADERS = $(nobase_include_HEADERS) $(nodist_include_HEADERS)
+HEADERS = $(nobase_include_HEADERS) $(nodist_include_HEADERS) \
+	$(noinst_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -855,7 +856,7 @@ nobase_include_HEADERS = $(poly2tri_hfiles)
 
 # This is an automake variable that lists headers used by programs or
 # convenience libraries that should not be installed.
-# noinst_HEADERS =
+noinst_HEADERS = $(poly2tri_hfiles)
 
 # BUILD_SOURCES is an automake variable that is used to specify source
 # files that need to be generated early in the build process but are
