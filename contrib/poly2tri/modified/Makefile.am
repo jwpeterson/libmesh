@@ -30,30 +30,34 @@ include $(top_srcdir)/contrib/Make.common
 # copying them into the "contrib/poly2tri/modified" sub-directory of
 # the build directory. This is not an variable recognized by automake,
 # see BUILT_SOURCES below for that.
-poly2tri_headers = poly2tri/poly2tri.h \
-                   poly2tri/common/shapes.h \
-                   poly2tri/common/utils.h \
-                   poly2tri/sweep/advancing_front.h \
-                   poly2tri/sweep/cdt.h \
-                   poly2tri/sweep/sweep_context.h \
-                   poly2tri/sweep/sweep.h
+poly2tri_hfiles = poly2tri/poly2tri.h \
+                  poly2tri/common/shapes.h \
+                  poly2tri/common/utils.h \
+                  poly2tri/sweep/advancing_front.h \
+                  poly2tri/sweep/cdt.h \
+                  poly2tri/sweep/sweep_context.h \
+                  poly2tri/sweep/sweep.h
 
 # This is an automake variable which defines a list of header files
 # that are built and must not be distributed. [JWP] I think this refers
 # to files that should not be included in tar archives created by
 # "make dist" and is not related to installation.
-nodist_include_HEADERS = $(poly2tri_headers)
+nodist_include_HEADERS = $(poly2tri_hfiles)
 
 # This is an automake variable that tells what headers are installed.
 # The "nobase" prefix maintains the relative directory structure of
 # the headers when they are installed.
 # https://www.gnu.org/software//automake/manual/html_node/Headers.html
-nobase_include_HEADERS = $(poly2tri_headers)
+nobase_include_HEADERS = $(poly2tri_hfiles)
+
+# This is an automake variable that lists headers used by programs or
+# convenience libraries that should not be installed.
+# noinst_HEADERS =
 
 # BUILD_SOURCES is an automake variable that is used to specify source
 # files that need to be generated early in the build process but are
 # not compiled themselves into the final executable or library
-BUILT_SOURCES = $(poly2tri_headers)
+BUILT_SOURCES = $(poly2tri_hfiles)
 
 clean-local:
 	rm -f $(BUILT_SOURCES)
