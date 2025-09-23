@@ -44,6 +44,12 @@ poly2tri_headers = poly2tri/poly2tri.h \
 # "make dist" and is not related to installation.
 nodist_include_HEADERS = $(poly2tri_headers)
 
+# This is an automake variable that tells what headers are installed.
+# The "nobase" prefix maintains the relative directory structure of
+# the headers when they are installed.
+# https://www.gnu.org/software//automake/manual/html_node/Headers.html
+nobase_include_HEADERS = $(poly2tri_headers)
+
 # BUILD_SOURCES is an automake variable that is used to specify source
 # files that need to be generated early in the build process but are
 # not compiled themselves into the final executable or library
