@@ -52,7 +52,7 @@ nobase_include_HEADERS = $(poly2tri_hfiles)
 
 # This is an automake variable that lists headers used by programs or
 # convenience libraries that should not be installed.
-# noinst_HEADERS =
+noinst_HEADERS = $(poly2tri_hfiles)
 
 # BUILD_SOURCES is an automake variable that is used to specify source
 # files that need to be generated early in the build process but are
