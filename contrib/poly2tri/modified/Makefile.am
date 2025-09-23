@@ -41,8 +41,8 @@ poly2tri_hfiles = poly2tri/poly2tri.h \
 # This is an automake variable which defines a list of header files
 # that are built and must not be distributed. [JWP] I think this refers
 # to files that should not be included in tar archives created by
-# "make dist" and is not related to installation.
-nodist_include_HEADERS = $(poly2tri_hfiles)
+# "make dist" and is not supposed to be related to installation.
+# nodist_include_HEADERS = $(poly2tri_hfiles)
 
 # This is an automake variable that tells what headers are installed.
 # The "nobase" prefix maintains the relative directory structure of
