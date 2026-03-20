@@ -2003,18 +2003,17 @@ void MeshBase::detect_interior_parents()
           if (neighbors[n].empty())
             {
               // We have found an empty set for one vertex, no reason
-              // to continue.  Ensure the "found_interior_parents"
-              // flag is set to false before the break since it could
-              // have been set to true for previous vertices.
+              // to continue.
               found_interior_parents = false;
               break; // out of n-loop
             }
         }
 
-      // If we have successfully generated a set of elements for each vertex, we will compare
-      // the set for vertex 0 will the sets for the vertices until we find a id that exists in
-      // all sets.  If found, this is our an interior parent id.  The interior parent id found
-      // will be the lowest element id if there is potential for multiple interior parents.
+      // If we have generated a non-empty set of elements for each
+      // vertex, we will now look for a vertex_neighbor_id that
+      // appears _all_ of those sets.  If found, this is our interior
+      // parent id.  If multiple such common ids are found, we will
+      // take the lowest such id to be the interior parent id.
       if (found_interior_parents)
         {
           std::set<dof_id_type> & neighbors_0 = neighbors[0];
