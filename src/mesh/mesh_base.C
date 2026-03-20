@@ -1992,7 +1992,7 @@ void MeshBase::detect_interior_parents()
       // connected to all vertices of the current element.
       std::vector<std::set<dof_id_type>> neighbors( element->n_vertices() );
 
-      bool found_interior_parents = false;
+      bool found_interior_parents = true;
 
       for (auto n : make_range(element->n_vertices()))
         {
@@ -2008,11 +2008,6 @@ void MeshBase::detect_interior_parents()
               // have been set to true for previous vertices.
               found_interior_parents = false;
               break; // out of n-loop
-            }
-          else
-            {
-              // Found at least one vertex with attached dim+1 dimensional elements
-              found_interior_parents = true;
             }
         }
 
