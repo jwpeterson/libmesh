@@ -1942,6 +1942,8 @@ void MeshBase::sync_subdomain_name_map()
 
 void MeshBase::detect_interior_parents()
 {
+  LOG_SCOPE("detect_interior_parents()", "MeshBase");
+
   // This requires an inspection on every processor
   parallel_object_only();
 
