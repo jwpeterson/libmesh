@@ -1980,36 +1980,39 @@ void MeshBase::detect_interior_parents()
   // Automatically set interior parents
   for (const auto & element : this->element_ptr_range())
     {
-      // Ignore an 3D element or an element that already has an interior parent
+      // Ignore 3D elements and elements that already have an interior parent
       if (element->dim()>=LIBMESH_DIM || element->interior_parent())
         continue;
 
-      // Start by generating a SET of elements that are dim+1 to the current
-      // element at each vertex of the current element, thus ignoring interior nodes.
-      // If one of the SET of elements is empty, then we will not have an interior parent
-      // since an interior parent must be connected to all vertices of the current element
+      // Start by generating sets of dim+1 dimensional elements that
+      // touch each vertex of the current element.  If we encounter a
+      // vertex not connected to _any_ dim+1 dimensional elements,
+      // then we can exit the loop without checking the remaining
+      // vertices since an interior parent (if it exists) will be
+      // connected to all vertices of the current element.
       std::vector<std::set<dof_id_type>> neighbors( element->n_vertices() );
 
       bool found_interior_parents = false;
 
       for (auto n : make_range(element->n_vertices()))
         {
-          std::vector<dof_id_type> & element_ids = node_to_elem[element->node_id(n)];
-          for (const auto & eid : element_ids)
-            if (this->elem_ref(eid).dim() == element->dim()+1)
-              neighbors[n].insert(eid);
+          for (const auto & vertex_neighbor_id : node_to_elem[element->node_id(n)])
+            if (this->elem_ref(vertex_neighbor_id).dim() == element->dim()+1)
+              neighbors[n].insert(vertex_neighbor_id);
 
-          if (neighbors[n].size()>0)
+          if (neighbors[n].empty())
             {
-              found_interior_parents = true;
+              // We have found an empty set for one vertex, no reason
+              // to continue.  Ensure the "found_interior_parents"
+              // flag is set to false before the break since it could
+              // have been set to true for previous vertices.
+              found_interior_parents = false;
+              break; // out of n-loop
             }
           else
             {
-              // We have found an empty set, no reason to continue
-              // Ensure we set this flag to false before the break since it could have
-              // been set to true for previous vertex
-              found_interior_parents = false;
-              break;
+              // Found at least one vertex with attached dim+1 dimensional elements
+              found_interior_parents = true;
             }
         }
 
