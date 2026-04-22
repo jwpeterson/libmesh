@@ -1076,14 +1076,37 @@ void PetscVector<T>::create_subvector(NumericVector<T> & subvector,
           libmesh_assert(this->comm().verify(rows.size()));
           LibmeshPetscCall(VecCreateSeq(this->comm().get(), rows.size(), &(petsc_subvector->_vec)));
 
-          // You'd think we would create GHOSTED from GHOSTED, but we
-          // never have, and now there'd be downstream compatibility
-          // issues if we started even marking an effectively-serial
-          // subvector as GHOSTED.
+#ifdef LIBMESH_ENABLE_DEPRECATED
+          // In the past we always created PARALLEL subvectors from
+          // GHOSTED vectors, but this behavior must now be specified
+          // downstream when it's desired, by setting the subvector
+          // type in advance.
           petsc_subvector->_type = (this->type() == SERIAL) ? SERIAL : PARALLEL;
+
+          if (petsc_subvector->type() == AUTOMATIC && 
+              this->type() != petsc_subvector->type())
+            libmesh_deprecated();
+#else
+          // If the subvector already had a type, let's not change it.
+          // If it was just at the default AUTOMATIC, let's pick the
+          // true type from the supervector.
+          if (petsc_subvector->type() == AUTOMATIC)
+            petsc_subvector->_type = this->type();
+#endif
         }
       else
         {
+#ifndef LIBMESH_ENABLE_DEPRECATED
+          // We're only supporting PARALLEL subvectors in parallel
+          // so far, but we want to leave other possible API inputs
+          // marked as invalid so we can add support for other
+          // subvector types later.
+          if (petsc_subvector->type() != PARALLEL &&
+              (petsc_subvector->type() != AUTOMATIC ||
+               this->type() != PARALLEL))
+            libmesh_not_implemented_msg("Cannot yet create non-PARALLEL subvectors in parallel");
+#endif
+
           if (supplying_global_rows)
             // Initialize the petsc_subvector to have enough space to hold
             // the entries which will be scattered into it.  Note: such an
