@@ -1083,7 +1083,7 @@ void PetscVector<T>::create_subvector(NumericVector<T> & subvector,
           // type in advance.
           petsc_subvector->_type = (this->type() == SERIAL) ? SERIAL : PARALLEL;
 
-          if (petsc_subvector->type() == AUTOMATIC && 
+          if (petsc_subvector->type() == AUTOMATIC &&
               this->type() != petsc_subvector->type())
             libmesh_deprecated();
 #else
