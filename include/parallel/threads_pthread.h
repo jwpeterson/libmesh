@@ -211,10 +211,11 @@ private:
 };
 
 template <typename Range>
-unsigned int num_pthreads(Range & range)
+unsigned int num_pthreads(const Range & range,
+                          unsigned int requested = libMesh::n_threads())
 {
-  std::size_t min = std::min((std::size_t)libMesh::n_threads(), range.size());
-  return min > 0 ? cast_int<unsigned int>(min) : 1;
+  std::size_t mn = std::min((std::size_t)requested, range.size());
+  return mn > 0 ? cast_int<unsigned int>(mn) : 1;
 }
 
 template <typename Range, typename Body>
@@ -267,12 +268,16 @@ class split {};
  */
 template <typename Range, typename Body>
 inline
-void parallel_for (const Range & range, const Body & body)
+void parallel_for (const Range & range, const Body & body,
+                   unsigned int n_threads = libMesh::n_threads())
 {
+  libmesh_error_msg_if(n_threads > libMesh::n_threads(),
+                       "Requested n_threads (" << n_threads << ") exceeds the "
+                       "global thread count (" << libMesh::n_threads() << ").");
   Threads::BoolAcquire b(Threads::in_threads);
 
   // If we're running in serial - just run!
-  if (libMesh::n_threads() == 1)
+  if (n_threads == 1)
   {
     body(range);
     return;
@@ -280,23 +285,23 @@ void parallel_for (const Range & range, const Body & body)
 
   DisablePerfLogInScope disable_perf;
 
-  unsigned int n_threads = num_pthreads(range);
+  unsigned int actual_threads = num_pthreads(range, n_threads);
 
-  std::vector<std::unique_ptr<Range>> ranges(n_threads);
-  std::vector<RangeBody<const Range, const Body>> range_bodies(n_threads);
-  std::vector<pthread_t> threads(n_threads);
+  std::vector<std::unique_ptr<Range>> ranges(actual_threads);
+  std::vector<RangeBody<const Range, const Body>> range_bodies(actual_threads);
+  std::vector<pthread_t> threads(actual_threads);
 
   // Create the ranges for each thread
-  std::size_t range_size = range.size() / n_threads;
+  std::size_t range_size = range.size() / actual_threads;
 
   typename Range::const_iterator current_beginning = range.begin();
 
-  for (unsigned int i=0; i<n_threads; i++)
+  for (unsigned int i=0; i<actual_threads; i++)
     {
       std::size_t this_range_size = range_size;
 
-      if (i+1 == n_threads)
-        this_range_size += range.size() % n_threads; // Give the last one the remaining work to do
+      if (i+1 == actual_threads)
+        this_range_size += range.size() % actual_threads; // Give the last one the remaining work to do
 
       ranges[i] = std::make_unique<Range>(range, current_beginning, current_beginning + this_range_size);
 
@@ -304,7 +309,7 @@ void parallel_for (const Range & range, const Body & body)
     }
 
   // Create the RangeBody arguments
-  for (unsigned int i=0; i<n_threads; i++)
+  for (unsigned int i=0; i<actual_threads; i++)
     {
       range_bodies[i].range = ranges[i].get();
       range_bodies[i].body = &body;
@@ -317,7 +322,7 @@ void parallel_for (const Range & range, const Body & body)
 #ifdef LIBMESH_HAVE_OPENMP
 #pragma omp parallel for schedule (static)
 #endif
-  for (int i=0; i<static_cast<int>(n_threads); i++)
+  for (int i=0; i<static_cast<int>(actual_threads); i++)
     {
 #if !LIBMESH_HAVE_OPENMP
       pthread_create(&threads[i], nullptr, &run_body<Range, Body>, (void *)&range_bodies[i]);
@@ -335,7 +340,7 @@ void parallel_for (const Range & range, const Body & body)
   // reason has to do with signed vs. unsigned integer overflow
   // behavior and optimization.
   // http://blog.llvm.org/2011/05/what-every-c-programmer-should-know.html
-  for (int i=0; i<static_cast<int>(n_threads); i++)
+  for (int i=0; i<static_cast<int>(actual_threads); i++)
     pthread_join(threads[i], nullptr);
 #endif
 }
@@ -346,9 +351,10 @@ void parallel_for (const Range & range, const Body & body)
  */
 template <typename Range, typename Body, typename Partitioner>
 inline
-void parallel_for (const Range & range, const Body & body, const Partitioner &)
+void parallel_for (const Range & range, const Body & body, const Partitioner &,
+                   unsigned int n_threads = libMesh::n_threads())
 {
-  parallel_for (range, body);
+  parallel_for (range, body, n_threads);
 }
 
 /**
@@ -357,12 +363,16 @@ void parallel_for (const Range & range, const Body & body, const Partitioner &)
  */
 template <typename Range, typename Body>
 inline
-void parallel_reduce (const Range & range, Body & body)
+void parallel_reduce (const Range & range, Body & body,
+                      unsigned int n_threads = libMesh::n_threads())
 {
+  libmesh_error_msg_if(n_threads > libMesh::n_threads(),
+                       "Requested n_threads (" << n_threads << ") exceeds the "
+                       "global thread count (" << libMesh::n_threads() << ").");
   Threads::BoolAcquire b(Threads::in_threads);
 
   // If we're running in serial - just run!
-  if (libMesh::n_threads() == 1)
+  if (n_threads == 1)
   {
     body(range);
     return;
@@ -370,35 +380,35 @@ void parallel_reduce (const Range & range, Body & body)
 
   DisablePerfLogInScope disable_perf;
 
-  unsigned int n_threads = num_pthreads(range);
+  unsigned int actual_threads = num_pthreads(range, n_threads);
 
-  std::vector<std::unique_ptr<Range>> ranges(n_threads);
-  std::vector<std::unique_ptr<Body>> managed_bodies(n_threads); // bodies we are responsible for
-  std::vector<Body *> bodies(n_threads); // dumb pointers to managed_bodies
-  std::vector<RangeBody<Range, Body>> range_bodies(n_threads);
+  std::vector<std::unique_ptr<Range>> ranges(actual_threads);
+  std::vector<std::unique_ptr<Body>> managed_bodies(actual_threads); // bodies we are responsible for
+  std::vector<Body *> bodies(actual_threads); // dumb pointers to managed_bodies
+  std::vector<RangeBody<Range, Body>> range_bodies(actual_threads);
 
-  // Create n_threads-1 copies of "body". We manage the lifetime of
+  // Create actual_threads-1 copies of "body". We manage the lifetime of
   // these copies with std::unique_ptrs.
-  for (unsigned int i=1; i<n_threads; i++)
+  for (unsigned int i=1; i<actual_threads; i++)
     managed_bodies[i] = std::make_unique<Body>(body, Threads::split());
 
   // Set up the "bodies" vector. Use the passed in body for the first
   // one, point to managed_bodies entries for the others.
   bodies[0] = &body;
-  for (unsigned int i=1; i<n_threads; i++)
+  for (unsigned int i=1; i<actual_threads; i++)
     bodies[i] = managed_bodies[i].get();
 
   // Create the ranges for each thread
-  std::size_t range_size = range.size() / n_threads;
+  std::size_t range_size = range.size() / actual_threads;
 
   typename Range::const_iterator current_beginning = range.begin();
 
-  for (unsigned int i=0; i<n_threads; i++)
+  for (unsigned int i=0; i<actual_threads; i++)
     {
       std::size_t this_range_size = range_size;
 
-      if (i+1 == n_threads)
-        this_range_size += range.size() % n_threads; // Give the last one the remaining work to do
+      if (i+1 == actual_threads)
+        this_range_size += range.size() % actual_threads; // Give the last one the remaining work to do
 
       ranges[i] = std::make_unique<Range>(range, current_beginning, current_beginning + this_range_size);
 
@@ -406,14 +416,14 @@ void parallel_reduce (const Range & range, Body & body)
     }
 
   // Create the RangeBody arguments
-  for (unsigned int i=0; i<n_threads; i++)
+  for (unsigned int i=0; i<actual_threads; i++)
     {
       range_bodies[i].range = ranges[i].get();
       range_bodies[i].body = bodies[i];
     }
 
   // Create the threads
-  std::vector<pthread_t> threads(n_threads);
+  std::vector<pthread_t> threads(actual_threads);
 
   // It may seem redundant to wrap a pragma in #ifdefs... but GCC
   // warns about an "unknown pragma" if it encounters this line of
@@ -427,7 +437,7 @@ void parallel_reduce (const Range & range, Body & body)
   // reason has to do with signed vs. unsigned integer overflow
   // behavior and optimization.
   // http://blog.llvm.org/2011/05/what-every-c-programmer-should-know.html
-  for (int i=0; i<static_cast<int>(n_threads); i++)
+  for (int i=0; i<static_cast<int>(actual_threads); i++)
     {
 #if !LIBMESH_HAVE_OPENMP
       pthread_create(&threads[i], nullptr, &run_body<Range, Body>, (void *)&range_bodies[i]);
@@ -438,12 +448,12 @@ void parallel_reduce (const Range & range, Body & body)
 
 #if !LIBMESH_HAVE_OPENMP
   // Wait for them to finish
-  for (unsigned int i=0; i<n_threads; i++)
+  for (unsigned int i=0; i<actual_threads; i++)
     pthread_join(threads[i], nullptr);
 #endif
 
   // Join them all down to the original Body
-  for (unsigned int i=n_threads-1; i != 0; i--)
+  for (unsigned int i=actual_threads-1; i != 0; i--)
     bodies[i-1]->join(*bodies[i]);
 }
 
@@ -453,9 +463,10 @@ void parallel_reduce (const Range & range, Body & body)
  */
 template <typename Range, typename Body, typename Partitioner>
 inline
-void parallel_reduce (const Range & range, Body & body, const Partitioner &)
+void parallel_reduce (const Range & range, Body & body, const Partitioner &,
+                      unsigned int n_threads = libMesh::n_threads())
 {
-  parallel_reduce(range, body);
+  parallel_reduce(range, body, n_threads);
 }
 
 

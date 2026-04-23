@@ -49,6 +49,10 @@
   ((LIBMESH_DETECTED_TBB_VERSION_MAJOR < (major) ||                     \
     (LIBMESH_DETECTED_TBB_VERSION_MAJOR == (major) && (LIBMESH_DETECTED_TBB_VERSION_MINOR < (minor)))) ? 1 : 0)
 
+#if !TBB_VERSION_LESS_THAN(4,2)
+#  include "tbb/task_arena.h"
+#endif
+
 // Thread-Local-Storage macros
 #define LIBMESH_TLS_TYPE(type)  tbb::enumerable_thread_specific<type>
 #define LIBMESH_TLS_REF(value)  (value).local()
@@ -82,14 +86,29 @@ typedef tbb::split split;
  */
 template <typename Range, typename Body>
 inline
-void parallel_for (const Range & range, const Body & body)
+void parallel_for (const Range & range, const Body & body,
+                   unsigned int n_threads = libMesh::n_threads())
 {
+  libmesh_error_msg_if(n_threads > libMesh::n_threads(),
+                       "Requested n_threads (" << n_threads << ") exceeds the "
+                       "global thread count (" << libMesh::n_threads() << ").");
   BoolAcquire b(in_threads);
 
-  if (libMesh::n_threads() > 1)
+  if (n_threads > 1)
     {
       DisablePerfLogInScope disable_perf;
-      tbb::parallel_for (range, body, tbb::auto_partitioner());
+      if (n_threads == libMesh::n_threads())
+        tbb::parallel_for (range, body, tbb::auto_partitioner());
+      else
+        {
+#if !TBB_VERSION_LESS_THAN(4,2)
+          tbb::task_arena arena(static_cast<int>(n_threads));
+          arena.execute([&]{ tbb::parallel_for(range, body, tbb::auto_partitioner()); });
+#else
+          libmesh_error_msg("tbb::task_arena (required for per-call thread "
+                            "count control) was introduced in TBB 4.2.");
+#endif
+        }
     }
   else
     body(range);
@@ -103,14 +122,29 @@ void parallel_for (const Range & range, const Body & body)
  */
 template <typename Range, typename Body, typename Partitioner>
 inline
-void parallel_for (const Range & range, const Body & body, const Partitioner & partitioner)
+void parallel_for (const Range & range, const Body & body, const Partitioner & partitioner,
+                   unsigned int n_threads = libMesh::n_threads())
 {
+  libmesh_error_msg_if(n_threads > libMesh::n_threads(),
+                       "Requested n_threads (" << n_threads << ") exceeds the "
+                       "global thread count (" << libMesh::n_threads() << ").");
   BoolAcquire b(in_threads);
 
-  if (libMesh::n_threads() > 1)
+  if (n_threads > 1)
     {
       DisablePerfLogInScope disable_perf;
-      tbb::parallel_for (range, body, partitioner);
+      if (n_threads == libMesh::n_threads())
+        tbb::parallel_for (range, body, partitioner);
+      else
+        {
+#if !TBB_VERSION_LESS_THAN(4,2)
+          tbb::task_arena arena(static_cast<int>(n_threads));
+          arena.execute([&]{ tbb::parallel_for(range, body, partitioner); });
+#else
+          libmesh_error_msg("tbb::task_arena (required for per-call thread "
+                            "count control) was introduced in TBB 4.2.");
+#endif
+        }
     }
   else
     body(range);
@@ -124,14 +158,29 @@ void parallel_for (const Range & range, const Body & body, const Partitioner & p
  */
 template <typename Range, typename Body>
 inline
-void parallel_reduce (const Range & range, Body & body)
+void parallel_reduce (const Range & range, Body & body,
+                      unsigned int n_threads = libMesh::n_threads())
 {
+  libmesh_error_msg_if(n_threads > libMesh::n_threads(),
+                       "Requested n_threads (" << n_threads << ") exceeds the "
+                       "global thread count (" << libMesh::n_threads() << ").");
   BoolAcquire b(in_threads);
 
-  if (libMesh::n_threads() > 1)
+  if (n_threads > 1)
     {
       DisablePerfLogInScope disable_perf;
-      tbb::parallel_reduce (range, body, tbb::auto_partitioner());
+      if (n_threads == libMesh::n_threads())
+        tbb::parallel_reduce (range, body, tbb::auto_partitioner());
+      else
+        {
+#if !TBB_VERSION_LESS_THAN(4,2)
+          tbb::task_arena arena(static_cast<int>(n_threads));
+          arena.execute([&]{ tbb::parallel_reduce(range, body, tbb::auto_partitioner()); });
+#else
+          libmesh_error_msg("tbb::task_arena (required for per-call thread "
+                            "count control) was introduced in TBB 4.2.");
+#endif
+        }
     }
   else
     body(range);
@@ -145,14 +194,29 @@ void parallel_reduce (const Range & range, Body & body)
  */
 template <typename Range, typename Body, typename Partitioner>
 inline
-void parallel_reduce (const Range & range, Body & body, const Partitioner & partitioner)
+void parallel_reduce (const Range & range, Body & body, const Partitioner & partitioner,
+                      unsigned int n_threads = libMesh::n_threads())
 {
+  libmesh_error_msg_if(n_threads > libMesh::n_threads(),
+                       "Requested n_threads (" << n_threads << ") exceeds the "
+                       "global thread count (" << libMesh::n_threads() << ").");
   BoolAcquire b(in_threads);
 
-  if (libMesh::n_threads() > 1)
+  if (n_threads > 1)
     {
       DisablePerfLogInScope disable_perf;
-      tbb::parallel_reduce (range, body, partitioner);
+      if (n_threads == libMesh::n_threads())
+        tbb::parallel_reduce (range, body, partitioner);
+      else
+        {
+#if !TBB_VERSION_LESS_THAN(4,2)
+          tbb::task_arena arena(static_cast<int>(n_threads));
+          arena.execute([&]{ tbb::parallel_reduce(range, body, partitioner); });
+#else
+          libmesh_error_msg("tbb::task_arena (required for per-call thread "
+                            "count control) was introduced in TBB 4.2.");
+#endif
+        }
     }
   else
     body(range);

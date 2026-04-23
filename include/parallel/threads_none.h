@@ -70,8 +70,12 @@ class split {};
  */
 template <typename Range, typename Body>
 inline
-void parallel_for (const Range & range, const Body & body)
+void parallel_for (const Range & range, const Body & body,
+                   unsigned int n_threads = libMesh::n_threads())
 {
+  libmesh_error_msg_if(n_threads > libMesh::n_threads(),
+                       "Requested n_threads (" << n_threads << ") exceeds the "
+                       "global thread count (" << libMesh::n_threads() << ").");
   BoolAcquire b(in_threads);
   body(range);
 }
@@ -84,8 +88,12 @@ void parallel_for (const Range & range, const Body & body)
  */
 template <typename Range, typename Body, typename Partitioner>
 inline
-void parallel_for (const Range & range, const Body & body, const Partitioner &)
+void parallel_for (const Range & range, const Body & body, const Partitioner &,
+                   unsigned int n_threads = libMesh::n_threads())
 {
+  libmesh_error_msg_if(n_threads > libMesh::n_threads(),
+                       "Requested n_threads (" << n_threads << ") exceeds the "
+                       "global thread count (" << libMesh::n_threads() << ").");
   BoolAcquire b(in_threads);
   body(range);
 }
@@ -98,8 +106,12 @@ void parallel_for (const Range & range, const Body & body, const Partitioner &)
  */
 template <typename Range, typename Body>
 inline
-void parallel_reduce (const Range & range, Body & body)
+void parallel_reduce (const Range & range, Body & body,
+                      unsigned int n_threads = libMesh::n_threads())
 {
+  libmesh_error_msg_if(n_threads > libMesh::n_threads(),
+                       "Requested n_threads (" << n_threads << ") exceeds the "
+                       "global thread count (" << libMesh::n_threads() << ").");
   BoolAcquire b(in_threads);
   body(range);
 }
@@ -112,8 +124,12 @@ void parallel_reduce (const Range & range, Body & body)
  */
 template <typename Range, typename Body, typename Partitioner>
 inline
-void parallel_reduce (const Range & range, Body & body, const Partitioner &)
+void parallel_reduce (const Range & range, Body & body, const Partitioner &,
+                      unsigned int n_threads = libMesh::n_threads())
 {
+  libmesh_error_msg_if(n_threads > libMesh::n_threads(),
+                       "Requested n_threads (" << n_threads << ") exceeds the "
+                       "global thread count (" << libMesh::n_threads() << ").");
   BoolAcquire b(in_threads);
   body(range);
 }
