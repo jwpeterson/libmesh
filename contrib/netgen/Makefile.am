@@ -1,8 +1,14 @@
 if LIBMESH_ENABLE_NETGEN
 
+# Try to include Netgen files as depndencies; otherwise we can get
+# errors if we recompile from an existing libMesh build dir after a
+# Netgen header has changed or if we link from one after a Netgen ABI
+# has changed.
+include netgen_SOURCES
+
 # Use a stamp file to make sure we don't have multiple sub-$(MAKE)
 # going at once; cmake gets horribly confused if that happens.
-.buildstamp:
+.buildstamp: $(netgen_SOURCE_FILES)
 	$(MAKE) -C build $(AM_MAKEFLAGS)
 	touch .buildstamp
 
