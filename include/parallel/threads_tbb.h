@@ -262,6 +262,8 @@ void parallel_reduce (const Range & range, Body & body, const Partitioner & part
 /**
  * Spin mutex.  Implements mutual exclusion by busy-waiting in user
  * space for the lock to be acquired.
+ *
+ * tbb::spin_mutex (and its scoped_lock) is present in both legacy and oneTBB.
  */
 typedef tbb::spin_mutex spin_mutex;
 

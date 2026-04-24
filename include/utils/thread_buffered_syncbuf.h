@@ -22,12 +22,10 @@
 #include <string>
 #include <memory>
 
+#include "libmesh/threads_spin_mutex_forward.h"
+
 namespace libMesh
 {
-namespace Threads
-{
-class spin_mutex;
-}
 
 class ThreadBufferedSyncbuf : public std::streambuf
 {
