@@ -69,10 +69,6 @@
   ((LIBMESH_DETECTED_TBB_VERSION_MAJOR < (major) ||                     \
     (LIBMESH_DETECTED_TBB_VERSION_MAJOR == (major) && (LIBMESH_DETECTED_TBB_VERSION_MINOR < (minor)))) ? 1 : 0)
 
-#if !TBB_VERSION_LESS_THAN(4,2)
-#  include "tbb/task_arena.h"
-#endif
-
 // Thread-Local-Storage macros
 #define LIBMESH_TLS_TYPE(type)  tbb::enumerable_thread_specific<type>
 #define LIBMESH_TLS_REF(value)  (value).local()
@@ -160,13 +156,8 @@ void parallel_for (const Range & range, const Body & body,
         tbb::parallel_for (range, body, tbb::auto_partitioner());
       else
         {
-#if !TBB_VERSION_LESS_THAN(4,2)
           tbb::task_arena arena(static_cast<int>(n_threads));
           arena.execute([&]{ tbb::parallel_for(range, body, tbb::auto_partitioner()); });
-#else
-          libmesh_error_msg("tbb::task_arena (required for per-call thread "
-                            "count control) was introduced in TBB 4.2.");
-#endif
         }
     }
   else
@@ -196,13 +187,8 @@ void parallel_for (const Range & range, const Body & body, const Partitioner & p
         tbb::parallel_for (range, body, partitioner);
       else
         {
-#if !TBB_VERSION_LESS_THAN(4,2)
           tbb::task_arena arena(static_cast<int>(n_threads));
           arena.execute([&]{ tbb::parallel_for(range, body, partitioner); });
-#else
-          libmesh_error_msg("tbb::task_arena (required for per-call thread "
-                            "count control) was introduced in TBB 4.2.");
-#endif
         }
     }
   else
@@ -232,13 +218,8 @@ void parallel_reduce (const Range & range, Body & body,
         tbb::parallel_reduce (range, body, tbb::auto_partitioner());
       else
         {
-#if !TBB_VERSION_LESS_THAN(4,2)
           tbb::task_arena arena(static_cast<int>(n_threads));
           arena.execute([&]{ tbb::parallel_reduce(range, body, tbb::auto_partitioner()); });
-#else
-          libmesh_error_msg("tbb::task_arena (required for per-call thread "
-                            "count control) was introduced in TBB 4.2.");
-#endif
         }
     }
   else
@@ -268,13 +249,8 @@ void parallel_reduce (const Range & range, Body & body, const Partitioner & part
         tbb::parallel_reduce (range, body, partitioner);
       else
         {
-#if !TBB_VERSION_LESS_THAN(4,2)
           tbb::task_arena arena(static_cast<int>(n_threads));
           arena.execute([&]{ tbb::parallel_reduce(range, body, partitioner); });
-#else
-          libmesh_error_msg("tbb::task_arena (required for per-call thread "
-                            "count control) was introduced in TBB 4.2.");
-#endif
         }
     }
   else
