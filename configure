@@ -57353,11 +57353,22 @@ then :
 then :
   withtbb=/usr
 fi
-                  as_ac_Header=`printf "%s\n" "ac_cv_header_$withtbb/include/tbb/task_scheduler_init.h" | sed "$as_sed_sh"`
-ac_fn_cxx_check_header_compile "$LINENO" "$withtbb/include/tbb/task_scheduler_init.h" "$as_ac_Header" "$ac_includes_default"
-if eval test \"x\$"$as_ac_Header"\" = x"yes"
+
+                                                      case $withtbb in
+                    "~/"*) withtbb=$HOME${withtbb#"~"} ;;
+                  esac
+
+                                                                                          tbb_is_onetbb=no
+                  if test -r $withtbb/include/tbb/version.h
 then :
   TBB_INCLUDE_PATH=$withtbb/include
+                         tbb_is_onetbb=yes
+else case e in #(
+  e) if test -r $withtbb/include/tbb/tbb_stddef.h
+then :
+  TBB_INCLUDE_PATH=$withtbb/include
+fi ;;
+esac
 fi
 
                   if test "x$withtbblib" != "x"
@@ -57370,7 +57381,7 @@ fi
 
 fi
 
-          if test -r $TBB_INCLUDE_PATH/tbb/task_scheduler_init.h
+          if test "x$TBB_INCLUDE_PATH" != "x"
 then :
 
                   TBB_LIBRARY="-L$TBB_LIBS -ltbb -ltbbmalloc"
@@ -57381,8 +57392,15 @@ then :
   TBB_LIBRARY="${RPATHFLAG}${TBB_LIBS} $TBB_LIBRARY"
 fi
 
-                                                                        tbbmajor=`grep "define TBB_VERSION_MAJOR" $TBB_INCLUDE_PATH/tbb/tbb_stddef.h | sed -e "s/#define TBB_VERSION_MAJOR[ ]*//g"`
-                  tbbminor=`grep "define TBB_VERSION_MINOR" $TBB_INCLUDE_PATH/tbb/tbb_stddef.h | sed -e "s/#define TBB_VERSION_MINOR[ ]*//g"`
+                                                      if test "x$tbb_is_onetbb" = "xyes"
+then :
+  tbbverfile=$TBB_INCLUDE_PATH/tbb/version.h
+else case e in #(
+  e) tbbverfile=$TBB_INCLUDE_PATH/tbb/tbb_stddef.h ;;
+esac
+fi
+                  tbbmajor=`grep "define TBB_VERSION_MAJOR" $tbbverfile | sed -e "s/#define TBB_VERSION_MAJOR[ ]*//g"`
+                  tbbminor=`grep "define TBB_VERSION_MINOR" $tbbverfile | sed -e "s/#define TBB_VERSION_MINOR[ ]*//g"`
 
 else case e in #(
   e) enabletbb=no ;;
@@ -57392,8 +57410,8 @@ fi
                               if test "x$enabletbb" != "xno"
 then :
 
-                  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for tbb::tbb_thread support" >&5
-printf %s "checking for tbb::tbb_thread support... " >&6; }
+                  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for TBB support" >&5
+printf %s "checking for TBB support... " >&6; }
                   ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -57401,20 +57419,20 @@ ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ex
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
-                                    saveCXXFLAGS="$CXXFLAGS"
+                  saveCXXFLAGS="$CXXFLAGS"
                   CXXFLAGS="$saveCXXFLAGS $TBB_INCLUDE"
 
                   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-                      #include <tbb/tbb_thread.h>
+                      #include <tbb/blocked_range.h>
 
 int
 main (void)
 {
 
-                      tbb::tbb_thread t;
-                      t.join();
+                      tbb::blocked_range<int> r(0, 1);
+                      (void)r.size();
 
   ;
   return 0;
@@ -57437,8 +57455,7 @@ esac
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 
-                                    CXXFLAGS=$saveCXXFLAGS
-
+                  CXXFLAGS=$saveCXXFLAGS
                   ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -57457,6 +57474,13 @@ printf "%s\n" "#define DETECTED_TBB_VERSION_MAJOR $tbbmajor" >>confdefs.h
 
 printf "%s\n" "#define DETECTED_TBB_VERSION_MINOR $tbbminor" >>confdefs.h
 
+
+                  if test "x$tbb_is_onetbb" = "xyes"
+then :
+
+printf "%s\n" "#define HAVE_ONETBB 1" >>confdefs.h
+
+fi
 
 
 
