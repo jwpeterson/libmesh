@@ -27,11 +27,28 @@ AC_DEFUN([CONFIGURE_TBB],
           AS_IF([test "$withtbb" != no],
                 [
                   AS_IF([test "x$withtbb" = "x"], [withtbb=/usr])
-                  AC_CHECK_HEADER($withtbb/include/tbb/task_scheduler_init.h, TBB_INCLUDE_PATH=$withtbb/include)
+
+                  dnl Expand a leading ~ to $HOME so that --with-tbb=~/path works.
+                  dnl bash does not expand ~ after = in non-assignment arguments.
+                  case $withtbb in
+                    "~/"*) withtbb=$HOME${withtbb#"~"} ;;
+                  esac
+
+                  dnl Detect which TBB era we have.
+                  dnl oneTBB (>= 2021) ships tbb/version.h; legacy Intel TBB uses tbb/tbb_stddef.h.
+                  dnl tbb/version.h did not exist in the legacy releases, so its presence is a
+                  dnl reliable signal for oneTBB.
+                  tbb_is_onetbb=no
+                  AS_IF([test -r $withtbb/include/tbb/version.h],
+                        [TBB_INCLUDE_PATH=$withtbb/include
+                         tbb_is_onetbb=yes],
+                        [AS_IF([test -r $withtbb/include/tbb/tbb_stddef.h],
+                               [TBB_INCLUDE_PATH=$withtbb/include])])
+
                   AS_IF([test "x$withtbblib" != "x"], [TBB_LIBS=$withtbblib], [TBB_LIBS=$withtbb/lib])
                 ])
 
-          AS_IF([test -r $TBB_INCLUDE_PATH/tbb/task_scheduler_init.h],
+          AS_IF([test "x$TBB_INCLUDE_PATH" != "x"],
                 [
                   TBB_LIBRARY="-L$TBB_LIBS -ltbb -ltbbmalloc"
                   TBB_INCLUDE=-I$TBB_INCLUDE_PATH
@@ -39,31 +56,32 @@ AC_DEFUN([CONFIGURE_TBB],
                   dnl Add rpath flags to the link line.
                   AS_IF([test "x$RPATHFLAG" != "x" && test -d $TBB_LIBS], [TBB_LIBRARY="${RPATHFLAG}${TBB_LIBS} $TBB_LIBRARY"])
 
-                  dnl Extract TBB_VERSION_MAJOR and TBB_VERSION_MINOR from
-                  dnl tbb_stddef.h.  This will allow us to set up a
-                  dnl TBB_VERSION_LESS_THAN macro.
-                  tbbmajor=`grep "define TBB_VERSION_MAJOR" $TBB_INCLUDE_PATH/tbb/tbb_stddef.h | sed -e "s/#define TBB_VERSION_MAJOR[ ]*//g"`
-                  tbbminor=`grep "define TBB_VERSION_MINOR" $TBB_INCLUDE_PATH/tbb/tbb_stddef.h | sed -e "s/#define TBB_VERSION_MINOR[ ]*//g"`
+                  dnl Extract TBB_VERSION_MAJOR and TBB_VERSION_MINOR from the era-appropriate header.
+                  dnl oneTBB: tbb/version.h   Legacy TBB: tbb/tbb_stddef.h
+                  AS_IF([test "x$tbb_is_onetbb" = "xyes"],
+                        [tbbverfile=$TBB_INCLUDE_PATH/tbb/version.h],
+                        [tbbverfile=$TBB_INCLUDE_PATH/tbb/tbb_stddef.h])
+                  tbbmajor=`grep "define TBB_VERSION_MAJOR" $tbbverfile | sed -e "s/#define TBB_VERSION_MAJOR[ ]*//g"`
+                  tbbminor=`grep "define TBB_VERSION_MINOR" $tbbverfile | sed -e "s/#define TBB_VERSION_MINOR[ ]*//g"`
                 ],
                 [enabletbb=no])
 
-          dnl If TBB is still enabled at this point, make sure we can compile
-          dnl a test code which uses tbb::tbb_thread
+          dnl If TBB is still enabled, verify with a compile test.
+          dnl tbb::blocked_range is present in all TBB versions and works as a universal probe.
           AS_IF([test "x$enabletbb" != "xno"],
                 [
-                  AC_MSG_CHECKING(for tbb::tbb_thread support)
+                  AC_MSG_CHECKING(for TBB support)
                   AC_LANG_PUSH([C++])
 
-                  dnl Add TBB headers to CXXFLAGS, which will be used by AC_COMPILE_IFELSE.
                   saveCXXFLAGS="$CXXFLAGS"
                   CXXFLAGS="$saveCXXFLAGS $TBB_INCLUDE"
 
                   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([
-                      @%:@include <tbb/tbb_thread.h>
+                      @%:@include <tbb/blocked_range.h>
                     ],
                     [
-                      tbb::tbb_thread t;
-                      t.join();
+                      tbb::blocked_range<int> r(0, 1);
+                      (void)r.size();
                     ])],
                     [
                       AC_MSG_RESULT(yes)
@@ -74,9 +92,7 @@ AC_DEFUN([CONFIGURE_TBB],
                       enabletbb=no
                     ])
 
-                  dnl Restore original flags
                   CXXFLAGS=$saveCXXFLAGS
-
                   AC_LANG_POP([C++])
                 ])
 
@@ -86,6 +102,9 @@ AC_DEFUN([CONFIGURE_TBB],
                 [
                   AC_DEFINE_UNQUOTED(DETECTED_TBB_VERSION_MAJOR, [$tbbmajor], [TBB's major version number, as detected by tbb.m4])
                   AC_DEFINE_UNQUOTED(DETECTED_TBB_VERSION_MINOR, [$tbbminor], [TBB's minor version number, as detected by tbb.m4])
+
+                  AS_IF([test "x$tbb_is_onetbb" = "xyes"],
+                        [AC_DEFINE(HAVE_ONETBB, 1, [Defined if the installed TBB is oneTBB (>= 2021)])])
 
                   AC_SUBST(TBB_LIBRARY)
                   AC_SUBST(TBB_INCLUDE)

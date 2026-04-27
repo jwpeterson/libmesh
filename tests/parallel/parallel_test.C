@@ -1,10 +1,131 @@
 #include <libmesh/parallel.h>
+#include <libmesh/stored_range.h>
 
 #include "test_comm.h"
 #include "libmesh_cppunit.h"
 
+#include <atomic>
+#include <memory>
+#include <numeric>
+#include <set>
+#include <thread>
+
 
 using namespace libMesh;
+
+namespace {
+
+using TestRange = StoredRange<std::vector<unsigned int>::const_iterator, unsigned int>;
+
+// Shared helper state for the thread-subset tests. Each body records how many
+// subrange invocations happened, which thread ids executed them, and a few
+// simple aggregate checksums so we can verify every input value was visited.
+struct VisitTracker
+{
+  void record_invocation()
+  {
+    invocations.fetch_add(1, std::memory_order_relaxed);
+
+    Threads::spin_mutex::scoped_lock lock(mutex);
+    thread_ids.insert(std::this_thread::get_id());
+  }
+
+  void record_value(const unsigned int value)
+  {
+    value_count.fetch_add(1, std::memory_order_relaxed);
+    value_sum.fetch_add(value, std::memory_order_relaxed);
+    value_sum_sq.fetch_add(value * value, std::memory_order_relaxed);
+  }
+
+  std::size_t unique_thread_count() const
+  {
+    Threads::spin_mutex::scoped_lock lock(mutex);
+    return thread_ids.size();
+  }
+
+  mutable Threads::spin_mutex mutex;
+  std::set<std::thread::id> thread_ids;
+  std::atomic<unsigned int> invocations{0};
+  std::atomic<unsigned int> value_count{0};
+  std::atomic<unsigned int> value_sum{0};
+  std::atomic<unsigned int> value_sum_sq{0};
+};
+
+// Compare the aggregates collected by VisitTracker against the known test
+// input values. Using count/sum/sum-of-squares gives us a compact way to catch
+// dropped or duplicated work without depending on any particular scheduling.
+void assert_tracker_matches_values(const VisitTracker & tracker,
+                                   const std::vector<unsigned int> & values)
+{
+  unsigned int expected_sum = 0;
+  unsigned int expected_sum_sq = 0;
+
+  for (const auto value : values)
+    {
+      expected_sum += value;
+      expected_sum_sq += value * value;
+    }
+
+  CPPUNIT_ASSERT_EQUAL(static_cast<unsigned int>(values.size()),
+                       tracker.value_count.load(std::memory_order_relaxed));
+  CPPUNIT_ASSERT_EQUAL(expected_sum,
+                       tracker.value_sum.load(std::memory_order_relaxed));
+  CPPUNIT_ASSERT_EQUAL(expected_sum_sq,
+                       tracker.value_sum_sq.load(std::memory_order_relaxed));
+}
+
+struct ForBody
+{
+  explicit ForBody(VisitTracker & tracker_in) : tracker(tracker_in) {}
+
+  void operator()(const TestRange & range) const
+  {
+    tracker.record_invocation();
+
+    for (const auto value : range)
+      tracker.record_value(value);
+  }
+
+  VisitTracker & tracker;
+};
+
+struct ReduceBody
+{
+  explicit ReduceBody(std::shared_ptr<VisitTracker> tracker_in) :
+    tracker(std::move(tracker_in))
+  {}
+
+  ReduceBody(ReduceBody & other, Threads::split) :
+    tracker(other.tracker)
+  {}
+
+  void operator()(const TestRange & range)
+  {
+    tracker->record_invocation();
+
+    for (const auto value : range)
+      {
+        ++value_count;
+        value_sum += value;
+        value_sum_sq += value * value;
+        tracker->record_value(value);
+      }
+  }
+
+  void join(const ReduceBody & other)
+  {
+    value_count += other.value_count;
+    value_sum += other.value_sum;
+    value_sum_sq += other.value_sum_sq;
+  }
+
+  std::shared_ptr<VisitTracker> tracker;
+  unsigned int value_count = 0;
+  unsigned int value_sum = 0;
+  unsigned int value_sum_sq = 0;
+};
+
+} // anonymous namespace
 
 class ParallelTest : public CppUnit::TestCase {
 public:
@@ -36,6 +157,11 @@ public:
   CPPUNIT_TEST( testSendRecvVecVecs );
   CPPUNIT_TEST( testSemiVerify );
   CPPUNIT_TEST( testSplit );
+  CPPUNIT_TEST( testParallelForThreadSubset );
+  CPPUNIT_TEST( testParallelReduceThreadSubset );
+#if defined(LIBMESH_ENABLE_EXCEPTIONS)
+  CPPUNIT_TEST( testRequestedThreadCountExceedsGlobal );
+#endif
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -752,6 +878,77 @@ public:
     CPPUNIT_ASSERT(subcomm.size() >= 1);
     CPPUNIT_ASSERT(subcomm.size() <= TestCommWorld->size());
   }
+
+  void testParallelForThreadSubset ()
+  {
+    LOG_UNIT_TEST;
+
+    const unsigned int requested_threads =
+      (libMesh::n_threads() > 2) ? 2u : 1u;
+    std::vector<unsigned int> values(3);
+    std::iota(values.begin(), values.end(), 0u);
+    const TestRange range(values.cbegin(), values.cend());
+    VisitTracker tracker;
+
+    Threads::parallel_for(range, ForBody(tracker), requested_threads);
+
+    assert_tracker_matches_values(tracker, values);
+
+#ifdef LIBMESH_HAVE_PTHREAD
+    CPPUNIT_ASSERT_EQUAL(requested_threads,
+                         tracker.invocations.load(std::memory_order_relaxed));
+    CPPUNIT_ASSERT(tracker.unique_thread_count() <= requested_threads);
+#endif
+  }
+
+  void testParallelReduceThreadSubset ()
+  {
+    LOG_UNIT_TEST;
+
+    const unsigned int requested_threads =
+      (libMesh::n_threads() > 2) ? 2u : 1u;
+    std::vector<unsigned int> values(3);
+    std::iota(values.begin(), values.end(), 0u);
+    const TestRange range(values.cbegin(), values.cend());
+    auto tracker = std::make_shared<VisitTracker>();
+    ReduceBody body(tracker);
+
+    Threads::parallel_reduce(range, body, requested_threads);
+
+    assert_tracker_matches_values(*tracker, values);
+    CPPUNIT_ASSERT_EQUAL(static_cast<unsigned int>(values.size()), body.value_count);
+    CPPUNIT_ASSERT_EQUAL(tracker->value_sum.load(std::memory_order_relaxed), body.value_sum);
+    CPPUNIT_ASSERT_EQUAL(tracker->value_sum_sq.load(std::memory_order_relaxed), body.value_sum_sq);
+
+#ifdef LIBMESH_HAVE_PTHREAD
+    CPPUNIT_ASSERT_EQUAL(requested_threads,
+                         tracker->invocations.load(std::memory_order_relaxed));
+    CPPUNIT_ASSERT(tracker->unique_thread_count() <= requested_threads);
+#endif
+  }
+
+#if defined(LIBMESH_ENABLE_EXCEPTIONS)
+  void testRequestedThreadCountExceedsGlobal ()
+  {
+    LOG_UNIT_TEST;
+
+    std::vector<unsigned int> values(3);
+    std::iota(values.begin(), values.end(), 0u);
+    const TestRange range(values.cbegin(), values.cend());
+    VisitTracker for_tracker;
+    auto reduce_tracker = std::make_shared<VisitTracker>();
+    ReduceBody reduce_body(reduce_tracker);
+
+    CPPUNIT_ASSERT_THROW(Threads::parallel_for(range,
+                                               ForBody(for_tracker),
+                                               libMesh::n_threads() + 1u),
+                         libMesh::LogicError);
+    CPPUNIT_ASSERT_THROW(Threads::parallel_reduce(range,
+                                                  reduce_body,
+                                                  libMesh::n_threads() + 1u),
+                         libMesh::LogicError);
+  }
+#endif
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION( ParallelTest );
