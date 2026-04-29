@@ -112,7 +112,9 @@ Output AnalyticFunction<Output>::operator() (const Point & p,
                                              const Real time)
 {
   libmesh_assert(this->initialized());
-  libmesh_assert(_number_fptr);
+  libmesh_assert_msg(_number_fptr,
+                     "You must construct AnalyticFunction with a scalar-valued "
+                     "function in order to use this operator() override.");
   return (this->_number_fptr(p, time));
 }
 
@@ -125,7 +127,9 @@ void AnalyticFunction<Output>::operator() (const Point & p,
                                            DenseVector<Output> & output)
 {
   libmesh_assert(this->initialized());
-  libmesh_assert(_vector_fptr);
+  libmesh_assert_msg(_vector_fptr,
+                     "You must construct AnalyticFunction with a vector-valued "
+                     "function in order to use this operator() override.");
   this->_vector_fptr(output, p, time);
   return;
 }
