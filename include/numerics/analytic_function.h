@@ -111,7 +111,8 @@ inline
 Output AnalyticFunction<Output>::operator() (const Point & p,
                                              const Real time)
 {
-  libmesh_assert (this->initialized());
+  libmesh_assert(this->initialized());
+  libmesh_assert(_number_fptr);
   return (this->_number_fptr(p, time));
 }
 
@@ -123,7 +124,8 @@ void AnalyticFunction<Output>::operator() (const Point & p,
                                            const Real time,
                                            DenseVector<Output> & output)
 {
-  libmesh_assert (this->initialized());
+  libmesh_assert(this->initialized());
+  libmesh_assert(_vector_fptr);
   this->_vector_fptr(output, p, time);
   return;
 }
